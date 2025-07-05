@@ -1,0 +1,20 @@
+# GitHub Copilot
+.config/github-copilot/
+
+# System configs
+.config/dconf/user
+.config/htop/htoprc
+.config/user-dirs.dirs
+.config/user-dirs.locale
+.config/pulse/cookie
+.config/systemd/user/
+.config/menus/
+
+# Go telemetry
+.config/go/
+
+# Btop
+.config/btop/
+
+# VS Code - exclude everything except settings
+.config/Code/
