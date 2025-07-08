@@ -1,4 +1,4 @@
-import "../../Common"
+import "../../Decorations/"
 import QtQuick
 import Quickshell
 import Quickshell.Io

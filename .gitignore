@@ -17,4 +17,4 @@
 .config/btop/
 
 # VS Code - exclude everything except settings
-.config/Code/
+h.config/Code/

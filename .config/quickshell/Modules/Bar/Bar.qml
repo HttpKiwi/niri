@@ -86,10 +86,6 @@ PanelWindow {
                     `, workspaceRoot);
                         }
                     }
-
-                    // Debugging output (optional)
-                    // Component.onCompleted: console.log("Workspace", modelData.idx, "created")
-                    // onIsActiveChanged: console.log("Workspace", modelData.idx, "active:", isActive)
                 }
             }
         }
@@ -104,6 +100,9 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
             }
             Time {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Volume {
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
