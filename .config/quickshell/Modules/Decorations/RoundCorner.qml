@@ -1,57 +1,68 @@
-import QtQuick 2.9
+import QtQuick
+import QtQuick.Shapes
+import Quickshell
 
 Item {
     id: root
 
-    property int size: 12
+    property int size: 32
     property color color: "#000000"
-    property QtObject cornerEnum
-
-    cornerEnum: QtObject {
-        property int topLeft: 0
-        property int topRight: 1
-        property int bottomLeft: 2
-        property int bottomRight: 3
+    
+    property QtObject cornerEnum: QtObject {
+        readonly property int topLeft: 0
+        readonly property int topRight: 1
+        readonly property int bottomLeft: 2
+        readonly property int bottomRight: 3
     }
 
-    property int corner: cornerEnum.topLeft // Default to TopLeft
+    property int corner: topLeft // Default to TopLeft
 
-    onColorChanged: {
-        canvas.requestPaint();
-    }
-    width: size
-    height: size
-    Canvas {
-        id: canvas
-
-        anchors.fill: parent
-        antialiasing: true
-        onPaint: {
-            var ctx = getContext("2d");
-            var r = root.size;
-            ctx.beginPath();
-            switch (root.corner) {
-            case cornerEnum.topLeft:
-                ctx.arc(r, r, r, Math.PI, 3 * Math.PI / 2);
-                ctx.lineTo(0, 0);
-                break;
-            case cornerEnum.topRight:
-                ctx.arc(0, r, r, 3 * Math.PI / 2, 2 * Math.PI);
-                ctx.lineTo(r, 0);
-                break;
-            case cornerEnum.bottomLeft:
-                ctx.arc(r, 0, r, Math.PI / 2, Math.PI);
-                ctx.lineTo(0, r);
-                break;
-            case cornerEnum.bottomRight:
-                ctx.arc(0, 0, r, 0, Math.PI / 2);
-                ctx.lineTo(r, r);
-                break;
-            }
-            ctx.closePath();
-            ctx.fillStyle = root.color;
-            ctx.fill();
+    // Internal property to calculate rotation angle based on corner
+    property real rotationAngle: {
+        switch (corner) {
+        case cornerEnum.topLeft:
+            return 90
+        case cornerEnum.topRight:
+            return 180
+        case cornerEnum.bottomRight:
+            return 270
+        case cornerEnum.bottomLeft:
+            return 0
+        default:
+            return 0
         }
     }
 
+    width: size
+    height: size
+
+    Shape {
+        id: shape
+        asynchronous: true
+        fillMode: Shape.PreserveAspectFit
+        preferredRendererType: Shape.CurveRenderer
+        anchors.fill: parent
+
+        ShapePath {
+            startX: 0
+            startY: 0
+            strokeWidth: -1
+            fillColor: root.color
+
+            PathLine { x: 0; y: root.height }
+            PathLine { x: root.width; y: root.height }
+            PathArc { 
+                x: 0
+                y: 0
+                radiusX: root.size
+                radiusY: root.size
+            }
+        }
+
+        transform: Rotation {
+            origin.x: shape.width / 2
+            origin.y: shape.height / 2
+            angle: root.rotationAngle
+        }
+    }
 }
