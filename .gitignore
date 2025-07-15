@@ -18,3 +18,927 @@
 
 # VS Code - exclude everything except settings
 h.config/Code/
+.config/Code/*
+.config/Code/.org.chromium.Chromium.HiHEJj
+.config/Code/.org.chromium.Chromium.ISBahU
+.config/Code/.org.chromium.Chromium.OmI875
+.config/Code/code.lock
+.config/Code/Cookies
+.config/Code/Cookies-journal
+.config/Code/DIPS
+.config/Code/DIPS-shm
+.config/Code/DIPS-wal
+.config/Code/languagepacks.json
+.config/Code/machineid
+.config/Code/Network Persistent State
+.config/Code/Preferences
+.config/Code/SharedStorage
+.config/Code/SharedStorage-wal
+.config/Code/TransportSecurity
+.config/Code/Trust Tokens
+.config/Code/Trust Tokens-journal
+.config/Code/Backups/99dce48b46677699aef675d10cc814bf/file/-8c9dc99
+.config/Code/Cache/Cache_Data/0a119229eed42458_0
+.config/Code/Cache/Cache_Data/0c1e6c0313e2d22b_0
+.config/Code/Cache/Cache_Data/1d4a42cae38f67a7_0
+.config/Code/Cache/Cache_Data/1eea51213d3f9a1c_0
+.config/Code/Cache/Cache_Data/2a024db1d10fc58f_0
+.config/Code/Cache/Cache_Data/2ab912b544a7e912_0
+.config/Code/Cache/Cache_Data/2ad494f4ee7a042b_0
+.config/Code/Cache/Cache_Data/3aa5278fab426818_0
+.config/Code/Cache/Cache_Data/03c83842162ae556_0
+.config/Code/Cache/Cache_Data/3d9f4d8c90ad856e_0
+.config/Code/Cache/Cache_Data/3e246d94c257e29a_0
+.config/Code/Cache/Cache_Data/3eacdf6a0e785f86_0
+.config/Code/Cache/Cache_Data/4dcaf2fad2646440_0
+.config/Code/Cache/Cache_Data/5d17730f45eb98c4_0
+.config/Code/Cache/Cache_Data/6ad190a445b44cdb_0
+.config/Code/Cache/Cache_Data/06dbbcaa834f0ada_0
+.config/Code/Cache/Cache_Data/6fde492d71dca5d7_0
+.config/Code/Cache/Cache_Data/7eb5801b1b982352_0
+.config/Code/Cache/Cache_Data/8a381d9b38c0cef5_0
+.config/Code/Cache/Cache_Data/8ad9c136840d892e_0
+.config/Code/Cache/Cache_Data/8bb26c3401129893_0
+.config/Code/Cache/Cache_Data/8c3bdb6322bf3359_0
+.config/Code/Cache/Cache_Data/08d838133fab1090_0
+.config/Code/Cache/Cache_Data/9a7b397dbfaf59ac_0
+.config/Code/Cache/Cache_Data/9f50bddbd978eddd_0
+.config/Code/Cache/Cache_Data/10f2e74429d27b9e_0
+.config/Code/Cache/Cache_Data/014ee23fe2ffeba9_0
+.config/Code/Cache/Cache_Data/29b64fba0585f61c_0
+.config/Code/Cache/Cache_Data/30bfb77195186b23_0
+.config/Code/Cache/Cache_Data/33aa62294baeefbe_0
+.config/Code/Cache/Cache_Data/35f0585db0819fb6_0
+.config/Code/Cache/Cache_Data/43ca40815cc094c9_0
+.config/Code/Cache/Cache_Data/46bb1f9467877496_0
+.config/Code/Cache/Cache_Data/61d56b689151691f_0
+.config/Code/Cache/Cache_Data/62bb2f8be183df90_0
+.config/Code/Cache/Cache_Data/76e48e3c2353281a_0
+.config/Code/Cache/Cache_Data/82bb5423725e472d_0
+.config/Code/Cache/Cache_Data/84a7e3650678d7c3_0
+.config/Code/Cache/Cache_Data/92abe263692eb645_0
+.config/Code/Cache/Cache_Data/96a0ed6d7bba85b8_0
+.config/Code/Cache/Cache_Data/98ee5227a8b374cb_0
+.config/Code/Cache/Cache_Data/107db7a5bdd9c18a_0
+.config/Code/Cache/Cache_Data/0273ef4d9c12bf1b_0
+.config/Code/Cache/Cache_Data/314c8c49383ea253_0
+.config/Code/Cache/Cache_Data/0333c0d119d2c40b_0
+.config/Code/Cache/Cache_Data/736dac082d93e237_0
+.config/Code/Cache/Cache_Data/897a2e3f224f364d_0
+.config/Code/Cache/Cache_Data/914b8e3c779ce6e6_0
+.config/Code/Cache/Cache_Data/914b428b1eaec063_0
+.config/Code/Cache/Cache_Data/1821c26c9a9e399c_0
+.config/Code/Cache/Cache_Data/02234ee5cfaf825e_0
+.config/Code/Cache/Cache_Data/2350c1d948f6c0f6_0
+.config/Code/Cache/Cache_Data/3186af18df9e92a4_0
+.config/Code/Cache/Cache_Data/4227d02486160af8_0
+.config/Code/Cache/Cache_Data/5283edf90cf4ab50_0
+.config/Code/Cache/Cache_Data/5410c5783cac4585_0
+.config/Code/Cache/Cache_Data/6949f2e3461f85e5_0
+.config/Code/Cache/Cache_Data/8678b3818d2d78ac_0
+.config/Code/Cache/Cache_Data/9629d7c69e8ad3fb_0
+.config/Code/Cache/Cache_Data/9892c59651027296_0
+.config/Code/Cache/Cache_Data/35673be8395b0b22_0
+.config/Code/Cache/Cache_Data/44257af881c5487a_0
+.config/Code/Cache/Cache_Data/59095cc8aaa86d9e_0
+.config/Code/Cache/Cache_Data/65900bc5c61b0a6e_0
+.config/Code/Cache/Cache_Data/72422f25b64a8205_0
+.config/Code/Cache/Cache_Data/94244d8632f09d06_0
+.config/Code/Cache/Cache_Data/172767a344cd515d_0
+.config/Code/Cache/Cache_Data/1994243ed5e5641b_0
+.config/Code/Cache/Cache_Data/4281984fc032d880_0
+.config/Code/Cache/Cache_Data/4682297c6afe27cf_0
+.config/Code/Cache/Cache_Data/a8fa0841679ef0e3_0
+.config/Code/Cache/Cache_Data/a45bd626d44a19ea_0
+.config/Code/Cache/Cache_Data/a469c17f2f35c617_0
+.config/Code/Cache/Cache_Data/ab30455e2820cc2a_0
+.config/Code/Cache/Cache_Data/ad0f7470c6542bc9_0
+.config/Code/Cache/Cache_Data/af3f9759d70722d0_0
+.config/Code/Cache/Cache_Data/b1bdb4f85955103e_0
+.config/Code/Cache/Cache_Data/b6bdcf1d103c43b3_0
+.config/Code/Cache/Cache_Data/b82aa7a0d0e68e10_0
+.config/Code/Cache/Cache_Data/b82c097b26d2e9cb_0
+.config/Code/Cache/Cache_Data/be9d55b301a62d05_0
+.config/Code/Cache/Cache_Data/c6a4efbca0f329b8_0
+.config/Code/Cache/Cache_Data/c6bb1776f94c8558_0
+.config/Code/Cache/Cache_Data/c3151b06ce56bf1e_0
+.config/Code/Cache/Cache_Data/cdc58607f508192e_0
+.config/Code/Cache/Cache_Data/cf954a672d1d1e71_0
+.config/Code/Cache/Cache_Data/d3b0bfa6ac7467e2_0
+.config/Code/Cache/Cache_Data/d9ac63d2219981e6_0
+.config/Code/Cache/Cache_Data/d14dcf82df0f6251_0
+.config/Code/Cache/Cache_Data/d20ffa38a09bd2a4_0
+.config/Code/Cache/Cache_Data/d458baa9c307db2f_0
+.config/Code/Cache/Cache_Data/db5c1603441c1b71_0
+.config/Code/Cache/Cache_Data/dc2ee7c5e0316a5f_0
+.config/Code/Cache/Cache_Data/e2c2fda4d7d443ae_0
+.config/Code/Cache/Cache_Data/e3bff4aba1d5e3ba_0
+.config/Code/Cache/Cache_Data/edac71b53f460cd7_0
+.config/Code/Cache/Cache_Data/f4dd42696b84bd22_0
+.config/Code/Cache/Cache_Data/f9fa1aad10ac2e93_0
+.config/Code/Cache/Cache_Data/f405c4ee49580683_0
+.config/Code/Cache/Cache_Data/fe28ba3dd8e41c4c_0
+.config/Code/Cache/Cache_Data/index
+.config/Code/Cache/Cache_Data/index-dir/the-real-index
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/0f8ca223e736446e_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/1fa93dad425cdb6f_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/4e8de1b29bc0f2cb_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/4fdd3a3eceada445_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/8d94c17fba81064b_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/9efd80ca052b6852_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/23e9f4bd4ba29d85_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/44e46eff57d069fb_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/44f1d749b9472861_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/79d10c48d220d256_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/306f00b1fb2e8f53_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/381f08fa808cbada_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/824bbaf88099755f_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/1062e0428397e737_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/9813c3bb6dfea3f6_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/a3d41b5b85b1dc3c_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/a4e173335a1ced27_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/ad772035a2aaf929_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/ba29cf8ebd652d94_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/e6661f6b5d4490f7_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/eb7cc2b1cb4b67fb_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/f4e098b3ab7bdef2_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/f346b5fa24a5e1dd_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/fd36d3bed199713b_0
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/index
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/js/index-dir/the-real-index
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/wasm/index
+.config/Code/CachedData/18e3a1ec544e6907be1e944a94c496e302073435/chrome/wasm/index-dir/the-real-index
+.config/Code/CachedExtensionVSIXs/bbenoist.qml-1.0.0
+.config/Code/CachedExtensionVSIXs/github.copilot-1.341.0
+.config/Code/CachedExtensionVSIXs/github.copilot-1.342.0
+.config/Code/CachedExtensionVSIXs/github.copilot-chat-0.28.5
+.config/Code/CachedExtensionVSIXs/github.copilot-chat-0.29.0
+.config/Code/CachedExtensionVSIXs/ms-python.debugpy-2025.8.0-linux-x64
+.config/Code/CachedExtensionVSIXs/ms-python.python-2025.8.1-linux-x64
+.config/Code/CachedExtensionVSIXs/ms-python.vscode-pylance-2025.6.2
+.config/Code/CachedExtensionVSIXs/theqtcompany.qt-core-1.6.0
+.config/Code/CachedExtensionVSIXs/theqtcompany.qt-qml-1.6.0
+.config/Code/CachedExtensionVSIXs/.trash/github.copilot-1.342.0.sigzip
+.config/Code/CachedExtensionVSIXs/.trash/github.copilot-chat-0.29.0.sigzip
+.config/Code/CachedProfilesData/__default__profile__/extensions.builtin.cache
+.config/Code/Code Cache/js/index
+.config/Code/Code Cache/js/index-dir/the-real-index
+.config/Code/Code Cache/wasm/index
+.config/Code/Code Cache/wasm/index-dir/the-real-index
+.config/Code/Crashpad/client_id
+.config/Code/Crashpad/settings.dat
+.config/Code/Crashpad/completed/3df3ac14-2748-49a6-8df4-6cceeb4ba13b.dmp
+.config/Code/Crashpad/completed/3df3ac14-2748-49a6-8df4-6cceeb4ba13b.meta
+.config/Code/Crashpad/completed/3300f82a-047e-4307-83b9-354cf8b61295.dmp
+.config/Code/Crashpad/completed/3300f82a-047e-4307-83b9-354cf8b61295.meta
+.config/Code/Crashpad/completed/4414a245-0635-44c9-b625-8b10f72927b8.dmp
+.config/Code/Crashpad/completed/4414a245-0635-44c9-b625-8b10f72927b8.meta
+.config/Code/Crashpad/completed/9101b37a-cb95-4ae5-bd76-2a169e164c50.dmp
+.config/Code/Crashpad/completed/9101b37a-cb95-4ae5-bd76-2a169e164c50.meta
+.config/Code/Crashpad/completed/15056780-b0cf-4749-a49e-f1e73045f926.dmp
+.config/Code/Crashpad/completed/15056780-b0cf-4749-a49e-f1e73045f926.meta
+.config/Code/Crashpad/completed/ae3d053b-5acc-4d15-b4d9-737e49a65277.dmp
+.config/Code/Crashpad/completed/ae3d053b-5acc-4d15-b4d9-737e49a65277.meta
+.config/Code/Crashpad/completed/d8fe5198-05ec-4d90-b37e-91fdfd5e1238.dmp
+.config/Code/Crashpad/completed/d8fe5198-05ec-4d90-b37e-91fdfd5e1238.meta
+.config/Code/Crashpad/completed/d271cf1e-54ad-4593-a817-64686d2afdb7.dmp
+.config/Code/Crashpad/completed/d271cf1e-54ad-4593-a817-64686d2afdb7.meta
+.config/Code/Crashpad/completed/f31e7587-f3d1-454e-a57e-407a83c9296b.dmp
+.config/Code/Crashpad/completed/f31e7587-f3d1-454e-a57e-407a83c9296b.meta
+.config/Code/DawnGraphiteCache/data_0
+.config/Code/DawnGraphiteCache/data_1
+.config/Code/DawnGraphiteCache/data_2
+.config/Code/DawnGraphiteCache/data_3
+.config/Code/DawnGraphiteCache/index
+.config/Code/DawnWebGPUCache/data_0
+.config/Code/DawnWebGPUCache/data_1
+.config/Code/DawnWebGPUCache/data_2
+.config/Code/DawnWebGPUCache/data_3
+.config/Code/DawnWebGPUCache/index
+.config/Code/Dictionaries/en-US-10-1.bdic
+.config/Code/GPUCache/data_0
+.config/Code/GPUCache/data_1
+.config/Code/GPUCache/data_2
+.config/Code/GPUCache/data_3
+.config/Code/GPUCache/index
+.config/Code/Local Storage/leveldb/000003.log
+.config/Code/Local Storage/leveldb/CURRENT
+.config/Code/Local Storage/leveldb/LOCK
+.config/Code/Local Storage/leveldb/LOG
+.config/Code/Local Storage/leveldb/LOG.old
+.config/Code/Local Storage/leveldb/MANIFEST-000001
+.config/Code/Session Storage/000003.log
+.config/Code/Session Storage/CURRENT
+.config/Code/Session Storage/LOCK
+.config/Code/Session Storage/LOG
+.config/Code/Session Storage/LOG.old
+.config/Code/Session Storage/MANIFEST-000001
+.config/Code/Shared Dictionary/db
+.config/Code/Shared Dictionary/db-journal
+.config/Code/Shared Dictionary/cache/index
+.config/Code/Shared Dictionary/cache/index-dir/the-real-index
+.config/Code/User/settings.json
+.config/Code/User/History/-146d5362/brLF.json
+.config/Code/User/History/-146d5362/entries.json
+.config/Code/User/History/-21dfc787/1Iyb.qml
+.config/Code/User/History/-21dfc787/4uOJ.qml
+.config/Code/User/History/-21dfc787/8i22.qml
+.config/Code/User/History/-21dfc787/8K8g.qml
+.config/Code/User/History/-21dfc787/CEBL.qml
+.config/Code/User/History/-21dfc787/entries.json
+.config/Code/User/History/-21dfc787/EZXK.qml
+.config/Code/User/History/-21dfc787/GhdN.qml
+.config/Code/User/History/-21dfc787/GpbZ.qml
+.config/Code/User/History/-21dfc787/i9mt.qml
+.config/Code/User/History/-21dfc787/IbPd.qml
+.config/Code/User/History/-21dfc787/IR0d.qml
+.config/Code/User/History/-21dfc787/l9vO.qml
+.config/Code/User/History/-21dfc787/lIou.qml
+.config/Code/User/History/-21dfc787/NPLb.qml
+.config/Code/User/History/-21dfc787/qAUN.qml
+.config/Code/User/History/-21dfc787/qn2O.qml
+.config/Code/User/History/-21dfc787/tX1K.qml
+.config/Code/User/History/-21dfc787/u4sb.qml
+.config/Code/User/History/-21dfc787/VeFE.qml
+.config/Code/User/History/-21dfc787/wDh6.qml
+.config/Code/User/History/-21dfc787/WsTm.qml
+.config/Code/User/History/-21dfc787/yVBh.qml
+.config/Code/User/History/-2af3f251/52px.md
+.config/Code/User/History/-2af3f251/entries.json
+.config/Code/User/History/-2e23f799/e4vS.qml
+.config/Code/User/History/-2e23f799/entries.json
+.config/Code/User/History/-2e23f799/M2TX.qml
+.config/Code/User/History/-2ecb7435/entries.json
+.config/Code/User/History/-2ecb7435/T5FC.lua
+.config/Code/User/History/-3019f3b5/0fu3.py
+.config/Code/User/History/-3019f3b5/1FD1.py
+.config/Code/User/History/-3019f3b5/3wv4.py
+.config/Code/User/History/-3019f3b5/8i2n.py
+.config/Code/User/History/-3019f3b5/B4Xl.py
+.config/Code/User/History/-3019f3b5/cdbN.py
+.config/Code/User/History/-3019f3b5/E7ez.py
+.config/Code/User/History/-3019f3b5/entries.json
+.config/Code/User/History/-3019f3b5/fcVj.py
+.config/Code/User/History/-3019f3b5/mnaX.py
+.config/Code/User/History/-3019f3b5/OVeM.py
+.config/Code/User/History/-3019f3b5/tTZ6.py
+.config/Code/User/History/-3019f3b5/Whno.py
+.config/Code/User/History/-3019f3b5/yyOg.py
+.config/Code/User/History/-3019f3b5/Zpw1.py
+.config/Code/User/History/-3a6438b7/8ITx.qml
+.config/Code/User/History/-3a6438b7/entries.json
+.config/Code/User/History/-3a6438b7/Eulj.qml
+.config/Code/User/History/-3a6438b7/tt8m.qml
+.config/Code/User/History/-3bf77a49/entries.json
+.config/Code/User/History/-3bf77a49/fYhB.md
+.config/Code/User/History/-3f8485ab/1KCk.qml
+.config/Code/User/History/-3f8485ab/entries.json
+.config/Code/User/History/-46384249/0XB7.md
+.config/Code/User/History/-46384249/2Xsg.md
+.config/Code/User/History/-46384249/C8mo.md
+.config/Code/User/History/-46384249/cacT.md
+.config/Code/User/History/-46384249/entries.json
+.config/Code/User/History/-46384249/obvJ.md
+.config/Code/User/History/-46384249/SPpB.md
+.config/Code/User/History/-497c7726/1tbc.md
+.config/Code/User/History/-497c7726/entries.json
+.config/Code/User/History/-4a1fb19b/1IY8.qml
+.config/Code/User/History/-4a1fb19b/1lFm.qml
+.config/Code/User/History/-4a1fb19b/1mz8.qml
+.config/Code/User/History/-4a1fb19b/2mCQ.qml
+.config/Code/User/History/-4a1fb19b/3Cd2.qml
+.config/Code/User/History/-4a1fb19b/19yC.qml
+.config/Code/User/History/-4a1fb19b/56Ex.qml
+.config/Code/User/History/-4a1fb19b/b32c.qml
+.config/Code/User/History/-4a1fb19b/BRWL.qml
+.config/Code/User/History/-4a1fb19b/entries.json
+.config/Code/User/History/-4a1fb19b/FAbO.qml
+.config/Code/User/History/-4a1fb19b/HBMg.qml
+.config/Code/User/History/-4a1fb19b/iatF.qml
+.config/Code/User/History/-4a1fb19b/iRt6.qml
+.config/Code/User/History/-4a1fb19b/KAog.qml
+.config/Code/User/History/-4a1fb19b/LBAe.qml
+.config/Code/User/History/-4a1fb19b/nEUS.qml
+.config/Code/User/History/-4a1fb19b/Qt4U.qml
+.config/Code/User/History/-4a1fb19b/sAgZ.qml
+.config/Code/User/History/-4a1fb19b/SGDY.qml
+.config/Code/User/History/-4a1fb19b/svmI.qml
+.config/Code/User/History/-4a1fb19b/t9k3.qml
+.config/Code/User/History/-4a1fb19b/Tz1L.qml
+.config/Code/User/History/-4a1fb19b/UkJq.qml
+.config/Code/User/History/-4a1fb19b/Wcq4.qml
+.config/Code/User/History/-4a1fb19b/WOvr.qml
+.config/Code/User/History/-4a1fb19b/YbHy.qml
+.config/Code/User/History/-4a1fb19b/yWED.qml
+.config/Code/User/History/-5e14efa6/79QU.lua
+.config/Code/User/History/-5e14efa6/B8o0.lua
+.config/Code/User/History/-5e14efa6/entries.json
+.config/Code/User/History/-5e14efa6/SiYR.lua
+.config/Code/User/History/-5e14efa6/USdi.lua
+.config/Code/User/History/-5e14efa6/ziK2.lua
+.config/Code/User/History/-62e0939a/entries.json
+.config/Code/User/History/-62e0939a/SCKd
+.config/Code/User/History/-62e0939a/urAY
+.config/Code/User/History/-6a0fb0be/9gZ8
+.config/Code/User/History/-6a0fb0be/A3ip
+.config/Code/User/History/-6a0fb0be/entries.json
+.config/Code/User/History/-6a0fb0be/GHdU
+.config/Code/User/History/-6a0fb0be/iqta
+.config/Code/User/History/-6f327936/bupY.lua
+.config/Code/User/History/-6f327936/entries.json
+.config/Code/User/History/-73ff0b5c/20V8.lua
+.config/Code/User/History/-73ff0b5c/Df36.lua
+.config/Code/User/History/-73ff0b5c/entries.json
+.config/Code/User/History/-73ff0b5c/RFN8.lua
+.config/Code/User/History/-7b00f444/entries.json
+.config/Code/User/History/-7b00f444/Jq5i.sh
+.config/Code/User/History/-7b00f444/mteb.sh
+.config/Code/User/History/-7ce4cbf4/AtS3
+.config/Code/User/History/-7ce4cbf4/entries.json
+.config/Code/User/History/-7ce4cbf4/Hf0Z
+.config/Code/User/History/-7e16be63/0Eo3.qml
+.config/Code/User/History/-7e16be63/5Nh9.qml
+.config/Code/User/History/-7e16be63/A9Dc.qml
+.config/Code/User/History/-7e16be63/Bilg.qml
+.config/Code/User/History/-7e16be63/e31P.qml
+.config/Code/User/History/-7e16be63/entries.json
+.config/Code/User/History/-7e16be63/fSk9.qml
+.config/Code/User/History/-7e16be63/hV8b.qml
+.config/Code/User/History/-7e16be63/I5VU.qml
+.config/Code/User/History/-7e16be63/IIxD.qml
+.config/Code/User/History/-7e16be63/jdiP.qml
+.config/Code/User/History/-7e16be63/jSvO.qml
+.config/Code/User/History/-7e16be63/laKe.qml
+.config/Code/User/History/-7e16be63/M789.qml
+.config/Code/User/History/-7e16be63/Of6b.qml
+.config/Code/User/History/-7e16be63/RrEc.qml
+.config/Code/User/History/-7e16be63/t9Av.qml
+.config/Code/User/History/-7e16be63/Wyj4.qml
+.config/Code/User/History/-7e16be63/yFCB.qml
+.config/Code/User/History/-7e16be63/yhAj.qml
+.config/Code/User/History/-7e16be63/ypYK.qml
+.config/Code/User/History/-7e16be63/yV5t.qml
+.config/Code/User/History/-7e16be63/Yx4a.qml
+.config/Code/User/History/15c82400/entries.json
+.config/Code/User/History/15c82400/tXKB.sh
+.config/Code/User/History/1b125818/DM49.lua
+.config/Code/User/History/1b125818/entries.json
+.config/Code/User/History/1b125818/SFuA.lua
+.config/Code/User/History/1f9e3e6/1f6z.qml
+.config/Code/User/History/1f9e3e6/1uh6.qml
+.config/Code/User/History/1f9e3e6/3s7Y.qml
+.config/Code/User/History/1f9e3e6/4Sq1.qml
+.config/Code/User/History/1f9e3e6/9LIq.qml
+.config/Code/User/History/1f9e3e6/9Trh.qml
+.config/Code/User/History/1f9e3e6/68Ou.qml
+.config/Code/User/History/1f9e3e6/AkpR.qml
+.config/Code/User/History/1f9e3e6/CUeF.qml
+.config/Code/User/History/1f9e3e6/DfwO.qml
+.config/Code/User/History/1f9e3e6/dTj0.qml
+.config/Code/User/History/1f9e3e6/E3Bu.qml
+.config/Code/User/History/1f9e3e6/ek9z.qml
+.config/Code/User/History/1f9e3e6/entries.json
+.config/Code/User/History/1f9e3e6/fftE.qml
+.config/Code/User/History/1f9e3e6/fjvO.qml
+.config/Code/User/History/1f9e3e6/FUrW.qml
+.config/Code/User/History/1f9e3e6/gkh2.qml
+.config/Code/User/History/1f9e3e6/HrSN.qml
+.config/Code/User/History/1f9e3e6/hUVT.qml
+.config/Code/User/History/1f9e3e6/hY6H.qml
+.config/Code/User/History/1f9e3e6/iJhy.qml
+.config/Code/User/History/1f9e3e6/j6No.qml
+.config/Code/User/History/1f9e3e6/jaLO.qml
+.config/Code/User/History/1f9e3e6/jolJ.qml
+.config/Code/User/History/1f9e3e6/jXKH.qml
+.config/Code/User/History/1f9e3e6/LqMO.qml
+.config/Code/User/History/1f9e3e6/lvEp.qml
+.config/Code/User/History/1f9e3e6/nkXO.qml
+.config/Code/User/History/1f9e3e6/NMZR.qml
+.config/Code/User/History/1f9e3e6/O13h.qml
+.config/Code/User/History/1f9e3e6/Pecq.qml
+.config/Code/User/History/1f9e3e6/pFKo.qml
+.config/Code/User/History/1f9e3e6/s5pD.qml
+.config/Code/User/History/1f9e3e6/tNnN.qml
+.config/Code/User/History/1f9e3e6/tqgy.qml
+.config/Code/User/History/1f9e3e6/tt0D.qml
+.config/Code/User/History/1f9e3e6/UHP9.qml
+.config/Code/User/History/1f9e3e6/UU6i.qml
+.config/Code/User/History/1f9e3e6/WsZh.qml
+.config/Code/User/History/1f9e3e6/xEFl.qml
+.config/Code/User/History/1f9e3e6/XegK.qml
+.config/Code/User/History/24979293/8HQv.lua
+.config/Code/User/History/24979293/9znj.lua
+.config/Code/User/History/24979293/entries.json
+.config/Code/User/History/252c7dad/entries.json
+.config/Code/User/History/252c7dad/gNsU
+.config/Code/User/History/252c7dad/oUqp
+.config/Code/User/History/256ceb8/0SpJ.qml
+.config/Code/User/History/256ceb8/6Mlp.qml
+.config/Code/User/History/256ceb8/7yIu.qml
+.config/Code/User/History/256ceb8/48My.qml
+.config/Code/User/History/256ceb8/brUd.qml
+.config/Code/User/History/256ceb8/entries.json
+.config/Code/User/History/256ceb8/fUGA.qml
+.config/Code/User/History/256ceb8/pri9.qml
+.config/Code/User/History/256ceb8/U0Ia.qml
+.config/Code/User/History/256ceb8/wQe9.qml
+.config/Code/User/History/256ceb8/wTE9.qml
+.config/Code/User/History/256ceb8/xOZv.qml
+.config/Code/User/History/2f41fdc7/entries.json
+.config/Code/User/History/2f41fdc7/IFo9.json
+.config/Code/User/History/2f41fdc7/LVDs.json
+.config/Code/User/History/3734da05/bbTT.lua
+.config/Code/User/History/3734da05/entries.json
+.config/Code/User/History/3a8a5d28/17hV.qml
+.config/Code/User/History/3a8a5d28/entries.json
+.config/Code/User/History/3c88b4cf/2o4F.sh
+.config/Code/User/History/3c88b4cf/9owU.sh
+.config/Code/User/History/3c88b4cf/entries.json
+.config/Code/User/History/436047d0/3hXI.qml
+.config/Code/User/History/436047d0/3KEK.qml
+.config/Code/User/History/436047d0/3x2v.qml
+.config/Code/User/History/436047d0/4QkF.qml
+.config/Code/User/History/436047d0/5fKo.qml
+.config/Code/User/History/436047d0/6FTc.qml
+.config/Code/User/History/436047d0/8sEI.qml
+.config/Code/User/History/436047d0/028d.qml
+.config/Code/User/History/436047d0/56ud.qml
+.config/Code/User/History/436047d0/A0Dr.qml
+.config/Code/User/History/436047d0/ajBk.qml
+.config/Code/User/History/436047d0/CJ3N.qml
+.config/Code/User/History/436047d0/DmMv.qml
+.config/Code/User/History/436047d0/EEVj.qml
+.config/Code/User/History/436047d0/entries.json
+.config/Code/User/History/436047d0/G5ls.qml
+.config/Code/User/History/436047d0/JMF5.qml
+.config/Code/User/History/436047d0/rugN.qml
+.config/Code/User/History/436047d0/tEZU.qml
+.config/Code/User/History/436047d0/vRUF.qml
+.config/Code/User/History/436047d0/z8cv.qml
+.config/Code/User/History/56530bdf/0s64.qml
+.config/Code/User/History/56530bdf/85cI.qml
+.config/Code/User/History/56530bdf/afh0.qml
+.config/Code/User/History/56530bdf/entries.json
+.config/Code/User/History/56530bdf/FM0u.qml
+.config/Code/User/History/56530bdf/JWxz.qml
+.config/Code/User/History/56530bdf/LaPE.qml
+.config/Code/User/History/56530bdf/TwsB.qml
+.config/Code/User/History/56530bdf/U9X6.qml
+.config/Code/User/History/56530bdf/YKKd.qml
+.config/Code/User/History/5b69a0/0TPV.lua
+.config/Code/User/History/5b69a0/1MkK.lua
+.config/Code/User/History/5b69a0/1YDc.lua
+.config/Code/User/History/5b69a0/AMxH.lua
+.config/Code/User/History/5b69a0/ApGx.lua
+.config/Code/User/History/5b69a0/DXVN.lua
+.config/Code/User/History/5b69a0/edup.lua
+.config/Code/User/History/5b69a0/entries.json
+.config/Code/User/History/5b69a0/f6bc.lua
+.config/Code/User/History/5b69a0/hPM4.lua
+.config/Code/User/History/5b69a0/iChY.lua
+.config/Code/User/History/5b69a0/j3vq.lua
+.config/Code/User/History/5b69a0/jEse.lua
+.config/Code/User/History/5b69a0/Juk4.lua
+.config/Code/User/History/5b69a0/NriJ.lua
+.config/Code/User/History/5b69a0/uBD4.lua
+.config/Code/User/History/5b69a0/utJj.lua
+.config/Code/User/History/5b69a0/ZImM.lua
+.config/Code/User/History/5b69a0/ZP56.lua
+.config/Code/User/History/5e67b82c/dqCO.qml
+.config/Code/User/History/5e67b82c/entries.json
+.config/Code/User/History/652da619/blpK.sh
+.config/Code/User/History/652da619/entries.json
+.config/Code/User/History/7331716a/0wYO
+.config/Code/User/History/7331716a/6so9
+.config/Code/User/History/7331716a/8JUx
+.config/Code/User/History/7331716a/Dvhp
+.config/Code/User/History/7331716a/entries.json
+.config/Code/User/History/7331716a/FwTK
+.config/Code/User/History/7331716a/H4MB
+.config/Code/User/History/7331716a/nQeg
+.config/Code/User/History/7331716a/PiNG
+.config/Code/User/History/7331716a/z8Dp
+.config/Code/User/History/7331716a/ZwEl
+.config/Code/User/History/7500affa/entries.json
+.config/Code/User/History/7500affa/G306.qml
+.config/Code/User/History/7500affa/ZBGx.qml
+.config/Code/User/History/75609e40/entries.json
+.config/Code/User/History/75609e40/lOec.md
+.config/Code/User/History/75609e40/MmEf.md
+.config/Code/User/History/75609e40/mwBo.md
+.config/Code/User/globalStorage/state.vscdb
+.config/Code/User/globalStorage/state.vscdb.backup
+.config/Code/User/globalStorage/storage.json
+.config/Code/User/globalStorage/github.copilot-chat/commandEmbeddings.json
+.config/Code/User/globalStorage/github.copilot-chat/debugCommand/copilot-debug
+.config/Code/User/globalStorage/github.copilot-chat/debugCommand/copilotDebugCommand.js
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/state.vscdb
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/state.vscdb.backup
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/workspace.json
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/state.json
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/1cb008f
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/1db9839
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/2ddedf7
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/4a49910
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/5aeb489
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/5d7cfb4
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/5d37d34
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/5ff6b34
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/6ddc344
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/9a4795e
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/9a97433
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/09e6f9e
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/14af54b
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/14da786
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/24c1644
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/26afd4d
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/027f1da
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/73d5e9d
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/79d3587
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/90bf4ab
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/194f7a9
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/632a523
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/669f04f
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/837c5e0
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/1507abe
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/4450d91
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/18736d7
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/77545e2
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/148941f
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/1245052
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/bc52332
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/c69a982
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/c159837
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/d0ceef0
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/d6c7174
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/d7c3f69
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/d7713d1
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/da39a3e
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/dc753ec
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/e84ace6
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/e11032c
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/e763329
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/ee3a776
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/ee791a3
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/f1ed839
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/f9762e8
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/fa7b40c
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/fb794ec
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatEditingSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef/contents/ff2a843
+.config/Code/User/workspaceStorage/34660af1a50decb15945c2175e0132db/chatSessions/c63c4c5f-e773-42f6-8cf0-facd3a2afeef.json
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/state.vscdb
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/state.vscdb.backup
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/workspace.json
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/GitHub.copilot-chat/workspace-chunks.json
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/state.json
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/602ca1d
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/836cde8
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/7574a2f
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/7791a11
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/ceb2d70
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/da39a3e
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatEditingSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b/contents/f36d6c1
+.config/Code/User/workspaceStorage/752e6771215a0615900d2accc9f51e94/chatSessions/391d9a72-3452-49ff-a062-8ee3b7620f5b.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/state.vscdb
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/state.vscdb.backup
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/workspace.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/GitHub.copilot-chat/local-index.1.db
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/GitHub.copilot-chat/workspace-chunks.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/state.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/0a15a46
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/1adf365
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/1bcbe7b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/1c8b7d0
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/1f5ca5d
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/1f88096
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/2e220af
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/3a1e6d5
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/3f6161e
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/4eef5c8
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/4f2dde1
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/5e15ff9
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/5fd73ff
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/6c2d7e5
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/7ec99b9
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/9b9fd18
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/9e80f2b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/10c910e
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/018c40d
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/46d38e9
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/47f0408
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/75f0f0b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/81fd694
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/172adbd
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/424a63a
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/660f122
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/0679b8d
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/841e614
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/4760da8
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/04995bf
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/33985ac
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/47627db
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/700582f
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/874867b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/9794174
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/a8b9798
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/a9d4432
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/b07f9b4
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/b8af693
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/b8de3fa
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/bba92c8
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/be0884a
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/c6b3d86
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/c48f3a2
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/c93db37
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/cb15cca
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/cb33a2b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/d0b98f5
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/da39a3e
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/df726ad
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/e40f318
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/ea3315c
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/eec4974
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/effa614
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/f7c2cc0
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8/contents/f37919f
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/363d277f-540e-4066-b729-bd1ba5170737/state.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/state.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/1ffc47b
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/004c936
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/6e3e951
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/6fa8b38
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/7bf0b85
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/8c5dad6
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/9b9fd18
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/18a5714
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/561cf64
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/87780fa
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/5729110
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/b1f0815
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/cc8237a
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatEditingSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed/contents/da39a3e
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatSessions/7ceaea1f-8159-4cf0-8099-0dbf4a8742ed.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatSessions/363d277f-540e-4066-b729-bd1ba5170737.json
+.config/Code/User/workspaceStorage/adfbbe2776032f52343c0cbe5d862076/chatSessions/28834f08-86a9-46ce-9d73-ef0d7157e4c8.json
+.config/Code/logs/20250702T182008/editSessions.log
+.config/Code/logs/20250702T182008/main.log
+.config/Code/logs/20250702T182008/network-shared.log
+.config/Code/logs/20250702T182008/remoteTunnelService.log
+.config/Code/logs/20250702T182008/sharedprocess.log
+.config/Code/logs/20250702T182008/telemetry.log
+.config/Code/logs/20250702T182008/terminal.log
+.config/Code/logs/20250702T182008/userDataSync.log
+.config/Code/logs/20250702T182008/window1/network.log
+.config/Code/logs/20250702T182008/window1/notebook.rendering.log
+.config/Code/logs/20250702T182008/window1/renderer.log
+.config/Code/logs/20250702T182008/window1/views.log
+.config/Code/logs/20250702T182008/window1/exthost/exthost.log
+.config/Code/logs/20250702T182008/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250702T182008/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250702T182008/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250702T182008/window1/exthost/output_logging_20250702T182011/1-QML Language Server - .config.log
+.config/Code/logs/20250702T182008/window1/exthost/output_logging_20250702T182011/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250702T182008/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250702T182008/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250702T182008/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250702T182008/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250702T182008/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250702T182008/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250702T182008/window1/output_20250702T182011/tasks.log
+.config/Code/logs/20250705T164458/main.log
+.config/Code/logs/20250705T164502/editSessions.log
+.config/Code/logs/20250705T164502/main.log
+.config/Code/logs/20250705T164502/network-shared.log
+.config/Code/logs/20250705T164502/remoteTunnelService.log
+.config/Code/logs/20250705T164502/sharedprocess.log
+.config/Code/logs/20250705T164502/telemetry.log
+.config/Code/logs/20250705T164502/terminal.log
+.config/Code/logs/20250705T164502/userDataSync.log
+.config/Code/logs/20250705T164502/window1/network.log
+.config/Code/logs/20250705T164502/window1/notebook.rendering.log
+.config/Code/logs/20250705T164502/window1/renderer.log
+.config/Code/logs/20250705T164502/window1/views.log
+.config/Code/logs/20250705T164502/window1/exthost/exthost.log
+.config/Code/logs/20250705T164502/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250705T164502/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250705T164502/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250705T164502/window1/exthost/output_logging_20250705T164506/1-QML Language Server - .config.log
+.config/Code/logs/20250705T164502/window1/exthost/output_logging_20250705T164506/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250705T164502/window1/exthost/output_logging_20250705T165010/1-QML Language Server - quickshell.log
+.config/Code/logs/20250705T164502/window1/exthost/output_logging_20250705T165010/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250705T164502/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250705T164502/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250705T164502/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250705T164502/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250705T164502/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250705T164502/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250705T164502/window1/output_20250705T164507/tasks.log
+.config/Code/logs/20250705T164502/window1/output_20250705T165009/tasks.log
+.config/Code/logs/20250705T170628/editSessions.log
+.config/Code/logs/20250705T170628/main.log
+.config/Code/logs/20250705T170628/network-shared.log
+.config/Code/logs/20250705T170628/ptyhost.log
+.config/Code/logs/20250705T170628/remoteTunnelService.log
+.config/Code/logs/20250705T170628/sharedprocess.log
+.config/Code/logs/20250705T170628/telemetry.log
+.config/Code/logs/20250705T170628/terminal.log
+.config/Code/logs/20250705T170628/userDataSync.log
+.config/Code/logs/20250705T170628/window1/network.log
+.config/Code/logs/20250705T170628/window1/notebook.rendering.log
+.config/Code/logs/20250705T170628/window1/renderer.log
+.config/Code/logs/20250705T170628/window1/views.log
+.config/Code/logs/20250705T170628/window1/exthost/exthost.log
+.config/Code/logs/20250705T170628/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250705T170628/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250705T170628/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250705T170628/window1/exthost/output_logging_20250705T170633/1-QML Language Server - quickshell.log
+.config/Code/logs/20250705T170628/window1/exthost/output_logging_20250705T170633/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250705T170628/window1/exthost/output_logging_20250705T181248/1-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250705T170628/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250705T170628/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250705T170628/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250705T170628/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250705T170628/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250705T170628/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250705T170628/window1/output_20250705T170633/tasks.log
+.config/Code/logs/20250705T170628/window1/output_20250705T181248/tasks.log
+.config/Code/logs/20250707T193509/editSessions.log
+.config/Code/logs/20250707T193509/main.log
+.config/Code/logs/20250707T193509/network-shared.log
+.config/Code/logs/20250707T193509/remoteTunnelService.log
+.config/Code/logs/20250707T193509/sharedprocess.log
+.config/Code/logs/20250707T193509/telemetry.log
+.config/Code/logs/20250707T193509/terminal.log
+.config/Code/logs/20250707T193509/userDataSync.log
+.config/Code/logs/20250707T193509/window1/network.log
+.config/Code/logs/20250707T193509/window1/notebook.rendering.log
+.config/Code/logs/20250707T193509/window1/renderer.log
+.config/Code/logs/20250707T193509/window1/views.log
+.config/Code/logs/20250707T193509/window1/exthost/exthost.log
+.config/Code/logs/20250707T193509/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250707T193509/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250707T193509/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250707T193509/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250707T193509/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250707T193509/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250707T193509/window1/output_20250707T193514/tasks.log
+.config/Code/logs/20250707T193509/window2/network.log
+.config/Code/logs/20250707T193509/window2/notebook.rendering.log
+.config/Code/logs/20250707T193509/window2/renderer.log
+.config/Code/logs/20250707T193509/window2/views.log
+.config/Code/logs/20250707T193509/window2/exthost/exthost.log
+.config/Code/logs/20250707T193509/window2/exthost/extHostTelemetry.log
+.config/Code/logs/20250707T193509/window2/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250707T193509/window2/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250707T193509/window2/exthost/output_logging_20250707T194141/1-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250707T193509/window2/exthost/vscode.git/Git.log
+.config/Code/logs/20250707T193509/window2/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250707T193509/window2/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250707T193509/window2/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250707T193509/window2/output_20250707T194141/tasks.log
+.config/Code/logs/20250708T104535/main.log
+.config/Code/logs/20250708T104535/network-shared.log
+.config/Code/logs/20250708T104535/remoteTunnelService.log
+.config/Code/logs/20250708T104535/sharedprocess.log
+.config/Code/logs/20250708T104535/telemetry.log
+.config/Code/logs/20250708T104535/terminal.log
+.config/Code/logs/20250708T104535/userDataSync.log
+.config/Code/logs/20250708T104535/window1/network.log
+.config/Code/logs/20250708T104535/window1/renderer.log
+.config/Code/logs/20250708T104535/window1/views.log
+.config/Code/logs/20250708T104541/editSessions.log
+.config/Code/logs/20250708T104541/main.log
+.config/Code/logs/20250708T104541/network-shared.log
+.config/Code/logs/20250708T104541/ptyhost.log
+.config/Code/logs/20250708T104541/remoteTunnelService.log
+.config/Code/logs/20250708T104541/sharedprocess.log
+.config/Code/logs/20250708T104541/telemetry.log
+.config/Code/logs/20250708T104541/terminal.log
+.config/Code/logs/20250708T104541/userDataSync.log
+.config/Code/logs/20250708T104541/window1/network.log
+.config/Code/logs/20250708T104541/window1/notebook.rendering.log
+.config/Code/logs/20250708T104541/window1/renderer.log
+.config/Code/logs/20250708T104541/window1/views.log
+.config/Code/logs/20250708T104541/window1/exthost/exthost.log
+.config/Code/logs/20250708T104541/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250708T104541/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250708T104541/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T104544/1-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T104544/2-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T111745/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T111745/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T111939/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T111939/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T112504/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T104541/window1/exthost/output_logging_20250708T112504/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T104541/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250708T104541/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250708T104541/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250708T104541/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250708T104541/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250708T104541/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250708T104541/window1/exthost/vscode.markdown-language-features/Markdown.log
+.config/Code/logs/20250708T104541/window1/exthost/webWorker/workerexthost.log
+.config/Code/logs/20250708T104541/window1/exthost/webWorker/workerExtHostTelemetry.log
+.config/Code/logs/20250708T104541/window1/output_20250708T104545/tasks.log
+.config/Code/logs/20250708T104541/window2/network.log
+.config/Code/logs/20250708T104541/window2/notebook.rendering.log
+.config/Code/logs/20250708T104541/window2/renderer.log
+.config/Code/logs/20250708T104541/window2/views.log
+.config/Code/logs/20250708T104541/window2/exthost/exthost.log
+.config/Code/logs/20250708T104541/window2/exthost/extHostTelemetry.log
+.config/Code/logs/20250708T104541/window2/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250708T104541/window2/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250708T104541/window2/exthost/output_logging_20250708T113842/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T104541/window2/exthost/output_logging_20250708T113842/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T104541/window2/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250708T104541/window2/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250708T104541/window2/exthost/vscode.git/Git.log
+.config/Code/logs/20250708T104541/window2/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250708T104541/window2/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250708T104541/window2/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250708T104541/window2/output_20250708T113842/tasks.log
+.config/Code/logs/20250708T123902/editSessions.log
+.config/Code/logs/20250708T123902/main.log
+.config/Code/logs/20250708T123902/network-shared.log
+.config/Code/logs/20250708T123902/ptyhost.log
+.config/Code/logs/20250708T123902/remoteTunnelService.log
+.config/Code/logs/20250708T123902/sharedprocess.log
+.config/Code/logs/20250708T123902/telemetry.log
+.config/Code/logs/20250708T123902/terminal.log
+.config/Code/logs/20250708T123902/userDataSync.log
+.config/Code/logs/20250708T123902/window1/network.log
+.config/Code/logs/20250708T123902/window1/notebook.rendering.log
+.config/Code/logs/20250708T123902/window1/renderer.log
+.config/Code/logs/20250708T123902/window1/views.log
+.config/Code/logs/20250708T123902/window1/exthost/exthost.log
+.config/Code/logs/20250708T123902/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250708T123902/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250708T123902/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250708T123902/window1/exthost/output_logging_20250708T123907/1-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T123902/window1/exthost/output_logging_20250708T123907/2-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T123902/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250708T123902/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250708T123902/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250708T123902/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250708T123902/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250708T123902/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250708T123902/window1/output_20250708T123908/tasks.log
+.config/Code/logs/20250708T152655/editSessions.log
+.config/Code/logs/20250708T152655/main.log
+.config/Code/logs/20250708T152655/network-shared.log
+.config/Code/logs/20250708T152655/ptyhost.log
+.config/Code/logs/20250708T152655/remoteTunnelService.log
+.config/Code/logs/20250708T152655/sharedprocess.log
+.config/Code/logs/20250708T152655/telemetry.log
+.config/Code/logs/20250708T152655/terminal.log
+.config/Code/logs/20250708T152655/userDataSync.log
+.config/Code/logs/20250708T152655/window1/fileWatcher.log
+.config/Code/logs/20250708T152655/window1/network.log
+.config/Code/logs/20250708T152655/window1/notebook.rendering.log
+.config/Code/logs/20250708T152655/window1/renderer.log
+.config/Code/logs/20250708T152655/window1/views.log
+.config/Code/logs/20250708T152655/window1/exthost/exthost.log
+.config/Code/logs/20250708T152655/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250708T152655/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250708T152655/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250708T152655/window1/exthost/output_logging_20250708T152659/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T152655/window1/exthost/output_logging_20250708T152659/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T152655/window1/exthost/output_logging_20250708T152912/1-QML Language Server - .dotfiles.log
+.config/Code/logs/20250708T152655/window1/exthost/output_logging_20250708T152912/2-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250708T152655/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250708T152655/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250708T152655/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250708T152655/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250708T152655/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250708T152655/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250708T152655/window1/exthost/vscode.markdown-language-features/Markdown.log
+.config/Code/logs/20250708T152655/window1/exthost/webWorker/workerexthost.log
+.config/Code/logs/20250708T152655/window1/exthost/webWorker/workerExtHostTelemetry.log
+.config/Code/logs/20250708T152655/window1/output_20250708T152700/tasks.log
+.config/Code/logs/20250710T174123/editSessions.log
+.config/Code/logs/20250710T174123/main.log
+.config/Code/logs/20250710T174123/network-shared.log
+.config/Code/logs/20250710T174123/ptyhost.log
+.config/Code/logs/20250710T174123/remoteTunnelService.log
+.config/Code/logs/20250710T174123/sharedprocess.log
+.config/Code/logs/20250710T174123/telemetry.log
+.config/Code/logs/20250710T174123/terminal.log
+.config/Code/logs/20250710T174123/userDataSync.log
+.config/Code/logs/20250710T174123/window1/network.log
+.config/Code/logs/20250710T174123/window1/notebook.rendering.log
+.config/Code/logs/20250710T174123/window1/renderer.log
+.config/Code/logs/20250710T174123/window1/views.log
+.config/Code/logs/20250710T174123/window1/exthost/exthost.log
+.config/Code/logs/20250710T174123/window1/exthost/extHostTelemetry.log
+.config/Code/logs/20250710T174123/window1/exthost/GitHub.copilot/GitHub Copilot.log
+.config/Code/logs/20250710T174123/window1/exthost/GitHub.copilot-chat/GitHub Copilot Chat.log
+.config/Code/logs/20250710T174123/window1/exthost/output_logging_20250710T174129/1-GitHub Copilot Log (Code References).log
+.config/Code/logs/20250710T174123/window1/exthost/output_logging_20250710T174129/2-QML Language Server - .dotfiles.log
+.config/Code/logs/20250710T174123/window1/exthost/theqtcompany.qt-core/qt-core.log
+.config/Code/logs/20250710T174123/window1/exthost/theqtcompany.qt-qml/qt-qml.log
+.config/Code/logs/20250710T174123/window1/exthost/vscode.git/Git.log
+.config/Code/logs/20250710T174123/window1/exthost/vscode.github/GitHub.log
+.config/Code/logs/20250710T174123/window1/exthost/vscode.github-authentication/GitHub Authentication.log
+.config/Code/logs/20250710T174123/window1/exthost/vscode.json-language-features/JSON Language Server.log
+.config/Code/logs/20250710T174123/window1/output_20250710T174130/tasks.log

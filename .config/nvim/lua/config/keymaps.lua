@@ -10,15 +10,15 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "<leader>cq", function()
       vim.lsp.buf.code_action()
     end, vim.tbl_extend("force", opts, { desc = "QML Code Action" }))
-    
+
     vim.keymap.set("n", "<leader>cr", function()
       vim.lsp.buf.rename()
     end, vim.tbl_extend("force", opts, { desc = "QML Rename" }))
-    
+
     vim.keymap.set("n", "<leader>cf", function()
       require("conform").format({ bufnr = event.buf })
     end, vim.tbl_extend("force", opts, { desc = "QML Format" }))
-    
+
     vim.keymap.set("n", "<leader>cl", function()
       require("lint").try_lint()
     end, vim.tbl_extend("force", opts, { desc = "QML Lint" }))
@@ -26,13 +26,13 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- QML diagnostic command
-vim.api.nvim_create_user_command('QMLDiagnostic', function()
+vim.api.nvim_create_user_command("QMLDiagnostic", function()
   local buf = vim.api.nvim_get_current_buf()
   local ft = vim.bo[buf].filetype
-  
+
   print("Current filetype: " .. ft)
   print("QML LSP Status:")
-  
+
   local clients = vim.lsp.get_active_clients({ bufnr = buf })
   if #clients == 0 then
     print("  No LSP clients attached")
@@ -50,10 +50,3 @@ vim.api.nvim_create_user_command('QMLDiagnostic', function()
     end
   end
 end, { desc = "Show QML LSP diagnostic information" })
-
--- Avante.nvim keymaps
-vim.keymap.set("n", "<leader>aa", function() require("avante.api").ask() end, { desc = "avante: ask" })
-vim.keymap.set("v", "<leader>aa", function() require("avante.api").ask() end, { desc = "avante: ask" })
-vim.keymap.set("n", "<leader>ar", function() require("avante.api").refresh() end, { desc = "avante: refresh" })
-vim.keymap.set("n", "<leader>ae", function() require("avante.api").edit() end, { desc = "avante: edit" })
-vim.keymap.set("v", "<leader>ae", function() require("avante.api").edit() end, { desc = "avante: edit" })

@@ -5,7 +5,7 @@ return {
     opts = {
       servers = {
         qmlls = {
-          cmd = { "/usr/lib/qt6/bin/qmlls", "-E" },
+          cmd = { "/home/httpkiwi/.local/share/nvim/mason/bin/qmlls", "-E" },
           filetypes = { "qml" },
           root_dir = function(fname)
             return require("lspconfig.util").root_pattern("*.qmlproject", "*.pro", "CMakeLists.txt", ".git")(fname)

@@ -2,7 +2,9 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Io
-import QtQuick 2.15
+import Quickshell.Widgets
+import QtQuick 
+import QtQuick.Layouts
 import "BarModules"
 import Services 1.0
 
@@ -13,10 +15,12 @@ PanelWindow {
         top: true
         left: true
         right: true
-    }
-    color: "transparent"
-    implicitHeight: 30
-    exclusiveZone: 30
+      }
+      color: "transparent"
+
+    implicitHeight: 40
+    exclusiveZone: 35 
+
 
     Rectangle {
         id: barContent
@@ -28,7 +32,7 @@ PanelWindow {
             verticalCenter: parent.verticalCenter
         }
 
-        color: "white"
+        color: "#202b2d"
         height: 30
 
         // center module
@@ -36,6 +40,7 @@ PanelWindow {
             id: title
             anchors.centerIn: parent
             text: Niri.title
+            color: "#f89f7f"
         }
 
         // left module
@@ -64,7 +69,7 @@ PanelWindow {
                         width: workspaceRoot.isActive ? 24 : 12
                         height: parent.height
                         radius: height / 2
-                        color: "black"
+                        color: "#f89f7f"
 
                         Behavior on width {
                             NumberAnimation {
@@ -91,20 +96,21 @@ PanelWindow {
         }
 
         // right module
-        Row {
-            spacing: 12
+        RowLayout {
+          
+            spacing:12 
             anchors.right: parent.right
             anchors.rightMargin: 12
             anchors.verticalCenter: parent.verticalCenter
+            // Volume {
+            //     Layout.preferredWidth: 150
+            // }
+            Volume {}
             Status {
-                anchors.verticalCenter: parent.verticalCenter
+              Layout.minimumWidth: 100
             }
-            Time {
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            Volume {
-                anchors.verticalCenter: parent.verticalCenter
-            }
+            
+            Time {}
         }
     }
 }

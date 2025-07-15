@@ -156,9 +156,9 @@ spawn-at-startup "swww-daemon"
 spawn-at-startup "plasma-polkit-agent"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "bash" "-c" "python3 ~/.config/quickshell/scripts/niri_status.py"
-spawn-at-startup "qs"
+spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/qml/:/home/httpkiwi/.config/quickshell/:/usr/lib/qt/qml/ qs"
 spawn-at-startup "bash" "-c" "wl-paste --type text --watch cliphist store | rofi -dmenu -p 'Clipboard History' -format 's' | cliphist decode | wl-copy"
-
+spawn-at-startup "bash" "-c" "wpctl"
 // ============================================================================
 // ENVIRONMENT VARIABLES
 // ============================================================================
@@ -217,13 +217,14 @@ binds {
     // ========================================================================
     
     Mod+Shift+Slash { show-hotkey-overlay; }
-    Mod+O { toggle-overview; }   
+    Mod+O { toggle-overview; }
+    Mod+Shift+E { quit; }
     // ========================================================================
     // APPLICATIONS
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Mod+Shift+E { spawn "thunar"; }
+    Mod+E { spawn "thunar"; }
     Super+Space hotkey-overlay-title="Open the Application Launcher: rofi" { spawn "wofi" "--show" "drun" "-I"; }
     Super+V hotkey-overlay-title="Open the Clipboard History: rofi" { spawn "bash" "-c" "cliphist list | wofi -S dmenu| cliphist decode | wl-copy"; } 
     Mod+Q { close-window; }
@@ -349,8 +350,8 @@ binds {
     // MEDIA KEYS & SPECIAL FUNCTIONS
     // ========================================================================
     
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 

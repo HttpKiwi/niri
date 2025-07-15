@@ -1,57 +1,77 @@
-import QtQuick 2.15
-import QtQuick.Controls
+import QtQuick
 import Quickshell.Io
+import Quickshell.Widgets
+import Services 1.0
 
-Item {
-    id: volumeModule
-
-    property int volumeLevel: 50 // Default volume level
+WrapperMouseArea {
+    onClicked: {
+        console.log("Volume clicked");
+        Audio.setVolume(0);
+    }
+    hoverEnabled: true
+    onEntered: {
+        text.color = "yellow";
+        volume.opacity = 1;
+        volume.width = text.width + 10;
+    }
+    onExited: {
+        volume.opacity = 0;
+        text.color = "white";
+        volume.width = 0;
+    }
+    scrollGestureEnabled: true
+    onWheel: {
+        if (wheel.angleDelta.y > 0)
+            Audio.raiseVolume();
+        else
+            Audio.lowerVolume();
+    }
 
     Row {
-        spacing: 8
-        anchors.verticalCenter: parent.verticalCenter
+        height: text.height
+        spacing: 0
 
-        // Volume Icon
-        Image {
-            id: volumeIcon
-
-            source: volumeLevel > 0 ? "volume-high-icon.png" : "volume-muted-icon.png"
-            width: 16
-            height: 16
-            anchors.verticalCenter: parent.verticalCenter
-        }
-
-        // Volume Slider
-        Slider {
-            id: volumeSlider
-
-            width: 100
-            value: volumeLevel
-            from: 0
-            to: 100
-            stepSize: 1
-            anchors.verticalCenter: parent.verticalCenter
-            onValueChanged: {
-                volumeLevel = value;
-                Qt.createQmlObject(`
-                    import Quickshell.Io;
-                    Process {
-                        command: ["niri", "msg", "action", "set-volume", "${value}"]
-                        running: true
-                    }
-                `, volumeSlider);
-            }
-        }
-
-        // Volume Level Text
         Text {
-            id: volumeText
+            id: text
 
-            text: `${volumeLevel}%`
+            topPadding: 2
+            fontSizeMode: Text.VerticalFit
+            font.family: "Material Symbols"
+            color: "white"
+            font.pixelSize: 14
+            text: "\ue050 "
+        }
+
+        Text {
+            id: volume
+
             anchors.verticalCenter: parent.verticalCenter
+            opacity: 0
+            width: 0
+            fontSizeMode: Text.VerticalFit
+            font.family: "Material Symbols"
+            color: "white"
+            font.pixelSize: 12
+            text: Audio.volume.toFixed(2) * 100 + "%"
+
+            Behavior on width {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+
+            }
+
         }
 
     }
 
 }
-
