@@ -41,6 +41,10 @@ Singleton {
         }
     }
 
+    function getVolume(): int {
+        return Math.round((sink?.audio?.volume ?? 0) * 100);
+    }
+
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource]
     }

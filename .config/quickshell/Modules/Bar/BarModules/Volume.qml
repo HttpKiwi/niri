@@ -1,22 +1,20 @@
 import QtQuick
-import Quickshell.Io
 import Quickshell.Widgets
 import Services 1.0
 
 WrapperMouseArea {
     onClicked: {
-        console.log("Volume clicked");
-        Audio.setVolume(0);
+        Audio.toggleMute();
     }
     hoverEnabled: true
     onEntered: {
-        text.color = "yellow";
+        text.color = Color.on_surface;
         volume.opacity = 1;
         volume.width = text.width + 10;
     }
     onExited: {
         volume.opacity = 0;
-        text.color = "white";
+        text.color = Color.on_surface;
         volume.width = 0;
     }
     scrollGestureEnabled: true
@@ -29,7 +27,7 @@ WrapperMouseArea {
 
     Row {
         height: text.height
-        spacing: 0
+        spacing: 4
 
         Text {
             id: text
@@ -37,9 +35,9 @@ WrapperMouseArea {
             topPadding: 2
             fontSizeMode: Text.VerticalFit
             font.family: "Material Symbols"
-            color: "white"
+            color: Color.on_surface
             font.pixelSize: 14
-            text: "\ue050 "
+            text: Audio.muted ? "\ue04f" : "\ue050"
         }
 
         Text {
@@ -50,9 +48,9 @@ WrapperMouseArea {
             width: 0
             fontSizeMode: Text.VerticalFit
             font.family: "Material Symbols"
-            color: "white"
+            color: Color.on_surface
             font.pixelSize: 12
-            text: Audio.volume.toFixed(2) * 100 + "%"
+            text: Audio.getVolume() + "%"
 
             Behavior on width {
                 NumberAnimation {

@@ -5,7 +5,7 @@ return {
     opts = {
       servers = {
         qmlls = {
-          cmd = { "/home/httpkiwi/.local/share/nvim/mason/bin/qmlls", "-E" },
+          cmd = { "qmlls", "-E" },
           filetypes = { "qml" },
           root_dir = function(fname)
             return require("lspconfig.util").root_pattern("*.qmlproject", "*.pro", "CMakeLists.txt", ".git")(fname)
@@ -14,7 +14,15 @@ return {
             generateQmllsIni = true,
             qmllsIniDirectory = vim.fn.getcwd(),
           },
-          settings = {
+          on_attach = function(client, bufnr)
+          vim.api.nvim_create_autocmd("BufWritePost", {
+            buffer = bufnr,
+            callback = function()
+              print("QML LSP Attached to buffer " .. bufnr)
+            end
+          })
+        end,
+        settings = {
             qmlls = {
               buildDir = vim.fn.getcwd() .. "/build",
               importPaths = {

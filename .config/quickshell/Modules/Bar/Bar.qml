@@ -1,26 +1,26 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
-import Quickshell.Io
-import Quickshell.Widgets
-import QtQuick 
+import QtQuick
 import QtQuick.Layouts
 import "BarModules"
 import Services 1.0
+import qs.common
 
 PanelWindow {
     id: barWindow
+    // Property to specify which monitor this bar is for
+    property string targetMonitor: ""
 
     anchors {
         top: true
         left: true
         right: true
-      }
-      color: "transparent"
+    }
+    color: "transparent"
 
     implicitHeight: 40
-    exclusiveZone: 35 
-
+    exclusiveZone: 35
 
     Rectangle {
         id: barContent
@@ -32,7 +32,7 @@ PanelWindow {
             verticalCenter: parent.verticalCenter
         }
 
-        color: "#202b2d"
+        color: Color.background
         height: 30
 
         // center module
@@ -40,7 +40,7 @@ PanelWindow {
             id: title
             anchors.centerIn: parent
             text: Niri.title
-            color: "#f89f7f"
+            color: Color.on_surface
         }
 
         // left module
@@ -52,12 +52,31 @@ PanelWindow {
             spacing: 8
 
             Repeater {
-                model: Niri.workspaces
+                model: {
+                    try {
+                        if (barWindow.targetMonitor) {
+                            const workspaces = Niri.getWorkspacesForMonitor(barWindow.targetMonitor);
+                            return workspaces || [];
+                        } else {
+                            return Niri.workspaces || [];
+                        }
+                    } catch (e) {
+                        console.warn("Error getting workspaces:", e);
+                        return [];
+                    }
+                }
 
                 delegate: Item {
                     id: workspaceRoot
                     required property var modelData
-                    property bool isActive: modelData.idx === Niri.focused_workspace_idx
+                    readonly property bool isActive: {
+                        if (barWindow.targetMonitor) {
+                            // The active workspace must be on this bar's target monitor
+                            return modelData.idx === Niri.focused_workspace_idx && modelData.output === Niri.focused_output_name;
+                        }
+                        // No target monitor, so use is_focused for global focus
+                        return modelData.is_focused;
+                    }
 
                     width: dot.width
                     height: 12
@@ -69,11 +88,16 @@ PanelWindow {
                         width: workspaceRoot.isActive ? 24 : 12
                         height: parent.height
                         radius: height / 2
-                        color: "#f89f7f"
-
+                        color: workspaceRoot.isActive ? Color.secondary : Color.secondary_fixed
                         Behavior on width {
                             NumberAnimation {
                                 duration: 200
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 150
                                 easing.type: Easing.OutCubic
                             }
                         }
@@ -81,14 +105,35 @@ PanelWindow {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: {
-                            Qt.createQmlObject(`
-                        import Quickshell.Io;
-                        Process {
-                            command: ["niri", "msg", "action", "focus-workspace", "${modelData.idx}"]
-                            running: true
+                        hoverEnabled: true
+
+                        onEntered: {
+                            if (!workspaceRoot.isActive) {
+                                dot.color = Color.primary_container;
+                            }
                         }
-                    `, workspaceRoot);
+
+                        onExited: {
+                            if (!workspaceRoot.isActive) {
+                                dot.color = Color.secondary_fixed;
+                            }
+                        }
+
+                        onClicked: {
+                            try {
+                                // Focus the workspace by index
+                                const command = ["niri", "msg", "action", "focus-workspace", `${workspaceRoot.modelData.idx}`];
+
+                                Qt.createQmlObject(`
+                            import Quickshell.Io;
+                            Process {
+                                command: ${JSON.stringify(command)}
+                                running: true
+                            }
+                        `, workspaceRoot);
+                            } catch (e) {
+                                console.error("Error switching workspace:", e);
+                            }
                         }
                     }
                 }
@@ -97,20 +142,20 @@ PanelWindow {
 
         // right module
         RowLayout {
-          
-            spacing:12 
+
+            spacing: 12
             anchors.right: parent.right
             anchors.rightMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             // Volume {
             //     Layout.preferredWidth: 150
             // }
+            Player {}
             Volume {}
             Status {
-              Layout.minimumWidth: 100
+                Layout.minimumWidth: 100
             }
-            
             Time {}
-        }
+            }
     }
 }

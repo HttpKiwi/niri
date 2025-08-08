@@ -3,20 +3,32 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import qs.Services
 
 Scope {
     id: screenCorners
 
+    // Property to specify which screen this decoration is for
+    property var targetScreen: null
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
 
     Variants {
-        model: Quickshell.screens
+        model: targetScreen ? [targetScreen] : (Quickshell.screens || [])
 
         PanelWindow {
+            // Only show if we have a valid screen
+
             property var modelData
 
             visible: true
-            screen: modelData
+            screen: {
+                try {
+                    return modelData || Quickshell.screens[0] || null;
+                } catch (e) {
+                    console.warn("Error getting screen for decoration:", e);
+                    return null;
+                }
+            }
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             WlrLayershell.namespace: "quickshell:screenCorners"
@@ -37,6 +49,7 @@ Scope {
                 anchors.left: parent.left
                 size: 12
                 corner: cornerEnum.topLeft
+                color: "black"
             }
 
             RoundCorner {
@@ -46,6 +59,7 @@ Scope {
                 anchors.right: parent.right
                 size: 12
                 corner: cornerEnum.topRight
+                color: "black"
             }
 
             RoundCorner {
@@ -55,6 +69,7 @@ Scope {
                 anchors.left: parent.left
                 size: 12
                 corner: cornerEnum.bottomLeft
+                color: "black"
             }
 
             RoundCorner {
@@ -64,6 +79,7 @@ Scope {
                 anchors.right: parent.right
                 size: 12
                 corner: cornerEnum.bottomRight
+                color: "black"
             }
 
             mask: Region {

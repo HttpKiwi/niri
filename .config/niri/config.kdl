@@ -13,8 +13,8 @@ input {
         xkb {
             // Keyboard layout configuration
             // See xkeyboard-config(7) for more options
-            // layout "us,ru"
             // options "grp:win_space_toggle,compose:ralt,ctrl:nocaps"
+            layout "us(altgr-intl)"
         }
         numlock
     }
@@ -39,16 +39,20 @@ input {
 // Find output names with: niri msg outputs
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 
-output "Virtual-1" {
+output "DP-3" {
     // Basic display settings
-    mode "1920x1080@60.000"  // Resolution and refresh rate
+    mode "1920x1080@143.981"  // Resolution and refresh rate
     scale 1                   // Display scaling (1.0 = 100%, 1.5 = 150%, etc.)
     transform "normal"        // Rotation: normal, 90, 180, 270, flipped-*
-    
+    position x=1080 y=0
     // Position in global coordinate space (affects directional actions)
-    position x=1280 y=0
-    
-    // off  // Uncomment to disable this output
+    focus-at-startup   
+}
+
+output "HDMI-A-1" {
+  mode "1920x1080@75.010"
+  transform "90"
+  position x=0 y=0
 }
 
 // ============================================================================
@@ -96,13 +100,12 @@ layout {
     }
 
     // Blur effects
-    blur {
-        on
-        passes 3
-        radius 10.0
-        noise 0
-    }
-
+    //blur {
+      //on
+      //passes 3
+      //radius 12.0
+      //noise 0.0
+    //}
 
     // Window shadows (currently disabled)
     /*
@@ -155,18 +158,21 @@ screenshot-path "~/Screenshots"
 spawn-at-startup "swww-daemon"
 spawn-at-startup "plasma-polkit-agent"
 spawn-at-startup "xwayland-satellite"
+spawn-at-startup "dunst"
+spawn-at-startup "swaybg"
 spawn-at-startup "bash" "-c" "python3 ~/.config/quickshell/scripts/niri_status.py"
-spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/qml/:/home/httpkiwi/.config/quickshell/:/usr/lib/qt/qml/ qs"
-spawn-at-startup "bash" "-c" "wl-paste --type text --watch cliphist store | rofi -dmenu -p 'Clipboard History' -format 's' | cliphist decode | wl-copy"
-spawn-at-startup "bash" "-c" "wpctl"
+spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
+spawn-at-startup "swaybg" "-i" "Pictures/Pictures/Wallpapers/blurredBG.jpeg" "-m" "fill"
 // ============================================================================
 // ENVIRONMENT VARIABLES
 // ============================================================================
 
 environment {
     // Set the DPI for X11 applications.
+    QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
     QT_QPA_PLATFORM "wayland"
-    DISPLAY ":0"
+    DISPLAY ":1"
 }
 
 // ============================================================================
@@ -175,14 +181,40 @@ environment {
 // Configure specific window behaviors
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
+overview {
+    zoom 0.4
+    backdrop-color "#262626"
+
+    workspace-shadow {
+        // off
+        softness 20
+        spread 10
+        offset x=10 y=10
+        color "#000000"
+    }
+}
+
 window-rule {
     // Geometry rules
     geometry-corner-radius 12
     clip-to-geometry true
+    opacity 0.99
+}
+
+layer-rule {
+  match namespace="quickshell"
+  opacity 0.988
+  
+   //blur {
+     // on
+     // passes 3
+     // radius 12.0
+     // noise 0.0
+  //} 
 }
 
 window-rule {
-    match app-id="firefox"
+    match app-id="^zen$"
     default-column-width { proportion 1.0; }
 }
 
@@ -193,19 +225,18 @@ window-rule {
 
 window-rule {
     match app-id="discord"
-    default-column-width { proportion 0.33333; }
+    default-column-width { proportion 1.0; }
 }
 
 window-rule {
-    match is-active=false
-    opacity 0.85
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=30 y=30 relative-to="bottom-right"
 }
 
-window-rule {
-    match is-active=true
-    opacity 0.95
+layer-rule {
+    match namespace="^wallpaper$"
+    place-within-backdrop true
 }
-
 // ============================================================================
 // KEYBINDINGS
 // ============================================================================
@@ -224,9 +255,9 @@ binds {
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Mod+E { spawn "thunar"; }
-    Super+Space hotkey-overlay-title="Open the Application Launcher: rofi" { spawn "wofi" "--show" "drun" "-I"; }
-    Super+V hotkey-overlay-title="Open the Clipboard History: rofi" { spawn "bash" "-c" "cliphist list | wofi -S dmenu| cliphist decode | wl-copy"; } 
+    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "fuzzel";  }
+    Super+V hotkey-overlay-title="Open the Clipboard History: rofi" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
+    Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Mod+Q { close-window; }
 
     // Screenshots
@@ -242,13 +273,16 @@ binds {
     Mod+Down  { focus-window-down; }
     Mod+Up    { focus-window-up; }
     Mod+Right { focus-column-right; }
-    Mod+H     { focus-column-left; }
+    Mod+H     { focus-column-or-monitor-left; }
     Mod+J     { focus-window-or-workspace-down; }
     Mod+K     { focus-window-or-workspace-up; }
-    Mod+L     { focus-column-right; }
+    Mod+L     { focus-column-or-monitor-right; }
 
     Mod+Home { focus-column-first; }
     Mod+End  { focus-column-last; }
+
+    Mod+Shift+H { focus-monitor-left; }
+    Mod+Shift+L { focus-monitor-right; }
 
     // ========================================================================
     // WINDOW MOVEMENT
@@ -258,10 +292,10 @@ binds {
     Mod+Shift+Down  { move-window-down; }
     Mod+Shift+Up    { move-window-up; }
     Mod+Shift+Right { move-column-right; }
-    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+H     { move-column-left-or-to-monitor-left; }
     Mod+Ctrl+J     { move-window-down-or-to-workspace-down; }
     Mod+Ctrl+K     { move-window-up-or-to-workspace-up; }
-    Mod+Ctrl+L     { move-column-right; }
+    Mod+Ctrl+L     { move-column-right-or-to-monitor-right; }
 
     Mod+Shift+Home { move-column-to-first; }
     Mod+Shift+End  { move-column-to-last; }
@@ -317,11 +351,7 @@ binds {
     Mod+Shift+9 { move-column-to-workspace 9; }
 
     // Workspace navigation
-    Mod+U { focus-workspace-down; }
-    Mod+I { focus-workspace-up; }
-    Mod+Shift+U { move-column-to-workspace-down; }
-    Mod+Shift+I { move-column-to-workspace-up; }
-
+     
     // ========================================================================
     // WINDOW MANAGEMENT
     // ========================================================================
@@ -329,8 +359,8 @@ binds {
     Mod+Shift+Q { close-window; }
     Mod+R       { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
-    Mod+F       { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
+    Mod+M      { maximize-column; }
+    Mod+F { fullscreen-window; }
     Mod+C       { center-column; }
 
     // Column width adjustments
@@ -346,6 +376,8 @@ binds {
     Mod+Comma  { consume-or-expel-window-left; }
     Mod+Period { consume-or-expel-window-right; }
 
+    // Floating windows
+    Mod+T { toggle-window-floating; }
     // ========================================================================
     // MEDIA KEYS & SPECIAL FUNCTIONS
     // ========================================================================
@@ -354,10 +386,10 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-
     XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "10%+"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "10%-"; }
-}
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+}   
 
 // ============================================================================
 // DEBUG OPTIONS

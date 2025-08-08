@@ -19,16 +19,22 @@ Item {
 
     // Internal property to calculate rotation angle based on corner
     property real rotationAngle: {
-        switch (corner) {
-        case cornerEnum.topLeft:
-            return 90
-        case cornerEnum.topRight:
-            return 180
-        case cornerEnum.bottomRight:
-            return 270
-        case cornerEnum.bottomLeft:
-            return 0
-        default:
+        try {
+            switch (corner) {
+            case cornerEnum.topLeft:
+                return 90
+            case cornerEnum.topRight:
+                return 180
+            case cornerEnum.bottomRight:
+                return 270
+            case cornerEnum.bottomLeft:
+                return 0
+            default:
+                console.warn("Unknown corner type:", corner)
+                return 0
+            }
+        } catch (e) {
+            console.warn("Error calculating rotation angle:", e)
             return 0
         }
     }
@@ -42,6 +48,7 @@ Item {
         fillMode: Shape.PreserveAspectFit
         preferredRendererType: Shape.CurveRenderer
         anchors.fill: parent
+        visible: root.size > 0 && root.visible
 
         ShapePath {
             startX: 0

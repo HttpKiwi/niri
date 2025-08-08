@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import "RoundCorner.qml"
+import Services 1.0
 
 PanelWindow {
     id: screenBorder
@@ -10,7 +11,7 @@ PanelWindow {
     height: Screen.height
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.layer: WlrLayer.Background
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell:screenBorder"
     exclusiveZone: 0
 
@@ -26,56 +27,65 @@ PanelWindow {
 
         anchors.fill: parent
         color: "transparent"
-        border.color: "#202b2d"
-        border.width: 4
+        border.color: Color.background
+        border.width: 6
     }
 
     RoundCorner {
         id: bottomLeftCorner
 
         corner: cornerEnum.bottomLeft
-        size: 12
-        color: "#202b2d"
+        size: 18
+        color: Color.background
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
+        anchors.leftMargin: 6
+        anchors.bottomMargin: 6
+        visible: screenBorder.visible
     }
 
     RoundCorner {
         id: bottomRightCorner
 
         corner: cornerEnum.bottomRight
-        size: 12
-        color: "#202b2d"
+        size: 18
+        color: Color.background
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        anchors.rightMargin: 4
-        anchors.bottomMargin: 4
+        anchors.rightMargin: 6
+        anchors.bottomMargin: 6
+        visible: screenBorder.visible
     }
 
     RoundCorner {
         id: topLeftCorner
 
         corner: cornerEnum.topLeft
-        size: 12
-        color: "#202b2d"
+        size: 18
+        color: Color.background
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.leftMargin: 4
+        anchors.leftMargin: 6
         anchors.topMargin: 40
+        visible: screenBorder.visible
     }
 
     RoundCorner {
         id: topRightCorner
 
         corner: cornerEnum.topRight
-        size: 12
-        color: "#202b2d"
+        size: 18
+        color: Color.background
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.rightMargin: 4
+        anchors.rightMargin: 6
         anchors.topMargin: 40
+        visible: screenBorder.visible
+    }
+
+    mask: Region {
+        item: borderFrame
+        intersection: Intersection.Xor
     }
 
 }

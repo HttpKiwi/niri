@@ -4,19 +4,24 @@ import json
 import subprocess
 
 workspace_list = []
+workspaces_by_monitor = {}
 active_workspace_id = None
 window_title = None
 window_map = {}
 is_overview = False
+focused_workspace_idx = 0
+focused_output_name = ""
 
 def write_status():
     with open("/tmp/niri_status.json", "w") as f:
         json.dump({
             "title": window_title,
             "workspaces": workspace_list,
+            "workspaces_by_monitor": workspaces_by_monitor,
             "active_workspace": active_workspace_id,
             "is_overview": is_overview,
-            "focused_workspace_idx": focused_workspace_idx
+            "focused_workspace_idx": focused_workspace_idx,
+            "focused_output_name": focused_output_name
         }, f)
 
 with subprocess.Popen(
@@ -39,6 +44,7 @@ with subprocess.Popen(
                         "id": ws["id"],
                         "idx": ws["idx"],
                         "name": ws["name"],
+                        "output": ws["output"],
                         "is_active": ws["is_active"],
                         "is_focused": ws["is_focused"]
                     }
@@ -47,10 +53,20 @@ with subprocess.Popen(
                 key=lambda ws: ws.get("idx", 0)
                 )
 
-                # Update active workspace (focused is more reliable here)
+                # Group workspaces by monitor/output
+                workspaces_by_monitor = {}
+                for ws in workspace_list:
+                    output = ws["output"]
+                    if output not in workspaces_by_monitor:
+                        workspaces_by_monitor[output] = []
+                    workspaces_by_monitor[output].append(ws)
+
+                # Update active workspace and focused output
                 for ws in workspace_list:
                     if ws["is_focused"]:
                         active_workspace_id = ws["id"]
+                        focused_workspace_idx = ws["idx"]
+                        focused_output_name = ws["output"]
                         break
     
             elif "WorkspaceActivated" in event:
@@ -61,6 +77,15 @@ with subprocess.Popen(
                     if ws["is_focused"]:
                         active_workspace_id = ws["id"]
                         focused_workspace_idx = ws["idx"]
+                        focused_output_name = ws["output"]
+
+                # Update workspaces_by_monitor after workspace activation
+                workspaces_by_monitor = {}
+                for ws in workspace_list:
+                    output = ws["output"]
+                    if output not in workspaces_by_monitor:
+                        workspaces_by_monitor[output] = []
+                    workspaces_by_monitor[output].append(ws)
 
             elif "WindowsChanged" in event:
                 for win in event["WindowsChanged"]["windows"]:
