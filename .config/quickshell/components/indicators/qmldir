@@ -1,0 +1,7 @@
+module qs.components.indicators
+
+VolumeIndicator 1.0 VolumeIndicator.qml
+TimeIndicator 1.0 TimeIndicator.qml
+ResourceIndicator 1.0 ResourceIndicator.qml
+WorkspaceIndicator 1.0 WorkspaceIndicator.qml
+DateIndicator 1.0 DateIndicator.qml

@@ -1,0 +1,4 @@
+module qs.components.animations
+
+SlideAnimation 1.0 SlideAnimation.qml
+FadeAnimation 1.0 FadeAnimation.qml

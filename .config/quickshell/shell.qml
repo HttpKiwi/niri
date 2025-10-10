@@ -2,12 +2,22 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 
-import "Modules/Bar"
-import "Modules/Decorations"
-import "Modules/Widgets"
+// New refactored modules
+import qs.features.bar
+import qs.features.decorations
+import qs.features.notifications
+import qs.features.osd
+
 ShellRoot {
-    MultiMonitorBar {}
+    MultiMonitorBar {
+        id: multiMonitorBar
+    }
     RoundedScreen {}
     MultiScreenBorder {}
     VolumeOSD {}
+    NotificationManager {
+        id: notificationManager
+    }
+
 }
+

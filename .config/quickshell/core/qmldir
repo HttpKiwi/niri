@@ -1,0 +1,7 @@
+module qs.core
+
+singleton ResourceUsage 1.0 ResourceUsage.qml
+singleton Niri 1.0 Niri.qml
+singleton Audio 1.0 Audio.qml
+singleton Color 1.0 Color.qml
+singleton NotificationService 1.0 NotificationService.qml

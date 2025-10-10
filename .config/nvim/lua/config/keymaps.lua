@@ -50,3 +50,29 @@ vim.api.nvim_create_user_command("QMLDiagnostic", function()
     end
   end
 end, { desc = "Show QML LSP diagnostic information" })
+
+-- Copilot Chat keymaps
+vim.keymap.set("n", "<leader>cc", "<cmd>CopilotChat<cr>", { desc = "Open Copilot Chat" })
+vim.keymap.set("n", "<leader>ce", "<cmd>CopilotChatExplain<cr>", { desc = "Explain code with Copilot" })
+vim.keymap.set("n", "<leader>cf", "<cmd>CopilotChatFix<cr>", { desc = "Fix code with Copilot" })
+vim.keymap.set("n", "<leader>co", "<cmd>CopilotChatOptimize<cr>", { desc = "Optimize code with Copilot" })
+vim.keymap.set("n", "<leader>cd", "<cmd>CopilotChatDocs<cr>", { desc = "Generate docs with Copilot" })
+vim.keymap.set("n", "<leader>ct", "<cmd>CopilotChatTests<cr>", { desc = "Generate tests with Copilot" })
+vim.keymap.set("n", "<leader>cr", "<cmd>CopilotChatReview<cr>", { desc = "Review code with Copilot" })
+
+-- Visual mode keymaps for Copilot Chat
+vim.keymap.set("v", "<leader>cc", ":CopilotChat<cr>", { desc = "Open Copilot Chat with selection" })
+vim.keymap.set("v", "<leader>ce", ":CopilotChatExplain<cr>", { desc = "Explain selection with Copilot" })
+vim.keymap.set("v", "<leader>cf", ":CopilotChatFix<cr>", { desc = "Fix selection with Copilot" })
+vim.keymap.set("v", "<leader>co", ":CopilotChatOptimize<cr>", { desc = "Optimize selection with Copilot" })
+vim.keymap.set("v", "<leader>cd", ":CopilotChatDocs<cr>", { desc = "Generate docs for selection" })
+vim.keymap.set("v", "<leader>ct", ":CopilotChatTests<cr>", { desc = "Generate tests for selection" })
+vim.keymap.set("v", "<leader>cr", ":CopilotChatReview<cr>", { desc = "Review selection with Copilot" })
+
+-- Accept Copilot suggestion with Ctrl-l (recommended)
+vim.keymap.set("i", "<C-l>", 'copilot#Accept("\\<CR>")', {
+  expr = true,
+  silent = true,
+  desc = "Copilot accept",
+})
+
