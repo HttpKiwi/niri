@@ -45,10 +45,18 @@ PanelWindow {
         // Center - Window title
         Text {
             id: title
-            anchors.centerIn: parent
+            anchors.left: workspaces.right
+            anchors.right: systemIndicators.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: Settings.barContentMargin
+            anchors.rightMargin: Settings.barContentMargin
+
             text: Niri.title
             color: Theme.textPrimary
             font.pixelSize: Settings.fontSizeLarge
+
+            elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
         }
         
         // Left - Workspaces
@@ -90,7 +98,8 @@ PanelWindow {
         
         // Right - System indicators
         RowLayout {
-            spacing: Settings.barModuleSpacing
+            id: systemIndicators
+            spacing: Settings.barModuleGutter
             anchors.right: parent.right
             anchors.rightMargin: Settings.barContentMargin
             anchors.verticalCenter: parent.verticalCenter

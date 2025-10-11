@@ -6,7 +6,7 @@ reload_apps = true
 [config.wallpaper]
 command = "swww"
 arguments = ["img", "--transition-type","center", "--namespace", "wallpaper"]
-set = true
+set = false
 
 # [templates.rofi]
 # input_path = "~/.config/matugen/templates/rofi-colors.rasi"
