@@ -101,7 +101,7 @@ layout {
 
 
     // Window shadows (currently disabled)
-    /*
+  /*
     shadow {
         on
         draw-behind-window true
@@ -148,7 +148,6 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
-spawn-at-startup "bash" "-c" "swww-daemon --namespace wallpaper"
 spawn-at-startup "bash" "-c" "swww-daemon --namespace overview"
 spawn-at-startup "bash" "-c" "python3 ~/.config/quickshell/scripts/niri_status.py"
 spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
@@ -163,6 +162,7 @@ environment {
     // Set the DPI for X11 applications.
     QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
     QT_QPA_PLATFORM "wayland;xcb"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
 }
 
 // ============================================================================
@@ -172,15 +172,11 @@ environment {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
 overview {
-    zoom 0.5
+    zoom 0.7
     backdrop-color "#262626"
-
+    
     workspace-shadow {
-        // off
-        softness 20
-        spread 10
-        offset x=10 y=10
-        color "#000000"
+      off
     }
 }
 
@@ -250,7 +246,7 @@ binds {
     
     Mod+Return { spawn "kitty"; }
     Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "fuzzel";  }
-    Super+V hotkey-overlay-title="Open the Clipboard History: rofi" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
+    Super+V hotkey-overlay-title="Open the Clipboard History: fuzzel" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Mod+Q { close-window; }
 

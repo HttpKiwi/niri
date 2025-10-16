@@ -45,11 +45,10 @@ PanelWindow {
         // Center - Window title
         Text {
             id: title
-            anchors.left: workspaces.right
-            anchors.right: systemIndicators.left
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: Settings.barContentMargin
             anchors.rightMargin: Settings.barContentMargin
+            anchors.horizontalCenter: parent.horizontalCenter
 
             text: Niri.title
             color: Theme.textPrimary
@@ -99,7 +98,7 @@ PanelWindow {
         // Right - System indicators
         RowLayout {
             id: systemIndicators
-            spacing: Settings.barModuleGutter
+            spacing: Settings.barModuleSpacing
             anchors.right: parent.right
             anchors.rightMargin: Settings.barContentMargin
             anchors.verticalCenter: parent.verticalCenter

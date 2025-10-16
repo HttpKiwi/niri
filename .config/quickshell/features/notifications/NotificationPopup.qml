@@ -107,7 +107,6 @@ PanelWindow {
         
         leftMargin: 0
         rightMargin: 0
-        
         onMovementEnded: {
             if (contentX > Settings.notificationDismissThreshold || contentX < -Settings.notificationDismissThreshold) {
                 win.startExit()
@@ -133,6 +132,9 @@ PanelWindow {
             height: flickable.height
             color: Theme.surfaceBase
             radius: Settings.cardRadius
+
+            border.width: Settings.cardBorderWidth
+            border.color: Theme.cardBorder
             
             NotificationCard {
                 anchors.fill: parent

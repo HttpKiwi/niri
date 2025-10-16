@@ -19,3 +19,4 @@ fish_add_path $ANDROID_HOME/platform-tools
 fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
 
 starship init fish | source
+export PATH="$HOME/.local/bin:$PATH"

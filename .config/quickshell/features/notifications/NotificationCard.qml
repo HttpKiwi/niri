@@ -71,7 +71,7 @@ Item {
         Image {
             id: notificationImage
 
-            source: root.notification.image
+            source: root.notification.image || ""
             sourceSize: Qt.size(48, 48)
             visible: source != ""
         }

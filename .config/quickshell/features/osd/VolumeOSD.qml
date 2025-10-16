@@ -103,7 +103,7 @@ Scope {
                     id: osdCard
                     anchors.fill: parent
                     elevation: 3
-                    showBorder: false
+                    showBorder: true
                     
                     ColumnLayout {
                         anchors.fill: parent

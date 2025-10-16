@@ -56,7 +56,7 @@ QtObject {
     // Layout Settings
     // ========================================
     readonly property int cardRadius: 12
-    readonly property int cardBorderWidth: 0
+    readonly property int cardBorderWidth: 1
     readonly property int cardMargin: 4
     readonly property int cardPadding: 12
     // ========================================
