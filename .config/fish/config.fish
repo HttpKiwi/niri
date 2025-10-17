@@ -4,9 +4,10 @@ end
 
 set -x PATH $PATH /usr/lib/qt6/bin/
 # Android Development Setup
-set -gx ANDROID_HOME $HOME/Android/Sdk
+set -x ANDROID_HOME /home/httpkiwi/android-sdk
+
 set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
-set -gx CHROME_EXECUTABLE /usr/bin/chromium
+set -gx CHROME_EXECUTABLE /usr/sbin/chromium
 set -gx SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
 # Flutter
 set -gx FLUTTER_ROOT /opt/flutter
