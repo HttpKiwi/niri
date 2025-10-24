@@ -39,7 +39,7 @@ Scope {
             screen: modelData || Quickshell.screens[0]
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
-            WlrLayershell.namespace: "quickshell:background"
+            WlrLayershell.namespace: "overview"
             WlrLayershell.layer: WlrLayer.Background
             color: "transparent"
 
@@ -82,6 +82,7 @@ Scope {
                 anchors.fill: parent
                 active: hasImage && detectedType === "animated"
                 sourceComponent: AnimatedImage {
+                    id: animatedBg
                     anchors.fill: parent
                     source: Settings.backgroundImagePath
                     fillMode: Image.PreserveAspectCrop
@@ -90,12 +91,9 @@ Scope {
                     paused: false
                     cache: true
 
-                    onStatusChanged: {
-                        if (status === Image.Ready) {
-                            console.log("Loaded animated background:", Settings.backgroundImagePath)
-                            console.log("Frame count:", frameCount, "Current frame:", currentFrame)
-                        } else if (status === Image.Error) {
-                            console.error("Failed to load animated background:", errorString)
+                    onCurrentFrameChanged: {
+                        if (currentFrame === frameCount - 1) {
+                            currentFrame = 0
                         }
                     }
                 }

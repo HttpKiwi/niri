@@ -11,6 +11,7 @@ import qs.features.osd
 
 ShellRoot {
     Background {}
+    BackgroundShadow {}
     MultiMonitorBar {
         id: multiMonitorBar
     }

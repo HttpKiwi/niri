@@ -1,4 +1,5 @@
 module qs.features.background
 
 Background 1.0 Background.qml
+BackgroundShadow 1.0 BackgroundShadow.qml
 BackgroundUtil 1.0 BackgroundUtil.qml
