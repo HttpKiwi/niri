@@ -75,9 +75,6 @@ layout {
         fixed 1920          // Fixed pixel width
     }
 
-    // Preset window heights (toggled with Mod+Shift+R)
-    // preset-window-heights { }
-
     // Focus ring (currently disabled)
     focus-ring {
       width 0
@@ -87,21 +84,9 @@ layout {
         // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
     }
 
-    // Border (currently disabled)
-    border {
-        off
-        width 1
-        active-color "#ffc87f"
-        inactive-color "#505050"
-        urgent-color "#9b0000"
-        // active-gradient from="#ffbb66" to="#ffc880" angle=45 relative-to="workspace-view"
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
-    }
-
-
-
+    
     // Window shadows (currently disabled)
-  /*
+    /*
     shadow {
         on
         draw-behind-window true
@@ -111,7 +96,6 @@ layout {
         color "#0007"
     }
     */
-
     // Struts (outer gaps)
     struts {
         // left 64
@@ -184,10 +168,12 @@ window-rule {
     // Geometry rules
     geometry-corner-radius 12
     clip-to-geometry true
+    draw-border-with-background false
 }
 
 window-rule {
-  match is-active=true
+  match is-active=false
+  opacity 0.97
 }
 
 window-rule {

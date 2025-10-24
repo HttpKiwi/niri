@@ -13,6 +13,11 @@ Singleton {
     readonly property bool muted: sink?.audio?.muted ?? false
     readonly property real volume: sink?.audio?.volume ?? 0
 
+    onSinkChanged: {
+        volumeChanged()
+        mutedChanged()
+    }
+
     function setVolume(volume: real): void {
         if (sink?.ready && sink?.audio) {
             sink.audio.muted = false;
