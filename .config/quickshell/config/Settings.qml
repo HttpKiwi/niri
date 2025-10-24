@@ -6,6 +6,8 @@ pragma Singleton
  * All hardcoded values should be defined here for easy customization
  */
 QtObject {
+    // Path to background image if using image mode
+
     id: root
 
     // ========================================
@@ -74,4 +76,10 @@ QtObject {
     readonly property int flickMaxVelocity: 2500
     readonly property int flickDeceleration: 1500
     readonly property int flickSlideDistance: 400
+    // ========================================
+    // Background Settings
+    // ========================================
+    readonly property string backgroundType: "image"
+    readonly property string backgroundColor: "#091518"
+    readonly property string backgroundImagePath: "/home/httpkiwi/Pictures/cozycabininthewoods.webp"
 }
