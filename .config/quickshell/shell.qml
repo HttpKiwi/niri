@@ -1,3 +1,4 @@
+//@ pragma IconTheme Papirus
 pragma ComponentBehavior: Bound
 
 import Quickshell

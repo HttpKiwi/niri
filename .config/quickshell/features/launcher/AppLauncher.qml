@@ -18,7 +18,7 @@ PanelWindow {
     property bool _itemsShouldAnimate: false
     property bool _isInitialShow: false
     readonly property int maxVisibleItems: 5
-    readonly property int itemHeight: 30
+    readonly property int itemHeight: 40
     readonly property int searchBoxContentHeight: 30
     readonly property int searchBoxPadding: 10
     readonly property int listCardPadding: 5
@@ -53,8 +53,10 @@ PanelWindow {
         const maxItems = Math.min(appsToShow.length, maxVisibleItems);
         for (let i = 0; i < maxItems; i++) {
             const app = appsToShow[i];
+            // Convert icon name to path using Quickshell.iconPath()
+            const iconPath = app.icon ? Quickshell.iconPath(app.icon, "") : "";
             filteredModel.append({
-                icon: app.icon || "",
+                icon: iconPath,
                 name: app.name || ""
             });
         }
@@ -108,10 +110,7 @@ PanelWindow {
     color: "transparent"
     exclusiveZone: -1
     
-    // Position at center-top
-    anchors {
-        top: true
-    }
+   
     
     margins {
         top: 100
@@ -172,8 +171,8 @@ PanelWindow {
     Behavior on implicitHeight {
         enabled: visible
         NumberAnimation {
-            duration: Settings.animationDurationShort
-            easing.type: Easing.OutCubic
+            duration: 100  // Very fast height changes
+            easing.type: Easing.OutQuad  // Simpler easing
         }
     }
 
@@ -207,16 +206,20 @@ PanelWindow {
         id: container
         anchors.fill: parent
         
+        // Enable layer for better performance
+        layer.enabled: true
+        layer.smooth: true
+        
         // Slide animation - only on initial show
         transform: Translate {
             id: slideTransform
-            y: appLauncher._showAnimation ? 0 : -20
+            y: appLauncher._showAnimation ? 0 : -15
             
             Behavior on y {
                 enabled: appLauncher.visible
                 NumberAnimation {
                     duration: Settings.animationDurationShort
-                    easing.type: Easing.OutCubic
+                    easing.type: Easing.OutQuad  // Simpler easing for better performance
                 }
             }
         }
@@ -228,7 +231,7 @@ PanelWindow {
             enabled: appLauncher.visible
             NumberAnimation {
                 duration: Settings.animationDurationShort
-                easing.type: Easing.OutCubic
+                easing.type: Easing.Linear  // Linear for smoother opacity changes
             }
         }
         
@@ -243,15 +246,20 @@ PanelWindow {
             height: searchBoxTotalHeight
             showBorder: true
             contentPadding: searchBoxPadding
+            
+            // Cache this card for better performance
+            layer.enabled: true
+            layer.smooth: false
 
             TextInput {
                 id: searchInput
 
                 focus: true
                 anchors.fill: parent
-                font.pixelSize: 24
+                font.pixelSize: 18
                 color: Theme.textPrimary
                 selectByMouse: false
+                renderType: Text.NativeRendering  // Better performance
                 onTextChanged: updateFilter()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Escape) {
@@ -285,12 +293,16 @@ PanelWindow {
             showBorder: true
             contentPadding: listCardPadding
             
+            // Cache list card for better scrolling performance
+            layer.enabled: true
+            layer.smooth: false
+            
             // Animate height changes - fast and responsive
             Behavior on height {
                 enabled: appLauncher.visible
                 NumberAnimation {
                     duration: Settings.animationDurationShort
-                    easing.type: Easing.OutCubic
+                    easing.type: Easing.OutQuad  // Simpler easing
                 }
             }
 
@@ -303,6 +315,11 @@ PanelWindow {
                     currentIndex: selectedIndex
                     highlightFollowsCurrentItem: true
                     interactive: false
+                    
+                    // Performance optimizations
+                    cacheBuffer: itemHeight * 2  // Cache 2 items ahead
+                    highlightMoveDuration: 100  // Fast highlight movement
+                    highlightMoveVelocity: -1  // Disable velocity-based movement
 
                     highlight: Rectangle {
                         color: Theme.surfaceHighlight || Theme.accentContainer
@@ -312,6 +329,10 @@ PanelWindow {
                         height: itemHeight
                         border.width: 2
                         border.color: Theme.accentPrimary || Theme.textPrimary
+                        
+                        // Cache highlight for smooth movement
+                        layer.enabled: true
+                        layer.smooth: true
                     }
 
                     delegate: Item {
@@ -320,18 +341,21 @@ PanelWindow {
                         property bool isSelected: listView.currentIndex === index
                         property bool shouldAnimate: appLauncher._itemsShouldAnimate
 
-                        // Fade in animation - only on initial show
+                        // Cache delegates for better performance
+                        layer.enabled: false  // Disable unless needed
+                        
+                        // Fade in animation - only on initial show, simplified
                         opacity: shouldAnimate ? 1 : (appLauncher.visible ? 1 : 0)
                         
                         Behavior on opacity {
                             enabled: shouldAnimate && appLauncher._isInitialShow
                             SequentialAnimation {
                                 PauseAnimation {
-                                    duration: index * 25 // Stagger each item by 25ms
+                                    duration: index * 20 // Reduced stagger
                                 }
                                 NumberAnimation {
-                                    duration: Settings.animationDurationShort
-                                    easing.type: Easing.OutCubic
+                                    duration: 120  // Shorter duration
+                                    easing.type: Easing.OutQuad  // Simpler easing
                                 }
                             }
                         }
@@ -343,6 +367,7 @@ PanelWindow {
                             color: isSelected ? (Theme.accentContainer || Theme.surfaceHighlight) : "transparent"
                             opacity: isSelected ? 0.8 : 0
                             radius: 8
+                            antialiasing: true  // Smooth rounded corners
                         }
 
                         RowLayout {
@@ -353,20 +378,25 @@ PanelWindow {
                             spacing: 10
 
                             Image {
-                                source: model.icon ? model.icon : "image-missing"
-                                width: 48
-                                height: 48
+                                source: model.icon || ""
+                                Layout.preferredWidth: 24
+                                Layout.preferredHeight: 24
+                                Layout.alignment: Qt.AlignVCenter
                                 fillMode: Image.PreserveAspectFit
-                                smooth: true
+                                smooth: true  // Enable for better icon quality
+                                asynchronous: true  // Load async
+                                cache: true  // Cache icons
+                                visible: model.icon !== ""
                             }
 
                             Text {
                                 Layout.fillWidth: true
                                 text: model.name || ""
                                 color: isSelected ? (Theme.textOnPrimaryContainer || Theme.textPrimary) : Theme.textPrimary
-                                font.pixelSize: 18
+                                font.pixelSize: 14
                                 font.weight: isSelected ? Font.Medium : Font.Normal
                                 elide: Text.ElideRight
+                                renderType: Text.NativeRendering  // Better performance
                             }
                         }
 
