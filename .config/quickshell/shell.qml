@@ -8,6 +8,7 @@ import qs.features.background
 import qs.features.decorations
 import qs.features.notifications
 import qs.features.osd
+import qs.features.launcher
 
 ShellRoot {
     Background {}
@@ -20,6 +21,10 @@ ShellRoot {
     VolumeOSD {}
     NotificationManager {
         id: notificationManager
+    }
+
+    AppLauncher {
+        id: appLauncher
     }
 
 }
