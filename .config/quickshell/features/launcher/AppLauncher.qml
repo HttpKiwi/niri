@@ -16,10 +16,11 @@ PanelWindow {
     property int selectedIndex: 0
     property bool _showAnimation: false
     property bool _itemsShouldAnimate: false
+    property bool _isInitialShow: false
     readonly property int maxVisibleItems: 5
-    readonly property int itemHeight: 70
-    readonly property int searchBoxContentHeight: 70
-    readonly property int searchBoxPadding: 20
+    readonly property int itemHeight: 30
+    readonly property int searchBoxContentHeight: 30
+    readonly property int searchBoxPadding: 10
     readonly property int listCardPadding: 5
     readonly property int verticalSpacing: 10
     readonly property int searchBoxTotalHeight: searchBoxContentHeight + (searchBoxPadding * 2)
@@ -31,7 +32,7 @@ PanelWindow {
         filteredModel.clear();
         const searchText = searchInput.text.trim();
         
-        // Reset item animations when filter changes
+        // Don't animate items when typing, only on initial show
         _itemsShouldAnimate = false;
         
         let appsToShow;
@@ -64,10 +65,11 @@ PanelWindow {
             listView.currentIndex = 0;
         }
         
-        // Trigger item animations after model is updated
-        if (visible) {
+        // Only trigger item animations on initial show, not during typing
+        if (_isInitialShow) {
             Qt.callLater(() => {
                 _itemsShouldAnimate = true;
+                _isInitialShow = false;
             });
         }
     }
@@ -126,6 +128,8 @@ PanelWindow {
         if (visible) {
             selectedIndex = 0;
             searchInput.text = "";
+            // Mark this as initial show for animations
+            _isInitialShow = true;
             updateFilter();
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
             // Reset animation states
@@ -142,6 +146,7 @@ PanelWindow {
         } else {
             _showAnimation = false;
             _itemsShouldAnimate = false;
+            _isInitialShow = false;
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
         }
     }
@@ -163,11 +168,11 @@ PanelWindow {
         }
     }
     
-    // Animated height behavior - smoother with better easing
+    // Animated height behavior - fast and responsive
     Behavior on implicitHeight {
         enabled: visible
         NumberAnimation {
-            duration: Settings.animationDurationMedium
+            duration: Settings.animationDurationShort
             easing.type: Easing.OutCubic
         }
     }
@@ -202,27 +207,27 @@ PanelWindow {
         id: container
         anchors.fill: parent
         
-        // Slide animation - smoother with better easing
+        // Slide animation - only on initial show
         transform: Translate {
             id: slideTransform
-            y: appLauncher._showAnimation ? 0 : -30
+            y: appLauncher._showAnimation ? 0 : -20
             
             Behavior on y {
                 enabled: appLauncher.visible
                 NumberAnimation {
-                    duration: Settings.animationDurationMedium
+                    duration: Settings.animationDurationShort
                     easing.type: Easing.OutCubic
                 }
             }
         }
         
-        // Fade animation - fade in when visible
+        // Fade animation - only on initial show/hide
         opacity: appLauncher.visible ? (appLauncher._showAnimation ? 1 : 0) : 0
         
         Behavior on opacity {
             enabled: appLauncher.visible
             NumberAnimation {
-                duration: Settings.animationDurationMedium
+                duration: Settings.animationDurationShort
                 easing.type: Easing.OutCubic
             }
         }
@@ -280,11 +285,11 @@ PanelWindow {
             showBorder: true
             contentPadding: listCardPadding
             
-            // Animate height changes smoothly
+            // Animate height changes - fast and responsive
             Behavior on height {
                 enabled: appLauncher.visible
                 NumberAnimation {
-                    duration: Settings.animationDurationMedium
+                    duration: Settings.animationDurationShort
                     easing.type: Easing.OutCubic
                 }
             }
@@ -307,13 +312,6 @@ PanelWindow {
                         height: itemHeight
                         border.width: 2
                         border.color: Theme.accentPrimary || Theme.textPrimary
-                        
-                        Behavior on opacity {
-                            NumberAnimation { 
-                                duration: Settings.animationDurationShort
-                                easing.type: Easing.OutCubic
-                            }
-                        }
                     }
 
                     delegate: Item {
@@ -322,62 +320,29 @@ PanelWindow {
                         property bool isSelected: listView.currentIndex === index
                         property bool shouldAnimate: appLauncher._itemsShouldAnimate
 
-                        // Slide in from left animation
-                        transform: Translate {
-                            id: itemSlide
-                            x: shouldAnimate ? 0 : -50
-                            
-                            Behavior on x {
-                                enabled: shouldAnimate || appLauncher.visible
-                                SequentialAnimation {
-                                    PauseAnimation {
-                                        duration: index * 30 // Stagger each item by 30ms
-                                    }
-                                    NumberAnimation {
-                                        duration: Settings.animationDurationMedium
-                                        easing.type: Easing.OutCubic
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Fade in animation
-                        opacity: shouldAnimate ? 1 : 0
+                        // Fade in animation - only on initial show
+                        opacity: shouldAnimate ? 1 : (appLauncher.visible ? 1 : 0)
                         
                         Behavior on opacity {
-                            enabled: shouldAnimate || appLauncher.visible
+                            enabled: shouldAnimate && appLauncher._isInitialShow
                             SequentialAnimation {
                                 PauseAnimation {
-                                    duration: index * 30 // Stagger each item by 30ms
+                                    duration: index * 25 // Stagger each item by 25ms
                                 }
                                 NumberAnimation {
-                                    duration: Settings.animationDurationMedium
+                                    duration: Settings.animationDurationShort
                                     easing.type: Easing.OutCubic
                                 }
                             }
                         }
 
-                        // Background highlight for selected item
+                        // Background highlight for selected item - no animation, instant feedback
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: 2
                             color: isSelected ? (Theme.accentContainer || Theme.surfaceHighlight) : "transparent"
                             opacity: isSelected ? 0.8 : 0
                             radius: 8
-                            
-                            Behavior on opacity {
-                                NumberAnimation { 
-                                    duration: Settings.animationDurationShort
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-                            
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: Settings.animationDurationShort
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
                         }
 
                         RowLayout {
@@ -402,20 +367,6 @@ PanelWindow {
                                 font.pixelSize: 18
                                 font.weight: isSelected ? Font.Medium : Font.Normal
                                 elide: Text.ElideRight
-                                
-                                Behavior on color {
-                                    ColorAnimation {
-                                        duration: Settings.animationDurationShort
-                                        easing.type: Easing.OutCubic
-                                    }
-                                }
-                                
-                                Behavior on font.weight {
-                                    NumberAnimation {
-                                        duration: Settings.animationDurationShort
-                                        easing.type: Easing.OutCubic
-                                    }
-                                }
                             }
                         }
 
