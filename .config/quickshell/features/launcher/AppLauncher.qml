@@ -12,7 +12,7 @@ PanelWindow {
     id: appLauncher
 
     property var allApps: DesktopEntries.applications.values
-    property var filteredApps: DesktopEntries.applications.values
+    property var filteredApps: []
     property int selectedIndex: 0
     property bool _showAnimation: false
     property bool _itemsShouldAnimate: false
@@ -45,14 +45,16 @@ PanelWindow {
             });
         }
         
-        // Add apps to model (limit to maxVisibleItems for display)
+        // Store filtered apps separately (ListModel cannot store functions)
+        filteredApps = appsToShow;
+        
+        // Add apps to model for display only (limit to maxVisibleItems)
         const maxItems = Math.min(appsToShow.length, maxVisibleItems);
         for (let i = 0; i < maxItems; i++) {
             const app = appsToShow[i];
             filteredModel.append({
                 icon: app.icon || "",
-                name: app.name || "",
-                execute: app.execute || function() {}
+                name: app.name || ""
             });
         }
         
@@ -87,12 +89,12 @@ PanelWindow {
     }
 
     function executeSelected() {
-        if (filteredModel.count === 0) return;
+        if (filteredApps.length === 0) return;
         
-        if (selectedIndex >= 0 && selectedIndex < filteredModel.count) {
-            const item = filteredModel.get(selectedIndex);
-            if (item && item.execute) {
-                item.execute();
+        if (selectedIndex >= 0 && selectedIndex < filteredApps.length) {
+            const app = filteredApps[selectedIndex];
+            if (app && app.execute) {
+                app.execute();
                 appLauncher.visible = false;
             }
         }
@@ -118,7 +120,6 @@ PanelWindow {
     Component.onCompleted: {
         WlrLayershell.layer = WlrLayer.Overlay;
         WlrLayershell.namespace = "quickshell-app-launcher";
-        console.log("App Launcher initialized");
     }
     
     onVisibleChanged: {
@@ -130,6 +131,8 @@ PanelWindow {
             // Reset animation states
             _showAnimation = false;
             _itemsShouldAnimate = false;
+            // Force focus immediately when visible
+            searchInput.forceActiveFocus();
             // Start animations smoothly
             Qt.callLater(() => {
                 _showAnimation = true;
@@ -140,6 +143,23 @@ PanelWindow {
             _showAnimation = false;
             _itemsShouldAnimate = false;
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
+        }
+    }
+    
+    // Handle keys at PanelWindow level as fallback
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) {
+            appLauncher.visible = false;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+            executeSelected();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            selectNext();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            selectPrevious();
+            event.accepted = true;
         }
     }
     
@@ -170,7 +190,10 @@ PanelWindow {
         interval: 100
         onTriggered: {
             _itemsShouldAnimate = true;
-            searchInput.forceActiveFocus();
+            // Ensure focus is maintained
+            if (appLauncher.visible) {
+                searchInput.forceActiveFocus();
+            }
         }
     }
 
@@ -223,6 +246,7 @@ PanelWindow {
                 anchors.fill: parent
                 font.pixelSize: 24
                 color: Theme.textPrimary
+                selectByMouse: false
                 onTextChanged: updateFilter()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Escape) {
@@ -276,11 +300,20 @@ PanelWindow {
                     interactive: false
 
                     highlight: Rectangle {
-                        color: Theme.surfaceHighlight || Theme.surfaceBase
-                        opacity: 0.3
+                        color: Theme.surfaceHighlight || Theme.accentContainer
+                        opacity: 0.6
                         radius: 8
                         width: listView ? listView.width : 0
                         height: itemHeight
+                        border.width: 2
+                        border.color: Theme.accentPrimary || Theme.textPrimary
+                        
+                        Behavior on opacity {
+                            NumberAnimation { 
+                                duration: Settings.animationDurationShort
+                                easing.type: Easing.OutCubic
+                            }
+                        }
                     }
 
                     delegate: Item {
@@ -324,14 +357,23 @@ PanelWindow {
                             }
                         }
 
+                        // Background highlight for selected item
                         Rectangle {
                             anchors.fill: parent
                             anchors.margins: 2
-                            color: isSelected ? (Theme.surfaceHighlight || Theme.surfaceBase) : "transparent"
-                            opacity: isSelected ? 0.5 : 0
+                            color: isSelected ? (Theme.accentContainer || Theme.surfaceHighlight) : "transparent"
+                            opacity: isSelected ? 0.8 : 0
                             radius: 8
+                            
                             Behavior on opacity {
                                 NumberAnimation { 
+                                    duration: Settings.animationDurationShort
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                            
+                            Behavior on color {
+                                ColorAnimation {
                                     duration: Settings.animationDurationShort
                                     easing.type: Easing.OutCubic
                                 }
@@ -356,19 +398,33 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 text: model.name || ""
-                                color: Theme.textPrimary
+                                color: isSelected ? (Theme.textOnPrimaryContainer || Theme.textPrimary) : Theme.textPrimary
                                 font.pixelSize: 18
+                                font.weight: isSelected ? Font.Medium : Font.Normal
                                 elide: Text.ElideRight
+                                
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: Settings.animationDurationShort
+                                        easing.type: Easing.OutCubic
+                                    }
+                                }
+                                
+                                Behavior on font.weight {
+                                    NumberAnimation {
+                                        duration: Settings.animationDurationShort
+                                        easing.type: Easing.OutCubic
+                                    }
+                                }
                             }
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                if (model.execute) {
-                                    model.execute();
-                                    appLauncher.visible = false;
-                                }
+                                selectedIndex = index;
+                                listView.currentIndex = index;
+                                executeSelected();
                             }
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor

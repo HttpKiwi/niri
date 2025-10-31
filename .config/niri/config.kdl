@@ -243,7 +243,7 @@ binds {
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "fuzzel";  }
+    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "appLauncher" "toggleLauncher";  }
     Super+V hotkey-overlay-title="Open the Clipboard History: fuzzel" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Mod+Q { close-window; }
