@@ -81,6 +81,24 @@ QtObject {
             return
         }
         
+        // Create notification data object
+        const notificationData = {
+            summary: notification.summary || "",
+            body: notification.body || "",
+            appName: notification.appName || "",
+            appIcon: notification.appIcon || "",
+            image: notification.image || "",
+            id: notification.id || 0,
+            timeout: notification.expireTimeout || Settings.notificationTimeout
+        }
+        
+        // Save to notification history (before dismissal)
+        try {
+            NotificationStore.addNotification(notificationData)
+        } catch (e) {
+            console.warn("Error saving notification to history:", e)
+        }
+        
         // Make room if at capacity
         const activeWindows = _active()
         if (activeWindows.length >= maxNotifications) {
@@ -92,16 +110,6 @@ QtObject {
             if (_isValidWindow(p) && !p.exiting) {
                 p.screenY = p.screenY + baseNotificationHeight
             }
-        }
-        
-        // Create notification data object
-        const notificationData = {
-            summary: notification.summary || "",
-            body: notification.body || "",
-            appName: notification.appName || "",
-            appIcon: notification.appIcon || "",
-            id: notification.id || 0,
-            timeout: notification.expireTimeout || Settings.notificationTimeout
         }
         
         // Create new popup window

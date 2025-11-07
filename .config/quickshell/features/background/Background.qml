@@ -66,6 +66,8 @@ Scope {
                     source: Settings.backgroundImagePath
                     fillMode: Image.PreserveAspectCrop
                     opacity: 1.0
+                    asynchronous: true
+                    cache: false  // Disable cache to save memory for large images
 
                     onStatusChanged: {
                         if (status === Image.Ready) {
@@ -89,7 +91,7 @@ Scope {
                     opacity: 1.0
                     playing: true
                     paused: false
-                    cache: true
+                    cache: false  // Disable cache to save memory - animated images can be large
 
                     onCurrentFrameChanged: {
                         if (currentFrame === frameCount - 1) {

@@ -11,7 +11,7 @@ import qs.components.base
 PanelWindow {
     id: appLauncher
 
-    property var allApps: DesktopEntries.applications.values
+    property var allApps: []
     property var filteredApps: []
     property int selectedIndex: 0
     property bool _showAnimation: false
@@ -27,8 +27,31 @@ PanelWindow {
     readonly property int listContentHeight: Math.min(filteredModel.count, maxVisibleItems) * itemHeight
     readonly property int listCardTotalHeight: listContentHeight + (listCardPadding * 2)
     readonly property int calculatedHeight: searchBoxTotalHeight + verticalSpacing + listCardTotalHeight
+    readonly property int maxHeight: searchBoxTotalHeight + verticalSpacing + (maxVisibleItems * itemHeight) + (listCardPadding * 2)
+
+    function loadAppsIfNeeded() {
+        // Lazy-load desktop entries only when needed
+        if (allApps.length === 0) {
+            const rawApps = DesktopEntries.applications.values || [];
+            // Deduplicate apps by name to avoid showing duplicates
+            const seenNames = new Set();
+            const uniqueApps = [];
+            for (let i = 0; i < rawApps.length; i++) {
+                const app = rawApps[i];
+                const appName = app.name || "";
+                if (appName && !seenNames.has(appName)) {
+                    seenNames.add(appName);
+                    uniqueApps.push(app);
+                }
+            }
+            allApps = uniqueApps;
+        }
+    }
 
     function updateFilter() {
+        // Load apps if not already loaded
+        loadAppsIfNeeded();
+        
         filteredModel.clear();
         const searchText = searchInput.text.trim();
         
@@ -106,11 +129,14 @@ PanelWindow {
 
     visible: false
     implicitWidth: 400
-    implicitHeight: calculatedHeight
+    implicitHeight: maxHeight  // Fixed maximum height to avoid PanelWindow animation
     color: "transparent"
     exclusiveZone: -1
     
-   
+    // Mask for smooth animations (required for transparent+mask pattern)
+    mask: Region {
+        item: container
+    }
     
     margins {
         top: 100
@@ -129,6 +155,8 @@ PanelWindow {
             searchInput.text = "";
             // Mark this as initial show for animations
             _isInitialShow = true;
+            // Load apps when launcher becomes visible
+            loadAppsIfNeeded();
             updateFilter();
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
             // Reset animation states
@@ -147,6 +175,10 @@ PanelWindow {
             _itemsShouldAnimate = false;
             _isInitialShow = false;
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
+            // Clear apps from memory when hidden to save memory
+            allApps = [];
+            filteredApps = [];
+            filteredModel.clear();
         }
     }
     
@@ -164,15 +196,6 @@ PanelWindow {
         } else if (event.key === Qt.Key_Up) {
             selectPrevious();
             event.accepted = true;
-        }
-    }
-    
-    // Animated height behavior - fast and responsive
-    Behavior on implicitHeight {
-        enabled: visible
-        NumberAnimation {
-            duration: 100  // Very fast height changes
-            easing.type: Easing.OutQuad  // Simpler easing
         }
     }
 
@@ -204,10 +227,26 @@ PanelWindow {
     // Container with slide and fade animations
     Item {
         id: container
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        clip: true  // Clip to animate visible height
         
-        // Enable layer for better performance
-        layer.enabled: true
+        // Animated height for smooth appearance
+        property real animatedHeight: appLauncher.visible && appLauncher._showAnimation ? calculatedHeight : 0
+        
+        height: animatedHeight
+        
+        Behavior on height {
+            enabled: appLauncher.visible
+            NumberAnimation {
+                duration: Settings.animationDurationShort
+                easing.type: Easing.OutQuad
+            }
+        }
+        
+        // Only enable layer when visible to save memory
+        layer.enabled: appLauncher.visible
         layer.smooth: true
         
         // Slide animation - only on initial show
@@ -247,9 +286,9 @@ PanelWindow {
             showBorder: true
             contentPadding: searchBoxPadding
             
-            // Cache this card for better performance
-            layer.enabled: true
-            layer.smooth: false
+            // Only enable layer when visible to save memory
+            layer.enabled: appLauncher.visible
+            layer.smooth: true
 
             TextInput {
                 id: searchInput
@@ -259,7 +298,8 @@ PanelWindow {
                 font.pixelSize: 18
                 color: Theme.textPrimary
                 selectByMouse: false
-                renderType: Text.NativeRendering  // Better performance
+                renderType: Text.QtRendering  // Better antialiasing than NativeRendering
+                antialiasing: true
                 onTextChanged: updateFilter()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Escape) {
@@ -293,8 +333,8 @@ PanelWindow {
             showBorder: true
             contentPadding: listCardPadding
             
-            // Cache list card for better scrolling performance
-            layer.enabled: true
+            // Only enable layer when visible to save memory
+            layer.enabled: appLauncher.visible
             layer.smooth: false
             
             // Animate height changes - fast and responsive
@@ -330,8 +370,8 @@ PanelWindow {
                         border.width: 2
                         border.color: Theme.accentPrimary || Theme.textPrimary
                         
-                        // Cache highlight for smooth movement
-                        layer.enabled: true
+                        // Only enable layer when launcher is visible
+                        layer.enabled: appLauncher.visible
                         layer.smooth: true
                     }
 
@@ -384,8 +424,9 @@ PanelWindow {
                                 Layout.alignment: Qt.AlignVCenter
                                 fillMode: Image.PreserveAspectFit
                                 smooth: true  // Enable for better icon quality
+                                antialiasing: true  // Explicit antialiasing for icons
                                 asynchronous: true  // Load async
-                                cache: true  // Cache icons
+                                cache: appLauncher.visible  // Only cache when launcher is visible
                                 visible: model.icon !== ""
                             }
 
@@ -396,7 +437,8 @@ PanelWindow {
                                 font.pixelSize: 14
                                 font.weight: isSelected ? Font.Medium : Font.Normal
                                 elide: Text.ElideRight
-                                renderType: Text.NativeRendering  // Better performance
+                                renderType: Text.QtRendering  // Better antialiasing
+                                antialiasing: true
                             }
                         }
 

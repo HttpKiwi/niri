@@ -21,6 +21,10 @@ QtObject {
     readonly property int notificationRightMargin: 16
     readonly property int notificationSpacing: 105
     readonly property int notificationDismissThreshold: 100
+    // Notification history limits
+    readonly property int notificationHistoryMaxPerApp: 100
+    readonly property int notificationHistoryMaxTotal: 1000
+    readonly property int notificationHistoryMaxAgeDays: 2  // 0 = disabled, >0 = auto-cleanup older than N days
     // ========================================
     // OSD Settings
     // ========================================

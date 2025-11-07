@@ -28,5 +28,9 @@ ShellRoot {
         id: appLauncher
     }
 
+    NotificationHistoryPanel {
+        id: notificationHistoryPanel
+    }
+
 }
 

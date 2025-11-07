@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import qs.components.base
 import qs.config
 
@@ -71,9 +72,24 @@ Item {
         Image {
             id: notificationImage
 
-            source: root.notification.image || ""
+            // Use appIcon converted to path via Quickshell.iconPath(), similar to AppLauncher
+            // Fallback to notification.image if appIcon is not available or doesn't resolve
+            source: {
+                if (!root.notification) return "";
+                if (root.notification.appIcon) {
+                    const iconPath = Quickshell.iconPath(root.notification.appIcon, "");
+                    if (iconPath) return iconPath;
+                }
+                return root.notification.image || "";
+            }
+            width: 48
+            height: 48
             sourceSize: Qt.size(48, 48)
-            visible: source != ""
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+            asynchronous: true
+            cache: false
+            visible: source !== ""
         }
 
     }

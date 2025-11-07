@@ -12,6 +12,7 @@ set -gx SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
 # Flutter
 set -gx FLUTTER_ROOT /opt/flutter
 set -gx QS_ICON_THEME Papirus
+set -gx QT_QPA_PLATFORMTHEME qt6ct
 # Add paths
 fish_add_path /opt/flutter/bin
 fish_add_path $ANDROID_HOME/tools
@@ -21,4 +22,3 @@ fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
 
 starship init fish | source
 export PATH="$HOME/.local/bin:$PATH"
-

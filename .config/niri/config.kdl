@@ -103,6 +103,7 @@ layout {
         // top 64
         // bottom 64
     }
+
 }
 
 // ============================================================================
@@ -132,7 +133,6 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
-spawn-at-startup "bash" "-c" "swww-daemon --namespace overview"
 spawn-at-startup "bash" "-c" "python3 ~/.config/quickshell/scripts/niri_status.py"
 spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
@@ -244,6 +244,7 @@ binds {
     
     Mod+Return { spawn "kitty"; }
     Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "appLauncher" "toggleLauncher";  }
+    Super+N hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "notificationHistory" "toggleHistory";  }
     Super+V hotkey-overlay-title="Open the Clipboard History: fuzzel" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Mod+Q { close-window; }
