@@ -12,11 +12,7 @@ import qs.components.base
 import qs.components.indicators
 import qs.features.decorations
 
-/**
- * Bar - Single PanelWindow combining bar and screen border
- * Creates a horizontal top bar with screen borders and rounded corners
- * Automatically handles multiple monitors via Variants
- */
+
 Scope {
     id: root
 
@@ -33,7 +29,7 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
-            WlrLayershell.namespace: "quickshell:bar"
+            WlrLayershell.namespace: "quickshell:unifiedBar"
             visible: !Niri.is_overview
 
             screen: modelData || Quickshell.screens[0]
@@ -46,56 +42,6 @@ Scope {
             }
 
             // Inline Components
-            component Corner: WrapperItem {
-                id: cornerRoot
-
-                property int corner
-                property real radius: 18
-                property color color
-
-                Component.onCompleted: {
-                    switch (corner) {
-                    case 0: // topLeft
-                        anchors.left = parent.left
-                        anchors.top = parent.top
-                        break
-                    case 1: // topRight
-                        anchors.top = parent.top
-                        anchors.right = parent.right
-                        rotation = 90
-                        break
-                    }
-                }
-
-                Shape {
-                    preferredRendererType: Shape.CurveRenderer
-
-                    ShapePath {
-                        strokeWidth: 0
-                        fillColor: cornerRoot.color
-                        startX: cornerRoot.radius
-
-                        PathArc {
-                            relativeX: -cornerRoot.radius
-                            relativeY: cornerRoot.radius
-                            radiusX: cornerRoot.radius
-                            radiusY: radiusX
-                            direction: PathArc.Counterclockwise
-                        }
-
-                        PathLine {
-                            relativeX: 0
-                            relativeY: -cornerRoot.radius
-                        }
-
-                        PathLine {
-                            relativeX: cornerRoot.radius
-                            relativeY: 0
-                        }
-                    }
-                }
-            }
-
             component Exclusion: PanelWindow {
                 property string name
                 implicitWidth: 0
@@ -106,7 +52,7 @@ Scope {
             // Exclusion Zone for top bar
             Exclusion {
                 name: "top"
-                exclusiveZone: topBar.implicitHeight
+                exclusiveZone: topBar.implicitHeight - 5
                 anchors.top: true
                 screen: window.screen
             }
@@ -115,11 +61,15 @@ Scope {
             Rectangle {
                 id: topBar
 
-                implicitWidth: window.screen?.width ?? 0
                 implicitHeight: Settings.barHeight
+                width: window.screen?.width ?? 0
+                height: Settings.barHeight
                 color: Theme.surfaceBase
                 anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
                 visible: !Niri.is_overview
+                z: 0  // Explicitly set z to ensure corners can be above
 
                 // Left - Workspaces
                 Row {
@@ -211,25 +161,22 @@ Scope {
                 }
             }
 
-            // Rounded bottom corners of the bar (where bar meets screen borders)
-            RoundCorner {
+            Corner {
                 id: barBottomLeftCorner
                 anchors.top: topBar.bottom
                 anchors.left: parent.left
-                size: 18
-                corner: barBottomLeftCorner.cornerEnum.topLeft
+                corner: 0  // topLeft shape, positioned to create bar-to-border transition
+                radius: 24
                 color: Theme.surfaceBase
-                visible: !Niri.is_overview
             }
 
-            RoundCorner {
+            Corner {
                 id: barBottomRightCorner
                 anchors.top: topBar.bottom
                 anchors.right: parent.right
-                size: 18
-                corner: barBottomRightCorner.cornerEnum.topRight
+                corner: 1  // topRight shape, positioned to create bar-to-border transition
+                radius: 24
                 color: Theme.surfaceBase
-                visible: !Niri.is_overview
             }
 
             // Screen Borders
@@ -267,57 +214,29 @@ Scope {
             }
 
             // Bottom rounded corners
-            RoundCorner {
+            Corner {
                 id: bottomLeftCorner
-                corner: bottomLeftCorner.cornerEnum.bottomLeft
-                size: 18
+                corner: 3  // bottomLeft
+                radius: 16
                 color: Color.background
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.leftMargin: 6
                 anchors.bottomMargin: 6
-                visible: !Niri.is_overview
             }
 
-            RoundCorner {
+            Corner {
                 id: bottomRightCorner
-                corner: bottomRightCorner.cornerEnum.bottomRight
-                size: 18
+                corner: 2  // bottomRight
+                radius: 16
                 color: Color.background
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 anchors.rightMargin: 6
                 anchors.bottomMargin: 6
-                visible: !Niri.is_overview
             }
 
-            // Top rounded corners area (for masking and corner rendering)
-            Rectangle {
-                id: cornersArea
-                width: (window.screen?.width ?? 0)
-                height: topBar.implicitHeight
-                color: "transparent"
-                x: 0
-                y: 0
 
-                // Top-left corner
-                Corner {
-                    corner: 0
-                    radius: 18
-                    color: Theme.surfaceBase
-                }
-
-                // Top-right corner
-                Corner {
-                    corner: 1
-                    radius: 18
-                    color: Theme.surfaceBase
-                }
-            }
-
-            // Inner rectangle that represents the click-through area
-            // Everything OUTSIDE this (the bar and borders) will be interactive
-            // Using Xor intersection to invert the mask
             Rectangle {
                 id: innerClickThrough
                 anchors {
@@ -334,8 +253,6 @@ Scope {
                 visible: false
             }
 
-            // Mask with Xor: Makes everything EXCEPT innerClickThrough interactive
-            // This inverts the mask so bar + borders are interactive, center is click-through
             mask: Region {
                 item: innerClickThrough
                 intersection: Intersection.Xor

@@ -37,7 +37,7 @@ QtObject {
     // ========================================
     readonly property int barHeight: 30
     readonly property int barExclusiveZone: 35
-    readonly property int barPillHeight: 24
+    readonly property int barPillHeight: 20  // Reduced from 24 to add more padding inside bar
     readonly property int barPillRadius: 12
     readonly property int barPillPadding: 16
     readonly property int barContentMargin: 12

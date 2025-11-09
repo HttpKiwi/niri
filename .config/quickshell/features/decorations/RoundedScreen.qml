@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.core
+import qs.features.decorations
 
 /**
  * RoundedScreen - Rounded screen corners
@@ -44,39 +45,41 @@ Scope {
                 bottom: true
             }
             
-            RoundCorner {
+            Corner {
                 id: topLeftCorner
                 anchors.top: parent.top
                 anchors.left: parent.left
-                size: 12
-                corner: cornerEnum.topLeft
+                corner: 0  // topLeft
+                radius: 12
                 color: "black"
+                visible: Niri.is_overview  // Hide when bar is visible
             }
             
-            RoundCorner {
+            Corner {
                 id: topRightCorner
                 anchors.top: parent.top
                 anchors.right: parent.right
-                size: 12
-                corner: cornerEnum.topRight
+                corner: 1  // topRight
+                radius: 12
                 color: "black"
+                visible: Niri.is_overview  // Hide when bar is visible
             }
             
-            RoundCorner {
+            Corner {
                 id: bottomLeftCorner
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
-                size: 12
-                corner: cornerEnum.bottomLeft
+                corner: 3  // bottomLeft
+                radius: 12
                 color: "black"
             }
             
-            RoundCorner {
+            Corner {
                 id: bottomRightCorner
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
-                size: 12
-                corner: cornerEnum.bottomRight
+                corner: 2  // bottomRight
+                radius: 12
                 color: "black"
             }
             

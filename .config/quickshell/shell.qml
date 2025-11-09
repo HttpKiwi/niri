@@ -14,7 +14,7 @@ import qs.features.launcher
 ShellRoot {
     Background {}
     BackgroundShadow {}
-    Bar {}
+    UnifiedBar {}
     RoundedScreen {}
     VolumeOSD {}
     NotificationManager {
