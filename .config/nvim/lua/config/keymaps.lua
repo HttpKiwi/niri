@@ -70,9 +70,14 @@ vim.keymap.set("v", "<leader>ct", ":CopilotChatTests<cr>", { desc = "Generate te
 vim.keymap.set("v", "<leader>cr", ":CopilotChatReview<cr>", { desc = "Review selection with Copilot" })
 
 -- Accept Copilot suggestion with Ctrl-l (recommended)
-vim.keymap.set("i", "<C-l>", 'copilot#Accept("\\<CR>")', {
+vim.keymap.set("i", "<C-l>", 'copilot#Accept("")', {
   expr = true,
   silent = true,
   desc = "Copilot accept",
 })
 
+-- Tmux navigation keymaps
+vim.keymap.set("n", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { desc = "Tmux Navigate Left" })
+vim.keymap.set("n", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { desc = "Tmux Navigate Down" })
+vim.keymap.set("n", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { desc = "Tmux Navigate Up" })
+vim.keymap.set("n", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { desc = "Tmux Navigate Right" })

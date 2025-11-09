@@ -1,6 +1,4 @@
 module qs.features.decorations
 
 RoundCorner 1.0 RoundCorner.qml
-ScreenBorder 1.0 ScreenBorder.qml
 RoundedScreen 1.0 RoundedScreen.qml
-MultiScreenBorder 1.0 MultiScreenBorder.qml

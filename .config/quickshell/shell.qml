@@ -14,11 +14,8 @@ import qs.features.launcher
 ShellRoot {
     Background {}
     BackgroundShadow {}
-    MultiMonitorBar {
-        id: multiMonitorBar
-    }
+    Bar {}
     RoundedScreen {}
-    MultiScreenBorder {}
     VolumeOSD {}
     NotificationManager {
         id: notificationManager
