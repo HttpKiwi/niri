@@ -24,7 +24,7 @@ QtObject {
     // Notification history limits
     readonly property int notificationHistoryMaxPerApp: 100
     readonly property int notificationHistoryMaxTotal: 1000
-    readonly property int notificationHistoryMaxAgeDays: 2  // 0 = disabled, >0 = auto-cleanup older than N days
+    readonly property int notificationHistoryMaxAgeDays: 2 // 0 = disabled, >0 = auto-cleanup older than N days
     // ========================================
     // OSD Settings
     // ========================================
@@ -37,7 +37,7 @@ QtObject {
     // ========================================
     readonly property int barHeight: 30
     readonly property int barExclusiveZone: 35
-    readonly property int barPillHeight: 20  // Reduced from 24 to add more padding inside bar
+    readonly property int barPillHeight: 20 // Reduced from 24 to add more padding inside bar
     readonly property int barPillRadius: 12
     readonly property int barPillPadding: 16
     readonly property int barContentMargin: 12
@@ -85,5 +85,5 @@ QtObject {
     // ========================================
     readonly property string backgroundType: "image"
     readonly property string backgroundColor: "#091518"
-    readonly property string backgroundImagePath: "/home/httpkiwi/Pictures/cozycabininthewoods.webp"
+    property string backgroundImagePath: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
 }

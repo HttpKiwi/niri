@@ -10,6 +10,7 @@ import qs.features.decorations
 import qs.features.notifications
 import qs.features.osd
 import qs.features.launcher
+import qs.features.wallpaper
 
 ShellRoot {
     Background {}
@@ -27,6 +28,10 @@ ShellRoot {
 
     NotificationHistoryPanel {
         id: notificationHistoryPanel
+    }
+
+    WallpaperSelector {
+        id: wallpaperSelector
     }
 
 }
