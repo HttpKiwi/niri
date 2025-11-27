@@ -14,12 +14,11 @@ set = false
 
 # # GTK
 
-# # >> fallback gradiance mode but abit slower
-# #[templates.gradience]
-# #pre_hook = "rm -rf ~/.config/gtk-4.0"
-# #input_path = "~/.config/matugen/templates/gradience.json"
-# #output_path = "~/.cache/ags/user/generated/gradience/gradience.json"
-# #post_hook = "gradience-cli apply -p ~/.cache/ags/user/generated/gradience/gradience.json --gtk both"
+# Gradience for proper Material 3 theming of GTK4/libadwaita apps
+[templates.gradience]
+input_path = "~/.config/matugen/templates/gradience.json"
+output_path = "~/.cache/matugen/gradience.json"
+post_hook = "gradience-cli apply -p ~/.cache/matugen/gradience.json --gtk both"
 
 [templates.gtk3]
 input_path = '~/.config/matugen/templates/gtk-colors.css'
@@ -64,7 +63,7 @@ post_hook = "kitty @ load-config"
 
 [templates.vencord]
 input_path = "~/.config/matugen/templates/discord.css"
-output_path = "~/.config/Vencord/themes/HyprLuna.css"
+output_path = "~/.config/vesktop/themes/HyprLuna.css"
 
  [templates.obsidian]
  input_path = "~/.config/matugen/templates/obsidian.css"
@@ -77,18 +76,20 @@ output_path = "~/.vscode/extensions/hyprluna.hyprluna-theme-1.0.2/themes/hyprlun
 [templates.pywalfox]
 input_path = '~/.config/matugen/templates/pywalfox-colors.json'
 output_path = '~/.cache/wal/colors.json'
+post_hook = 'pywalfox update'
 
 [templates.zen]
-input_path = "~/.config/matugen/templates/zenbrowser.css"
-output_path = "~/.zen/1wip2bd5.Default (release)/chrome/userChrome.css"
+input_path = "~/.config/matugen/templates/userChrome.css"
+output_path = "~/.zen/yak8abkd.Default (release)/chrome/userChrome.css"
 
-# [templates.kvantum]
-# input_path = "~/.config/matugen/templates/kvantum.kvconfig"
-# output_path = "~/.config/Kvantum/MaterialAdw/MaterialAdw.kvconfig"
+# Kvantum for Material 3 theming of Qt apps
+[templates.kvantum]
+input_path = "~/.config/matugen/templates/kvantum.kvconfig"
+output_path = "~/.config/Kvantum/MaterialAdw/MaterialAdw.kvconfig"
 
-# [templates.kvantum_svg]
-# input_path = "~/.config/matugen/templates/kvantum.svg"
-# output_path = "~/.config/Kvantum/MaterialAdw/MaterialAdw.svg"
+[templates.kvantum_svg]
+input_path = "~/.config/matugen/templates/kvantum.svg"
+output_path = "~/.config/Kvantum/MaterialAdw/MaterialAdw.svg"
 
 # [templates.nvchad]
 # input_path = "~/.config/matugen/templates/nvluna.lua"

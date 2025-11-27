@@ -28,6 +28,10 @@ PanelWindow {
     property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
     property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
 
+    // Preview state
+    property string originalWallpaper: ""  // Store original wallpaper for cancellation
+    property bool isPreviewing: false      // Track if we're in preview mode
+
     // UI state
     property bool _showAnimation: false
     property bool _isHiding: false
@@ -170,10 +174,39 @@ PanelWindow {
         }
     }
 
+    // Static Process for running matugen cache script
+    Process {
+        id: matugenRunner
+        running: false
+
+        stdout: SplitParser {
+            onRead: data => {
+                console.log("Matugen Cache:", data)
+            }
+        }
+
+        stderr: SplitParser {
+            onRead: data => {
+                console.log("Matugen Cache:", data)
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                console.log("WallpaperSelector: Matugen cache script finished")
+            }
+        }
+    }
+
     onVisibleChanged: {
         console.log("WallpaperSelector: Visibility changed to:", visible)
         if (visible) {
             if (!_isHiding) {
+                // Store original wallpaper when opening
+                originalWallpaper = Settings.backgroundImagePath
+                isPreviewing = false
+                console.log("WallpaperSelector: Saved original wallpaper:", originalWallpaper)
+
                 hideAnimationTimer.stop()
                 WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
                 _showAnimation = false
@@ -181,6 +214,8 @@ PanelWindow {
                 Qt.callLater(() => {
                     _showAnimation = true
                     mainContainer.forceActiveFocus()
+                    // Scroll to selected item after showing
+                    scrollToSelected()
                 })
             }
         } else {
@@ -198,9 +233,116 @@ PanelWindow {
         }
     }
 
+    // Monitor selection changes for instant preview
+    onSelectedIndexChanged: {
+        if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length) {
+            const selectedWallpaper = wallpapers[selectedIndex]
+            console.log("WallpaperSelector: Selection changed, previewing:", selectedWallpaper.name)
+
+            isPreviewing = true
+
+            // Update wallpaper instantly
+            Settings.backgroundImagePath = selectedWallpaper.path
+
+            // Stop previous matugen run if still running
+            if (matugenRunner.running) {
+                console.log("WallpaperSelector: Stopping previous matugen run")
+                matugenRunner.running = false
+            }
+
+            // Run matugen cache script instantly
+            console.log("WallpaperSelector: Running matugen cache for:", selectedWallpaper.path)
+            matugenRunner.command = buildMatugenCommand(selectedWallpaper.path)
+            matugenRunner.running = true
+
+            // Scroll to center the selected thumbnail
+            scrollToSelected()
+        }
+    }
+
+    // Build matugen cache command with current preferences
+    function buildMatugenCommand(wallpaperPath) {
+        return [
+            "/home/httpkiwi/.config/quickshell/scripts/matugen-cache.sh",
+            wallpaperPath,
+            "--scheme-type", MatugenPreferences.schemeType,
+            "--mode", MatugenPreferences.colorMode,
+            "--contrast", MatugenPreferences.contrastLevel.toString()
+        ]
+    }
+
+    // Regenerate colors for current wallpaper (when preferences change)
+    function regenerateCurrentWallpaper() {
+        if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length) {
+            const selectedWallpaper = wallpapers[selectedIndex]
+            console.log("WallpaperSelector: Regenerating colors with new preferences")
+
+            // Stop previous matugen run if still running
+            if (matugenRunner.running) {
+                matugenRunner.running = false
+            }
+
+            // Run matugen with new preferences
+            matugenRunner.command = buildMatugenCommand(selectedWallpaper.path)
+            matugenRunner.running = true
+        }
+    }
+
+    // Watch for preference changes and regenerate
+    Connections {
+        target: MatugenPreferences
+
+        function onSchemeTypeChanged() {
+            console.log("WallpaperSelector: Scheme changed to:", MatugenPreferences.schemeType)
+            regenerateCurrentWallpaper()
+        }
+
+        function onColorModeChanged() {
+            console.log("WallpaperSelector: Mode changed to:", MatugenPreferences.colorMode)
+            regenerateCurrentWallpaper()
+        }
+
+        function onContrastLevelChanged() {
+            console.log("WallpaperSelector: Contrast changed to:", MatugenPreferences.contrastLevel)
+            regenerateCurrentWallpaper()
+        }
+    }
+
+    // Function to scroll selected thumbnail into center view
+    function scrollToSelected() {
+        if (!scrollView || wallpapers.length === 0) return
+
+        // Calculate the x position of the selected thumbnail
+        // Position = (thumbnailSize + spacing) * index + padding
+        const itemX = (thumbnailSize + thumbnailSpacing) * selectedIndex + 8
+
+        // Calculate the center position
+        // We want the item center to be at the scrollView center
+        const itemCenter = itemX + thumbnailSize / 2
+        const scrollViewCenter = scrollView.width / 2
+
+        // Target scroll position
+        const targetX = itemCenter - scrollViewCenter
+
+        // Get the content width and scrollView width
+        const contentWidth = thumbnailRow.width
+        const viewWidth = scrollView.width
+
+        // Clamp to valid scroll range
+        const maxScroll = Math.max(0, contentWidth - viewWidth)
+        const scrollX = Math.max(0, Math.min(targetX, maxScroll))
+
+        // Set the scroll position
+        scrollView.ScrollBar.horizontal.position = scrollX / contentWidth
+    }
+
     // Keyboard handling
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
+            // Cancel preview and restore original
+            if (isPreviewing) {
+                cancelPreview()
+            }
             wallpaperSelector._showAnimation = false
             wallpaperSelector._isHiding = true
             hideAnimationTimer.restart()
@@ -214,6 +356,14 @@ PanelWindow {
             if (selectedIndex < wallpapers.length - 1) {
                 selectedIndex++
             }
+            event.accepted = true
+        } else if (event.key === Qt.Key_S) {
+            // Cycle through scheme types
+            MatugenPreferences.nextScheme()
+            event.accepted = true
+        } else if (event.key === Qt.Key_M) {
+            // Toggle dark/light mode
+            MatugenPreferences.toggleMode()
             event.accepted = true
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
             applyWallpaper()
@@ -237,6 +387,7 @@ PanelWindow {
         }
     }
 
+
     // IPC handler
     IpcHandler {
         function toggleSelector() {
@@ -250,6 +401,23 @@ PanelWindow {
         }
 
         target: "wallpaperSelector"
+    }
+
+    // Cancel preview and restore original wallpaper
+    function cancelPreview() {
+        console.log("WallpaperSelector: Cancelling preview, restoring:", originalWallpaper)
+
+        // Restore original wallpaper
+        Settings.backgroundImagePath = originalWallpaper
+
+        // Restore original colors with matugen cache script
+        if (originalWallpaper && originalWallpaper !== "") {
+            console.log("WallpaperSelector: Restoring original colors")
+            matugenRunner.command = buildMatugenCommand(originalWallpaper)
+            matugenRunner.running = true
+        }
+
+        isPreviewing = false
     }
 
     // Apply selected wallpaper
@@ -271,9 +439,10 @@ PanelWindow {
         wallpaperSaver.command = ["sh", "-c", `echo '${jsonData}' > '${currentWallpaperFile}'`]
         wallpaperSaver.running = true
 
-        // Update Settings (this will trigger Background component to reload)
+        // Colors already generated from preview, just confirm settings
+        console.log("WallpaperSelector: Colors already generated from preview")
         Settings.backgroundImagePath = selectedWallpaper.path
-        console.log("WallpaperSelector: Updated Settings.backgroundImagePath to:", selectedWallpaper.path)
+        isPreviewing = false
 
         // Close selector with animation
         wallpaperSelector._showAnimation = false
@@ -290,6 +459,10 @@ PanelWindow {
         // Keyboard events
         Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Escape) {
+                // Cancel preview and restore original
+                if (isPreviewing) {
+                    cancelPreview()
+                }
                 wallpaperSelector._showAnimation = false
                 wallpaperSelector._isHiding = true
                 hideAnimationTimer.restart()
@@ -303,6 +476,14 @@ PanelWindow {
                 if (selectedIndex < wallpapers.length - 1) {
                     selectedIndex++
                 }
+                event.accepted = true
+            } else if (event.key === Qt.Key_S) {
+                // Cycle through scheme types
+                MatugenPreferences.nextScheme()
+                event.accepted = true
+            } else if (event.key === Qt.Key_M) {
+                // Toggle dark/light mode
+                MatugenPreferences.toggleMode()
                 event.accepted = true
             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                 applyWallpaper()
@@ -351,8 +532,95 @@ PanelWindow {
                     horizontalAlignment: Text.AlignHCenter
                 }
 
+                // Matugen options toolbar
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    spacing: 12
+
+                    Item { Layout.fillWidth: true } // Spacer
+
+                    // Scheme type selector
+                    Rectangle {
+                        Layout.preferredWidth: 180
+                        Layout.preferredHeight: 32
+                        color: Theme.cardBackground
+                        radius: 8
+                        border.color: Theme.borderDefault
+                        border.width: 1
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                MatugenPreferences.nextScheme()
+                            }
+                        }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            spacing: 6
+
+                            Text {
+                                text: "🎨"
+                                font.pixelSize: Settings.fontSizeMedium
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: MatugenPreferences.schemeName
+                                color: Theme.textPrimary
+                                font.pixelSize: Settings.fontSizeSmall
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                text: "▼"
+                                color: Theme.textSecondary
+                                font.pixelSize: Settings.fontSizeSmall
+                            }
+                        }
+                    }
+
+                    // Dark/Light mode toggle
+                    Rectangle {
+                        Layout.preferredWidth: 80
+                        Layout.preferredHeight: 32
+                        color: Theme.cardBackground
+                        radius: 8
+                        border.color: Theme.borderDefault
+                        border.width: 1
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                MatugenPreferences.toggleMode()
+                            }
+                        }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            spacing: 6
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: MatugenPreferences.colorMode === "dark" ? "🌙 Dark" : "☀️ Light"
+                                color: Theme.textPrimary
+                                font.pixelSize: Settings.fontSizeSmall
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true } // Spacer
+                }
+
                 // Scrollable wallpaper grid
                 ScrollView {
+                    id: scrollView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
@@ -360,8 +628,17 @@ PanelWindow {
                     ScrollBar.horizontal.policy: ScrollBar.AsNeeded
                     ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
+                    // Smooth scrolling animation
+                    Behavior on ScrollBar.horizontal.position {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+
                     // Horizontal row of thumbnails
                     Row {
+                        id: thumbnailRow
                         spacing: thumbnailSpacing
                         padding: 8
 

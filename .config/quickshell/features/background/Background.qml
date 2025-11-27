@@ -34,6 +34,7 @@ Scope {
             property var modelData
             property string detectedType: bgUtil.getBackgroundType(Settings.backgroundImagePath)
             property bool hasImage: Settings.backgroundImagePath !== ""
+            property string currentPath: Settings.backgroundImagePath  // Track path changes
 
             visible: true
             screen: modelData || Quickshell.screens[0]
@@ -81,23 +82,49 @@ Scope {
 
             // Animated Image (GIF, WebP, APNG)
             Loader {
+                id: animatedLoader
                 anchors.fill: parent
                 active: hasImage && detectedType === "animated"
                 sourceComponent: AnimatedImage {
                     id: animatedBg
                     anchors.fill: parent
-                    source: Settings.backgroundImagePath
+                    source: currentPath  // Use tracked path
                     fillMode: Image.PreserveAspectCrop
                     opacity: 1.0
                     playing: true
                     paused: false
                     cache: false  // Disable cache to save memory - animated images can be large
 
+                    Component.onCompleted: {
+                        console.log("AnimatedImage loaded:", source)
+                    }
+
+                    onSourceChanged: {
+                        console.log("AnimatedImage source changed to:", source)
+                        // Restart animation on source change
+                        playing = false
+                        currentFrame = 0
+                        playing = true
+                    }
+
                     onCurrentFrameChanged: {
                         if (currentFrame === frameCount - 1) {
                             currentFrame = 0
                         }
                     }
+                }
+            }
+
+            // Monitor path changes and reload animated loader if needed
+            onCurrentPathChanged: {
+                console.log("Background path changed to:", currentPath)
+                console.log("Detected type:", detectedType)
+                if (detectedType === "animated" && animatedLoader.active) {
+                    // Force reload of animated image
+                    animatedLoader.active = false
+                    Qt.callLater(() => {
+                        animatedLoader.active = true
+                    })
                 }
             }
 

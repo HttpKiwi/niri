@@ -40,12 +40,10 @@ input {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 
 output "DP-3" {
-    // Basic display settings
-    mode "1920x1080@143.981"  // Resolution and refresh rate
-    scale 1                   // Display scaling (1.0 = 100%, 1.5 = 150%, etc.)
-    transform "normal"        // Rotation: normal, 90, 180, 270, flipped-*
+   
+    mode "1920x1080@143.981"  
+    transform "normal"        
     position x=1080 y=0
-    // Position in global coordinate space (affects directional actions)
     focus-at-startup   
 }
 
@@ -97,6 +95,13 @@ layout {
     }
 
     */
+
+    blur {
+      on 
+      noise 0.2
+      passes 4
+      radius 1
+    }
     // Struts (outer gaps)
     struts {
         // left 64
@@ -157,7 +162,7 @@ environment {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
 overview {
-    zoom 0.7
+    zoom 0.3
     backdrop-color "#000000"
     
     workspace-shadow {
@@ -173,9 +178,16 @@ window-rule {
 }
 
 window-rule {
+  blur {
+    on
+  }
+
+}
+
+window-rule {
   match is-active=false
   opacity 0.95
-}
+  }
 
 window-rule {
   match title="Picture-in-Picture"
@@ -254,6 +266,8 @@ binds {
     Super+N hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "notificationHistory" "toggleHistory";  }
     Super+V hotkey-overlay-title="Open the Clipboard History: fuzzel" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
+    Super+B {spawn "zen-browser"; }
+    Super+Shift+W { spawn "qs" "ipc" "call" "wallpaperSelector" "toggleSelector";  }
     Mod+Q { close-window; }
 
     // Screenshots

@@ -62,6 +62,7 @@ QtObject {
 
     Component.onCompleted: {
         // Initial load
+        console.log("Color: Component completed, loading initial colors")
         fileView.reload()
     }
 
@@ -70,8 +71,14 @@ QtObject {
         id: fileView
         path: `${Quickshell.configDir}/common/Colors.json`
         watchChanges: true
-        onFileChanged: reload()
-        onAdapterUpdated: writeAdapter()
+        onFileChanged: {
+            console.log("Color: File changed detected, reloading colors")
+            reload()
+        }
+        onAdapterUpdated: {
+            console.log("Color: Adapter updated, writing colors")
+            writeAdapter()
+        }
 
         JsonAdapter {
             id: adapter
