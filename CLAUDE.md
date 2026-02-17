@@ -1,0 +1,1 @@
+- Always check qs log after making changes to ensure it is still valid

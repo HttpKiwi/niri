@@ -144,12 +144,14 @@ spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quicks
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
+spawn-at-startup "bash" "-c" "xwayland-satellite :1"
 // ============================================================================
 // ENVIRONMENT VARIABLES
 // ============================================================================
 
 environment {
     // Set the DPI for X11 applications.
+    DISPLAY ":1"
     QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
     QT_QPA_PLATFORM "wayland;xcb"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
@@ -162,7 +164,7 @@ environment {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
 overview {
-    zoom 0.3
+    zoom 0.4
     backdrop-color "#000000"
     
     workspace-shadow {
@@ -172,7 +174,8 @@ overview {
 
 window-rule {
     // Geometry rules
-    geometry-corner-radius 8
+    geometry-corner-radius 18
+
     clip-to-geometry true
     draw-border-with-background false
 }
@@ -396,8 +399,8 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "10%+"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "10%-"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 + 10"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 - 10"; }
     XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
 }   
 

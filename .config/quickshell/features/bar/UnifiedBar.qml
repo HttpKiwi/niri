@@ -16,6 +16,13 @@ import qs.features.decorations
 Scope {
     id: root
 
+    // Strip invisible/special chars that can render as stray dots (e.g. U+02D9 DOT ABOVE, combining marks)
+    function sanitizeTitle(s) {
+        if (!s || typeof s !== "string") return s || ""
+        // Keep only printable ASCII and Latin-1 supplement; removes combining, zero-width, spacing modifier letters
+        return s.replace(/[^\x20-\x7e\xa0-\xff]/g, "")
+    }
+
     Variants {
         model: Quickshell.screens || []
 
@@ -30,7 +37,7 @@ Scope {
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            visible: !Niri.is_overview
+            visible: true
 
             screen: modelData || Quickshell.screens[0]
 
@@ -64,11 +71,11 @@ Scope {
                 implicitHeight: Settings.barHeight
                 width: window.screen?.width ?? 0
                 height: Settings.barHeight
-                color: Theme.surfaceBase
+                color: "transparent"
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                visible: !Niri.is_overview
+                visible: true
                 z: 0  // Explicitly set z to ensure corners can be above
 
                 // Left - Workspaces
@@ -123,7 +130,8 @@ Scope {
                     anchors.leftMargin: Settings.barContentMargin
                     anchors.rightMargin: Settings.barContentMargin
 
-                    text: Niri.title
+                    text: root.sanitizeTitle(Niri.title)
+                    textFormat: Text.PlainText
                     color: Theme.textPrimary
                     font.pixelSize: Settings.fontSizeLarge
 
@@ -161,95 +169,22 @@ Scope {
                 }
             }
 
-            Corner {
-                id: barBottomLeftCorner
-                anchors.top: topBar.bottom
-                anchors.left: parent.left
-                corner: 0  // topLeft shape, positioned to create bar-to-border transition
-                radius: 24
-                color: Theme.surfaceBase
+            Frame {
+                id: frame
+                screenWidth: window.screen?.width ?? 0
+                screenHeight: window.screen?.height ?? 0
+                z: -1
             }
-
-            Corner {
-                id: barBottomRightCorner
-                anchors.top: topBar.bottom
-                anchors.right: parent.right
-                corner: 1  // topRight shape, positioned to create bar-to-border transition
-                radius: 24
-                color: Theme.surfaceBase
-            }
-
-            // Screen Borders
-            // Left border
-            Rectangle {
-                id: leftBorder
-                width: 6
-                height: (window.screen?.height ?? 0) - topBar.implicitHeight
-                color: Color.background
-                anchors.left: parent.left
-                anchors.top: topBar.bottom
-                visible: !Niri.is_overview
-            }
-
-            // Right border
-            Rectangle {
-                id: rightBorder
-                width: 6
-                height: (window.screen?.height ?? 0) - topBar.implicitHeight
-                color: Color.background
-                anchors.right: parent.right
-                anchors.top: topBar.bottom
-                visible: !Niri.is_overview
-            }
-
-            // Bottom border
-            Rectangle {
-                id: bottomBorder
-                width: (window.screen?.width ?? 0) - (leftBorder.width + rightBorder.width)
-                height: 6
-                color: Color.background
-                anchors.left: leftBorder.right
-                anchors.bottom: parent.bottom
-                visible: !Niri.is_overview
-            }
-
-            // Bottom rounded corners
-            Corner {
-                id: bottomLeftCorner
-                corner: 3  // bottomLeft
-                radius: 16
-                color: Color.background
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.leftMargin: 6
-                anchors.bottomMargin: 6
-            }
-
-            Corner {
-                id: bottomRightCorner
-                corner: 2  // bottomRight
-                radius: 16
-                color: Color.background
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.rightMargin: 6
-                anchors.bottomMargin: 6
-            }
-
 
             Rectangle {
                 id: innerClickThrough
                 anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    bottom: parent.bottom
-                    leftMargin: 6
-                    rightMargin: 6
-                    topMargin: topBar.implicitHeight
-                    bottomMargin: 6
+                    fill: parent
+                    topMargin: Settings.barHeight
+                    leftMargin: Settings.screenBorderWidth
+                    rightMargin: Settings.screenBorderWidth
+                    bottomMargin: Settings.screenBorderWidth
                 }
-                color: "transparent"
                 visible: false
             }
 

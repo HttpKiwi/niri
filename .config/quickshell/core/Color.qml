@@ -69,7 +69,7 @@ QtObject {
     // FileView to read JSON file
     property QtObject fileView: FileView {
         id: fileView
-        path: `${Quickshell.configDir}/common/Colors.json`
+        path: `${Quickshell.env("HOME")}/.config/quickshell/common/Colors.json`
         watchChanges: true
         onFileChanged: {
             console.log("Color: File changed detected, reloading colors")

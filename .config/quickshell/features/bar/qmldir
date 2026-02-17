@@ -1,3 +1,5 @@
 module qs.features.bar
 
 UnifiedBar 1.0 UnifiedBar.qml
+Frame 1.0 Frame.qml
+BarOverlay 1.0 BarOverlay.qml

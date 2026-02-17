@@ -23,15 +23,8 @@ Scope {
         PanelWindow {
             property var modelData
             
-            visible: true
-            screen: {
-                try {
-                    return modelData || Quickshell.screens[0] || null
-                } catch (e) {
-                    console.warn("Error getting screen for decoration:", e)
-                    return null
-                }
-            }
+            visible: modelData
+            screen: modelData
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             WlrLayershell.namespace: "quickshell:screenCorners"
@@ -52,9 +45,8 @@ Scope {
                 corner: 0  // topLeft
                 radius: 12
                 color: "black"
-                visible: Niri.is_overview  // Hide when bar is visible
             }
-            
+
             Corner {
                 id: topRightCorner
                 anchors.top: parent.top
@@ -62,7 +54,6 @@ Scope {
                 corner: 1  // topRight
                 radius: 12
                 color: "black"
-                visible: Niri.is_overview  // Hide when bar is visible
             }
             
             Corner {

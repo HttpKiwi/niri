@@ -71,13 +71,21 @@ with subprocess.Popen(
     
             elif "WorkspaceActivated" in event:
                 activated_id = event["WorkspaceActivated"]["id"]
+                activated_output = None
 
+                # First pass: update is_focused and find the activated workspace's output
                 for ws in workspace_list:
                     ws["is_focused"] = (ws["id"] == activated_id)
                     if ws["is_focused"]:
                         active_workspace_id = ws["id"]
                         focused_workspace_idx = ws["idx"]
                         focused_output_name = ws["output"]
+                        activated_output = ws["output"]
+
+                # Second pass: update is_active - only one workspace per output should be active
+                for ws in workspace_list:
+                    if ws["output"] == activated_output:
+                        ws["is_active"] = (ws["id"] == activated_id)
 
                 # Update workspaces_by_monitor after workspace activation
                 workspaces_by_monitor = {}

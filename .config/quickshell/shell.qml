@@ -18,8 +18,22 @@ ShellRoot {
     UnifiedBar {}
     RoundedScreen {}
     VolumeOSD {}
+    
+    function getNotificationScreen() {
+        const screens = Quickshell.screens;
+        if (!screens || screens.length === 0) return null;
+        
+        for (let i = 0; i < screens.length; i++) {
+            if (screens[i].height > screens[i].width) {
+                return screens[i];
+            }
+        }
+        return screens[0];
+    }
+
     NotificationManager {
         id: notificationManager
+        targetScreen: getNotificationScreen()
     }
 
     AppLauncher {

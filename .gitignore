@@ -942,3 +942,4 @@ h.config/Code/
 .config/Code/logs/20250710T174123/window1/exthost/vscode.github-authentication/GitHub Authentication.log
 .config/Code/logs/20250710T174123/window1/exthost/vscode.json-language-features/JSON Language Server.log
 .config/Code/logs/20250710T174123/window1/output_20250710T174130/tasks.log
+.config/quickshell/features/bar/Frame.qml

@@ -10,13 +10,13 @@ import qs.config
  */
 Item {
     id: root
-    
+
     required property var workspace
     required property bool isActive
-    
+
     width: dot.width
     height: Settings.workspaceIndicatorHeight
-    
+
     Rectangle {
         id: dot
         anchors.verticalCenter: parent.verticalCenter

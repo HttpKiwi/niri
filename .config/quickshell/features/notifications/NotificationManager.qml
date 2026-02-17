@@ -16,6 +16,7 @@ QtObject {
     property int baseNotificationHeight: Settings.notificationSpacing
     property int maxNotifications: Settings.notificationMaxStack
     property var popupWindows: []
+    property var targetScreen: null
     property var destroyingWindows: new Set()
     
     property Component popupComponent: Component {
@@ -115,7 +116,8 @@ QtObject {
         // Create new popup window
         const win = popupComponent.createObject(null, {
             "notificationData": notificationData,
-            "screenY": topMargin
+            "screenY": topMargin,
+            "screen": targetScreen
         })
         
         if (!win) {

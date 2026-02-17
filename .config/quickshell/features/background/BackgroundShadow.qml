@@ -11,7 +11,7 @@ import qs.features.decorations
 /**
  * BackgroundShadow - Screen border shadow matching the bar and screen border styling
  * Mimics the design of the screen border with rounded corners and subtle shadow
- * Only visible when not in overview mode
+ * Matches bar and screen border styling. Overview hiding disabled.
  */
 
 Scope {
@@ -23,8 +23,8 @@ Scope {
         PanelWindow {
             property var modelData
 
-            visible: !Niri.is_overview
-            screen: modelData || Quickshell.screens[0]
+            visible: !!modelData
+            screen: modelData
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             WlrLayershell.namespace: "overview"
@@ -91,7 +91,7 @@ Scope {
 
             Component.onCompleted: {
                 console.log("Background shadow created for screen:", modelData.name)
-                console.log("Shadow visibility bound to Niri.is_overview:", !Niri.is_overview)
+                console.log("Shadow visibility: always when modelData (overview hiding disabled)")
             }
         }
     }
