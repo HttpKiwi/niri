@@ -20,6 +20,7 @@ Rectangle {
     // Apply theme colors based on elevation
     color: Theme.surfaceBase
     radius: Settings.cardRadius
+    antialiasing: true  // Smooth rounded corners
     border.color: showBorder ? Theme.cardBorder : "transparent"
     border.width: showBorder ? Settings.cardBorderWidth : 0
     

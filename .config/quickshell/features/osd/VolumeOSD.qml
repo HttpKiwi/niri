@@ -16,8 +16,43 @@ import qs.components.base
 Scope {
     id: root
 
-    // Controls OSD visibility
     property bool shouldShowOsd: false
+    property var targetScreen: (Quickshell.screens && Quickshell.screens.length > 0) ? Quickshell.screens[0] : null
+
+    Component.onCompleted: {
+        targetScreen = getScreenAtCursor();
+    }
+
+    function getScreenAtCursor() {
+        const cursorX = Qt.mouseX;
+        const cursorY = Qt.mouseY;
+        const screens = Quickshell.screens || [];
+        
+        for (let i = 0; i < screens.length; i++) {
+            const s = screens[i];
+            if (cursorX >= s.x && cursorX < s.x + s.width &&
+                cursorY >= s.y && cursorY < s.y + s.height) {
+                return s;
+            }
+        }
+        return screens[0] || null;
+    }
+
+    onShouldShowOsdChanged: {
+        if (shouldShowOsd) {
+            targetScreen = getScreenAtCursor();
+        }
+    }
+
+    function computeCenterX() {
+        var screen = targetScreen;
+        if (!screen) return 960;
+        var w = screen.width;
+        if (!w) return 960;
+        return (w - Settings.osdWidth) / 2;
+    }
+    
+    readonly property int _centerX: computeCenterX()
 
     // Hide after delay
     Timer {
@@ -55,15 +90,15 @@ Scope {
             implicitHeight: Settings.osdHeight
             exclusiveZone: -1
             
-            // Position at bottom-center
+            // Position at bottom-center using margins
             anchors {
                 bottom: true
             }
             
             margins {
                 bottom: Settings.osdBottomMargin
-                left: (osdWindow.screen?.width || 1920) / 2 - Settings.osdWidth / 2
-                right: (osdWindow.screen?.width || 1920) / 2 - Settings.osdWidth / 2
+                left: root._centerX
+                right: root._centerX
             }
             
             // Mask to clip to rounded shape

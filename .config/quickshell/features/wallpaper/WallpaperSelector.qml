@@ -22,7 +22,7 @@ import qs.components.base
 PanelWindow {
     id: wallpaperSelector
 
-    // Wallpaper data
+    property var targetScreen: (Quickshell.screens && Quickshell.screens.length > 0) ? Quickshell.screens[0] : null
     property var wallpapers: []
     property int selectedIndex: 0
     property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
@@ -42,21 +42,46 @@ PanelWindow {
     readonly property int thumbnailSpacing: 12
     readonly property int panelHeight: thumbnailSize + 80
 
+    function computeCenterX() {
+        var screen = wallpaperSelector.screen || targetScreen;
+        if (!screen) return 960;
+        var w = screen.width;
+        if (!w) return 960;
+        return (w - implicitWidth) / 2;
+    }
+    
+    readonly property int _centerX: computeCenterX()
+
+    function getScreenAtCursor() {
+        const cursorX = Qt.mouseX;
+        const cursorY = Qt.mouseY;
+        const screens = Quickshell.screens || [];
+        
+        for (let i = 0; i < screens.length; i++) {
+            const s = screens[i];
+            if (cursorX >= s.x && cursorX < s.x + s.width &&
+                cursorY >= s.y && cursorY < s.y + s.height) {
+                return s;
+            }
+        }
+        return screens[0] || null;
+    }
+
     visible: false
     color: "transparent"
     exclusiveZone: -1
     implicitWidth: 800
     implicitHeight: panelHeight
 
-    // Position at bottom center
+    // Position at bottom center using margins
     anchors {
         bottom: true
     }
 
     margins {
         bottom: 50
-        left: (wallpaperSelector.screen?.width || 1920) / 2 - 400
-        right: (wallpaperSelector.screen?.width || 1920) / 2 - 400
+        left: _centerX
+        right: _centerX
     }
 
     // Mask for rounded corners
@@ -68,8 +93,8 @@ PanelWindow {
         console.log("WallpaperSelector: Component completed")
         WlrLayershell.layer = WlrLayer.Overlay
         WlrLayershell.namespace = "quickshell-wallpaper-selector"
-        // Start scanning for wallpapers
         wallpaperScanner.running = true
+        targetScreen = getScreenAtCursor()
     }
 
     // Static Process for scanning wallpapers
@@ -202,7 +227,6 @@ PanelWindow {
         console.log("WallpaperSelector: Visibility changed to:", visible)
         if (visible) {
             if (!_isHiding) {
-                // Store original wallpaper when opening
                 originalWallpaper = Settings.backgroundImagePath
                 isPreviewing = false
                 console.log("WallpaperSelector: Saved original wallpaper:", originalWallpaper)
@@ -211,10 +235,10 @@ PanelWindow {
                 WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
                 _showAnimation = false
                 mainContainer.forceActiveFocus()
+                targetScreen = getScreenAtCursor()
                 Qt.callLater(() => {
                     _showAnimation = true
                     mainContainer.forceActiveFocus()
-                    // Scroll to selected item after showing
                     scrollToSelected()
                 })
             }

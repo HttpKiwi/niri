@@ -122,12 +122,22 @@ PanelWindow {
             const app = filteredApps[selectedIndex];
             if (app && app.execute) {
                 app.execute();
-                appLauncher.visible = false;
+                // Use timer-based animation (same as shortcut toggle)
+                _showAnimation = false;
+                _isHiding = true;
+                hideAnimationTimer.restart();
             }
         }
     }
 
     visible: false
+    
+    // Track hiding state for animation
+    property bool _isHiding: false
+    
+    // Let Quickshell assign the screen automatically - we'll update it when becoming visible
+    // Don't set explicit screen here to avoid the issue
+    
     implicitWidth: 400
     implicitHeight: maxHeight  // Fixed maximum height to avoid PanelWindow animation
     color: "transparent"
@@ -138,54 +148,58 @@ PanelWindow {
         item: container
     }
     
+    // Use margins for positioning - match VolumeOSD approach
+    property int _centerX: {
+        var screen = appLauncher.screen;
+        if (!screen) return 960;
+        var w = screen.width;
+        if (!w) return 960;
+        return (w - implicitWidth) / 2;
+    }
+    
+    // Use anchors for positioning - more stable with compositor
+    anchors {
+        top: true
+    }
+    
     margins {
         top: 100
-        left: (appLauncher.screen?.width || 1920) / 2 - implicitWidth / 2
-        right: (appLauncher.screen?.width || 1920) / 2 - implicitWidth / 2
+        left: _centerX
+        right: _centerX
     }
     
     Component.onCompleted: {
         WlrLayershell.layer = WlrLayer.Overlay;
         WlrLayershell.namespace = "quickshell-app-launcher";
+
+        DesktopEntries.applicationsChanged.connect(function() {
+            allApps = [];
+        });
     }
     
     onVisibleChanged: {
         if (visible) {
-            selectedIndex = 0;
-            searchInput.text = "";
-            // Mark this as initial show for animations
-            _isInitialShow = true;
-            // Load apps when launcher becomes visible
-            loadAppsIfNeeded();
-            updateFilter();
+            // Show - request keyboard focus
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
-            // Reset animation states
-            _showAnimation = false;
-            _itemsShouldAnimate = false;
-            // Force focus immediately when visible
+            container.forceActiveFocus();
             searchInput.forceActiveFocus();
-            // Start animations smoothly
             Qt.callLater(() => {
-                _showAnimation = true;
-                // Delay item animations slightly after container animation starts
-                itemAnimationTimer.restart();
+                container.forceActiveFocus();
+                searchInput.forceActiveFocus();
             });
         } else {
-            _showAnimation = false;
-            _itemsShouldAnimate = false;
-            _isInitialShow = false;
+            // Hide - release keyboard focus
             WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
-            // Clear apps from memory when hidden to save memory
-            allApps = [];
-            filteredApps = [];
-            filteredModel.clear();
         }
     }
     
     // Handle keys at PanelWindow level as fallback
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
-            appLauncher.visible = false;
+            appLauncher._showAnimation = false;
+            appLauncher._isHiding = true;
+            hideAnimationTimer.restart();
+            WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
             event.accepted = true;
         } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             executeSelected();
@@ -201,7 +215,34 @@ PanelWindow {
 
     IpcHandler {
         function toggleLauncher() {
-            appLauncher.visible = !appLauncher.visible;
+            if (appLauncher.visible) {
+                // Hide using timer-based animation (like notification panel)
+                _showAnimation = false;
+                _isHiding = true;
+                hideAnimationTimer.restart();
+            } else {
+                // Show immediately
+                appLauncher.visible = true;
+                selectedIndex = 0;
+                searchInput.text = "";
+                _isInitialShow = true;
+                loadAppsIfNeeded();
+                updateFilter();
+                WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
+                _showAnimation = false;
+                _itemsShouldAnimate = false;
+                // Force focus to receive keyboard events
+                container.forceActiveFocus();
+                searchInput.forceActiveFocus();
+                Qt.callLater(() => {
+                    container.forceActiveFocus();
+                    searchInput.forceActiveFocus();
+                });
+                Qt.callLater(() => {
+                    _showAnimation = true;
+                    itemAnimationTimer.restart();
+                });
+            }
         }
 
         target: "appLauncher"
@@ -223,10 +264,21 @@ PanelWindow {
             }
         }
     }
+    
+    // Timer for hide animation - delays actual hiding until animation completes
+    Timer {
+        id: hideAnimationTimer
+        interval: Settings.animationDurationShort
+        onTriggered: {
+            appLauncher.visible = false;
+            appLauncher._isHiding = false;
+        }
+    }
 
     // Container with slide and fade animations
     Item {
         id: container
+        focus: true
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -303,7 +355,10 @@ PanelWindow {
                 onTextChanged: updateFilter()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Escape) {
-                        appLauncher.visible = false;
+                        appLauncher._showAnimation = false;
+                        appLauncher._isHiding = true;
+                        hideAnimationTimer.restart();
+                        WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
                         event.accepted = true;
                     } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
                         executeSelected();
@@ -364,9 +419,10 @@ PanelWindow {
                     highlight: Rectangle {
                         color: Theme.surfaceHighlight || Theme.accentContainer
                         opacity: 0.6
-                        radius: 8
+                        radius: 12  // Match card radius
                         width: listView ? listView.width : 0
                         height: itemHeight
+                        antialiasing: true  // Smooth border
                         border.width: 2
                         border.color: Theme.accentPrimary || Theme.textPrimary
                         
@@ -376,7 +432,7 @@ PanelWindow {
                     }
 
                     delegate: Item {
-                        width: parent.width
+                        width: parent ? parent.width : appLauncher.implicitWidth
                         height: itemHeight
                         property bool isSelected: listView.currentIndex === index
                         property bool shouldAnimate: appLauncher._itemsShouldAnimate

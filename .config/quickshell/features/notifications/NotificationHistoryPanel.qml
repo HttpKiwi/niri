@@ -450,7 +450,9 @@ PanelWindow {
         // Handle keyboard events here as well to ensure they're captured
         Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Escape) {
-                historyPanel.visible = false
+                historyPanel._showAnimation = false
+                historyPanel._isHiding = true
+                hideAnimationTimer.restart()
                 event.accepted = true
             } else if (event.key === Qt.Key_Down) {
                 historyPanel.navigateDown()

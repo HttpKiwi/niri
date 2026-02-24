@@ -62,8 +62,8 @@ QtObject {
     // Layout Settings
     // ========================================
     readonly property int screenBorderWidth: 6
-    readonly property int screenTransitionRadius: 24
-    readonly property int screenCornerRadius: 16
+    readonly property int screenTransitionRadius: 20
+    readonly property int screenCornerRadius: 20
     readonly property int cardRadius: 12
     readonly property int cardBorderWidth: 1
     readonly property int cardMargin: 4

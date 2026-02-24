@@ -265,7 +265,7 @@ binds {
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "appLauncher" "toggleLauncher";  }
+    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "bash" "-c" "OUTPUT=$(niri msg focused-output | head -1 | sed 's/Output \"//' | sed 's/\".*//'); export NIRI_FOCUSED_OUTPUT=\"$OUTPUT\"; qs ipc call appLauncher toggleLauncher";  }
     Super+N hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "notificationHistory" "toggleHistory";  }
     Super+V hotkey-overlay-title="Open the Clipboard History: fuzzel" { spawn "bash" "-c" "cliphist list | fuzzel  --dmenu| cliphist decode | wl-copy"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
