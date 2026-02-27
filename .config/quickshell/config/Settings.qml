@@ -89,4 +89,5 @@ QtObject {
     readonly property string backgroundType: "image"
     readonly property string backgroundColor: "#091518"
     property string backgroundImagePath: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
+    property int wallpaperChangeDirection: 1 // 1 = right, -1 = left
 }

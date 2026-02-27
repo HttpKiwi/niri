@@ -29,8 +29,9 @@ PanelWindow {
     property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
 
     // Preview state
-    property string originalWallpaper: ""  // Store original wallpaper for cancellation
-    property bool isPreviewing: false      // Track if we're in preview mode
+    property string originalWallpaper: ""
+    property bool isPreviewing: false
+    property int previousSelectedIndex: 0
 
     // UI state
     property bool _showAnimation: false
@@ -40,7 +41,8 @@ PanelWindow {
     // Dimensions
     readonly property int thumbnailSize: 200
     readonly property int thumbnailSpacing: 12
-    readonly property int panelHeight: thumbnailSize + 80
+    readonly property int expandedWidth: 356
+    readonly property int panelHeight: thumbnailSize + 220
 
     function computeCenterX() {
         var screen = wallpaperSelector.screen || targetScreen;
@@ -263,6 +265,14 @@ PanelWindow {
             const selectedWallpaper = wallpapers[selectedIndex]
             console.log("WallpaperSelector: Selection changed, previewing:", selectedWallpaper.name)
 
+            // Track direction
+            if (selectedIndex > previousSelectedIndex) {
+                Settings.wallpaperChangeDirection = 1
+            } else if (selectedIndex < previousSelectedIndex) {
+                Settings.wallpaperChangeDirection = -1
+            }
+            previousSelectedIndex = selectedIndex
+
             isPreviewing = true
 
             // Update wallpaper instantly
@@ -336,17 +346,19 @@ PanelWindow {
     function scrollToSelected() {
         if (!scrollView || wallpapers.length === 0) return
 
-        // Calculate the x position of the selected thumbnail
-        // Position = (thumbnailSize + spacing) * index + padding
-        const itemX = (thumbnailSize + thumbnailSpacing) * selectedIndex + 8
+        // Calculate actual width up to and including selected item
+        // Items before selected are 200px, selected item is 356px
+        let itemX = 8 // initial padding
+        for (let i = 0; i < selectedIndex; i++) {
+            itemX += thumbnailSize + thumbnailSpacing
+        }
+        // Add half of selected item width to get center
+        itemX += expandedWidth / 2
 
         // Calculate the center position
         // We want the item center to be at the scrollView center
-        const itemCenter = itemX + thumbnailSize / 2
         const scrollViewCenter = scrollView.width / 2
-
-        // Target scroll position
-        const targetX = itemCenter - scrollViewCenter
+        const targetX = itemX - scrollViewCenter
 
         // Get the content width and scrollView width
         const contentWidth = thumbnailRow.width
@@ -673,15 +685,34 @@ PanelWindow {
                                 required property int index
                                 required property var modelData
 
-                                width: thumbnailSize
+                                property bool isSelected: index === selectedIndex
+                                property int currentWidth: thumbnailSize
+
+                                onIsSelectedChanged: {
+                                    if (isSelected) {
+                                        currentWidth = expandedWidth
+                                    } else {
+                                        currentWidth = thumbnailSize
+                                    }
+                                }
+
+                                width: currentWidth
                                 height: thumbnailSize
+
+                                Behavior on currentWidth {
+                                    NumberAnimation {
+                                        duration: Settings.animationDurationMedium
+                                        easing.type: Settings.easingStandard
+                                    }
+                                }
 
                                 Rectangle {
                                     anchors.fill: parent
+                                    anchors.margins: isSelected ? 8 : 0
                                     color: Theme.cardBackground
-                                    radius: Settings.cardRadius
-                                    border.color: index === selectedIndex ? Theme.accent : Theme.borderDefault
-                                    border.width: index === selectedIndex ? 3 : 1
+                                    radius: isSelected ? Settings.cardRadius + 4 : Settings.cardRadius
+                                    border.color: isSelected ? Theme.accent : Theme.borderDefault
+                                    border.width: isSelected ? 3 : 1
 
                                     Behavior on border.color {
                                         ColorAnimation { duration: Settings.animationDurationShort }
@@ -689,6 +720,13 @@ PanelWindow {
 
                                     Behavior on border.width {
                                         NumberAnimation { duration: Settings.animationDurationShort }
+                                    }
+
+                                    Behavior on anchors.margins {
+                                        NumberAnimation {
+                                            duration: Settings.animationDurationMedium
+                                            easing.type: Settings.easingStandard
+                                        }
                                     }
 
                                     Image {
@@ -725,10 +763,11 @@ PanelWindow {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     width: parent.width
                                     text: modelData.name
-                                    color: index === selectedIndex ? Theme.accent : Theme.textSecondary
+                                    color: isSelected ? Theme.accent : Theme.textSecondary
                                     font.pixelSize: Settings.fontSizeSmall
                                     elide: Text.ElideMiddle
                                     horizontalAlignment: Text.AlignHCenter
+                                    visible: !isSelected
 
                                     Behavior on color {
                                         ColorAnimation { duration: Settings.animationDurationShort }

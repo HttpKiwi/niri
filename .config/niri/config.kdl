@@ -43,16 +43,22 @@ output "DP-3" {
    
     mode "1920x1080@143.981"  
     transform "normal"        
-    position x=1080 y=0
+    position x=0 y=0
     focus-at-startup   
 }
 
 output "HDMI-A-1" {
   mode "1920x1080@75.010"
-  transform "90"
-  position x=0 y=0
+  transform "270"
+  position x=1920 y=0
 }
 
+blur {
+  passes 2
+  noise 0.2
+  saturation 2
+  offset 0.8
+}
 // ============================================================================
 // LAYOUT CONFIGURATION
 // ============================================================================
@@ -96,13 +102,7 @@ layout {
 
     */
 
-    blur {
-      on 
-      noise 0.2
-      passes 4
-      radius 1
-    }
-    // Struts (outer gaps)
+   // Struts (outer gaps)
     struts {
         // left 64
         // right 64
@@ -175,16 +175,11 @@ overview {
 window-rule {
     // Geometry rules
     geometry-corner-radius 18
-
     clip-to-geometry true
     draw-border-with-background false
-}
-
-window-rule {
-  blur {
-    on
-  }
-
+    background-effect {
+      blur true
+    }
 }
 
 window-rule {
@@ -225,7 +220,6 @@ window-rule {
     default-column-width { proportion 0.33333; }
 }
 
-
 window-rule {
     match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
     default-floating-position x=10 y=10 relative-to="bottom-right"
@@ -234,6 +228,10 @@ window-rule {
 layer-rule {
     match namespace="overview"
     place-within-backdrop true
+}
+
+layer-rule {
+  match namespace="quickshell:unifiedBar"
 }
 
 animations {
