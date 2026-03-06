@@ -72,7 +72,7 @@ PanelWindow {
     visible: false
     color: "transparent"
     exclusiveZone: -1
-    implicitWidth: 800
+    implicitWidth: 1200
     implicitHeight: panelHeight
 
     // Position at bottom center using margins
@@ -97,6 +97,18 @@ PanelWindow {
         WlrLayershell.namespace = "quickshell-wallpaper-selector"
         wallpaperScanner.running = true
         targetScreen = getScreenAtCursor()
+    }
+
+    Timer {
+        id: wallpaperWatcher
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!wallpaperScanner.running) {
+                wallpaperScanner.running = true
+            }
+        }
     }
 
     // Static Process for scanning wallpapers
@@ -713,6 +725,7 @@ PanelWindow {
                                     radius: isSelected ? Settings.cardRadius + 4 : Settings.cardRadius
                                     border.color: isSelected ? Theme.accent : Theme.borderDefault
                                     border.width: isSelected ? 3 : 1
+                                    clip: true
 
                                     Behavior on border.color {
                                         ColorAnimation { duration: Settings.animationDurationShort }
@@ -731,15 +744,11 @@ PanelWindow {
 
                                     Image {
                                         anchors.fill: parent
-                                        anchors.margins: 4
                                         source: "file://" + modelData.path
                                         fillMode: Image.PreserveAspectCrop
                                         smooth: true
                                         asynchronous: true
                                         cache: true
-
-                                        layer.enabled: true
-                                        layer.smooth: true
                                     }
 
                                     MouseArea {

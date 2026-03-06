@@ -54,10 +54,10 @@ output "HDMI-A-1" {
 }
 
 blur {
-  passes 2
+  passes 3
   noise 0.2
-  saturation 2
-  offset 0.8
+  saturation 1.2
+  offset 1.8
 }
 // ============================================================================
 // LAYOUT CONFIGURATION
@@ -199,14 +199,17 @@ window-rule {
 }
 
 layer-rule {
-  match namespace="^launcher$"
-  geometry-corner-radius 12
+    match namespace="^launcher$"
+    geometry-corner-radius 12
+    background-effect {
+        blur true
+    }
     shadow {
-      on
-      softness 50
-      spread 1
-      offset x=5 y=5
-      color "#000000"
+        on
+        softness 50
+        spread 1
+        offset x=5 y=5
+        color "#000000"
     }
 }
 
@@ -231,7 +234,7 @@ layer-rule {
 }
 
 layer-rule {
-  match namespace="quickshell:unifiedBar"
+    match namespace="quickshell:unifiedBar"
 }
 
 animations {
