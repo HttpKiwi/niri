@@ -36,8 +36,8 @@ ShellRoot {
         targetScreen: getNotificationScreen()
     }
 
-    AppLauncher {
-        id: appLauncher
+    Launcher {
+        id: launcher
     }
 
     NotificationHistoryPanel {

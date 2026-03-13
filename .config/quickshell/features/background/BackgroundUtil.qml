@@ -13,7 +13,7 @@ QtObject {
     /**
      * Detects the type of background file based on extension
      * @param filePath - Full path to the file
-     * @return "animated", "video", "image", or "unknown"
+     * @return "video", "image", or "unknown"
      */
     function getBackgroundType(filePath) {
         if (!filePath || filePath === "") {
@@ -21,13 +21,6 @@ QtObject {
         }
 
         const lowerPath = filePath.toLowerCase()
-
-        // Animated image formats
-        if (lowerPath.endsWith(".gif") ||
-            lowerPath.endsWith(".webp") ||
-            lowerPath.endsWith(".apng")) {
-            return "animated"
-        }
 
         // Video formats
         if (lowerPath.endsWith(".mp4") ||
@@ -39,13 +32,16 @@ QtObject {
             return "video"
         }
 
-        // Static image formats
+        // Static image formats (including WebP - treated as static for now)
         if (lowerPath.endsWith(".png") ||
             lowerPath.endsWith(".jpg") ||
             lowerPath.endsWith(".jpeg") ||
+            lowerPath.endsWith(".webp") ||
             lowerPath.endsWith(".bmp") ||
             lowerPath.endsWith(".svg") ||
-            lowerPath.endsWith(".tiff")) {
+            lowerPath.endsWith(".tiff") ||
+            lowerPath.endsWith(".gif") ||
+            lowerPath.endsWith(".apng")) {
             return "image"
         }
 
@@ -56,9 +52,10 @@ QtObject {
      * Checks if a file is an animated format
      * @param filePath - Full path to the file
      * @return true if file is animated (gif, webp, apng)
+     * @deprecated - animated wallpapers are disabled
      */
     function isAnimated(filePath) {
-        return getBackgroundType(filePath) === "animated"
+        return false
     }
 
     /**

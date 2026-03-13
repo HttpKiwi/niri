@@ -103,7 +103,7 @@ PanelWindow {
     Timer {
         id: wallpaperWatcher
         interval: 5000
-        running: true
+        running: wallpaperSelector.visible
         repeat: true
         onTriggered: {
             if (!wallpaperScanner.running) {
