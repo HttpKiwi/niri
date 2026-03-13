@@ -37,6 +37,7 @@ PanelWindow {
     property bool _showAnimation: false
     property bool _isHiding: false
     property bool _completingHide: false
+    property bool _userHasManuallySelected: false
 
     // Dimensions
     readonly property int thumbnailSize: 200
@@ -111,10 +112,26 @@ PanelWindow {
         }
     }
 
+    // Debounce timer for wallpaper preview to prevent CPU spikes
+    Timer {
+        id: wallpaperDebounce
+        interval: 400
+        property string pendingWallpaper: ""
+        onTriggered: {
+            console.log("WallpaperSelector: Timer triggered, pending:", pendingWallpaper)
+            console.log("WallpaperSelector: Current setting:", Settings.backgroundImagePath)
+            if (pendingWallpaper && Settings.backgroundImagePath !== pendingWallpaper) {
+                console.log("WallpaperSelector: Setting new wallpaper")
+                Settings.backgroundImagePath = pendingWallpaper
+            }
+            pendingWallpaper = ""
+        }
+    }
+
     // Static Process for scanning wallpapers
     Process {
         id: wallpaperScanner
-        command: ["sh", "-c", `find "${wallpapersDir}" -maxdepth 1 -type f \\( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" -o -name "*.gif" \\) ! -name "*current_wallpaper*" -print | sort`]
+        command: ["sh", "-c", `find "${wallpapersDir}" -maxdepth 1 -type f \\( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" -o -name "*.gif" -o -name "*.mp4" -o -name "*.webm" -o -name "*.mkv" -o -name "*.mov" \\) ! -name "*current_wallpaper*" -print | sort`]
         running: false
 
         stdout: SplitParser {
@@ -179,7 +196,10 @@ PanelWindow {
             if (!running) {
                 const output = currentWallpaperOutput.collectedOutput.trim()
                 console.log("WallpaperSelector: Current wallpaper output:", output)
-                if (output) {
+                
+                // Only update selectedIndex if user hasn't manually selected
+                // This prevents the selector from jumping back to current wallpaper during scroll
+                if (output && !_userHasManuallySelected) {
                     try {
                         const data = JSON.parse(output)
                         console.log("WallpaperSelector: Current wallpaper data:", JSON.stringify(data))
@@ -243,6 +263,7 @@ PanelWindow {
             if (!_isHiding) {
                 originalWallpaper = Settings.backgroundImagePath
                 isPreviewing = false
+                _userHasManuallySelected = false  // Reset to sync with current wallpaper on open
                 console.log("WallpaperSelector: Saved original wallpaper:", originalWallpaper)
 
                 hideAnimationTimer.stop()
@@ -285,10 +306,14 @@ PanelWindow {
             }
             previousSelectedIndex = selectedIndex
 
+            // Mark that user has manually selected (don't reset to current wallpaper on reload)
+            _userHasManuallySelected = true
+
             isPreviewing = true
 
-            // Update wallpaper instantly
-            Settings.backgroundImagePath = selectedWallpaper.path
+            // Debounce wallpaper change to prevent CPU spikes
+            wallpaperDebounce.pendingWallpaper = selectedWallpaper.path
+            wallpaperDebounce.restart()
 
             // Stop previous matugen run if still running
             if (matugenRunner.running) {
@@ -694,11 +719,17 @@ PanelWindow {
                             model: wallpaperSelector.wallpapers
 
                             delegate: Item {
+                                id: wallpaperDelegate
                                 required property int index
                                 required property var modelData
 
                                 property bool isSelected: index === selectedIndex
                                 property int currentWidth: thumbnailSize
+                                property bool isVideo: {
+                                    const path = modelData.path.toLowerCase()
+                                    return path.endsWith('.mp4') || path.endsWith('.webm') || 
+                                           path.endsWith('.mkv') || path.endsWith('.mov')
+                                }
 
                                 onIsSelectedChanged: {
                                     if (isSelected) {
@@ -749,6 +780,21 @@ PanelWindow {
                                         smooth: true
                                         asynchronous: true
                                         cache: true
+                                        visible: !wallpaperDelegate.isVideo
+                                    }
+
+                                    // Video indicator overlay
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        color: "#88000000"
+                                        visible: wallpaperDelegate.isVideo
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "▶"
+                                            font.pixelSize: 48
+                                            color: "white"
+                                        }
                                     }
 
                                     MouseArea {

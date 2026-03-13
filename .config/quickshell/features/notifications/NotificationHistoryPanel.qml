@@ -23,8 +23,8 @@ PanelWindow {
     property bool _isHiding: false  // Track if we're in the process of hiding
     property bool _completingHide: false  // Track if we're completing a hide (prevent re-animation)
     property var groupedNotifications: []
-    property int panelContentHeight: 600
-    property int actualContentHeight: 400  // Actual height based on expanded/collapsed state
+    property int panelContentHeight: 300
+    property int actualContentHeight: 200  // Actual height based on expanded/collapsed state
     readonly property int sidebarWidth: 420  // Windows-style sidebar width
     
     // Keyboard navigation state
@@ -36,7 +36,7 @@ PanelWindow {
     implicitWidth: sidebarWidth
     // Height will be determined by anchors (top to bottom with margins)
     // Using a large fixed height to avoid PanelWindow animation
-    implicitHeight: (historyPanel.screen?.height || 1080) - 56  // Screen height minus top/bottom margins
+    implicitHeight: (historyPanel.screen?.height || 1080) - 200// Screen height minus top/bottom margins
     color: "transparent"
     exclusiveZone: -1
 
@@ -49,7 +49,7 @@ PanelWindow {
 
     margins {
         top: 40  // Below the bar
-        bottom: 16
+        bottom: 300 
         right: 16  // Small margin from right edge
     }
 

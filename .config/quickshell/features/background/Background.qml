@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtMultimedia
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -38,52 +39,150 @@ Scope {
                 bottom: true
             }
 
-            // Solid Color Background (fallback)
-            Rectangle {
-                anchors.fill: parent
-                color: Settings.backgroundColor
-                visible: !hasImage || detectedType === "unknown"
+            property bool useLayer1: true
+            property string _pendingWallpaper: ""
+            property string _currentWallpaper: Settings.backgroundImagePath
+
+            Timer {
+                id: clearPendingTimer
+                interval: 350
+                onTriggered: {
+                    _pendingWallpaper = ""
+                }
             }
 
-            // Static Image
-            Image {
+            Item {
                 anchors.fill: parent
-                source: Settings.backgroundImagePath
-                fillMode: Image.PreserveAspectCrop
-                opacity: 1.0
-                asynchronous: true
-                cache: true
 
-                visible: hasImage && detectedType === "image"
+                // Layer 1 (active layer)
+                Item {
+                    id: layer1
+                    anchors.fill: parent
+                    opacity: 1.0
+                    Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } }
 
-                onStatusChanged: {
-                    if (status === Image.Ready) {
-                        console.log("Background: Static image loaded")
-                    } else if (status === Image.Error) {
-                        console.error("Background: Failed to load image:", errorString)
+                    // Solid color (fallback)
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Settings.backgroundColor
+                        visible: !_currentWallpaper || detectedType === "unknown"
+                    }
+
+                    // Static Image
+                    Image {
+                        id: image1
+                        anchors.fill: parent
+                        source: _currentWallpaper
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        cache: true
+                        visible: hasImage && detectedType === "image"
+                    }
+
+                    // Animated Image (GIF, WebP, APNG)
+                    AnimatedImage {
+                        id: animImage1
+                        anchors.fill: parent
+                        source: _currentWallpaper
+                        fillMode: Image.PreserveAspectCrop
+                        playing: true
+                        cache: false
+                        visible: hasImage && detectedType === "animated"
+                    }
+
+                    // Video
+                    MediaPlayer {
+                        id: videoPlayer1
+                        source: _currentWallpaper
+                        loops: MediaPlayer.Infinite
+                        autoPlay: true
+                        videoOutput: videoOutput1
+                        audioOutput: null
+                    }
+
+                    VideoOutput {
+                        id: videoOutput1
+                        anchors.fill: parent
+                        fillMode: VideoOutput.PreserveAspectCrop
+                        visible: hasImage && detectedType === "video"
+                    }
+                }
+
+                // Layer 2 (for crossfade transition)
+                Item {
+                    id: layer2
+                    anchors.fill: parent
+                    opacity: 0.0
+                    Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } }
+
+                    // Solid color (fallback)
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Settings.backgroundColor
+                        visible: !_pendingWallpaper
+                    }
+
+                    // Static Image
+                    Image {
+                        anchors.fill: parent
+                        source: _pendingWallpaper
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        cache: true
+                        visible: _pendingWallpaper && bgUtil.getBackgroundType(_pendingWallpaper) === "image"
+                    }
+
+                    // Animated Image (GIF, WebP, APNG)
+                    AnimatedImage {
+                        anchors.fill: parent
+                        source: _pendingWallpaper
+                        fillMode: Image.PreserveAspectCrop
+                        playing: true
+                        cache: false
+                        visible: _pendingWallpaper && bgUtil.getBackgroundType(_pendingWallpaper) === "animated"
+                    }
+
+                    // Video
+                    MediaPlayer {
+                        id: videoPlayer2
+                        source: _pendingWallpaper
+                        loops: MediaPlayer.Infinite
+                        autoPlay: true
+                        videoOutput: videoOutput2
+                        audioOutput: null
+                    }
+
+                    VideoOutput {
+                        id: videoOutput2
+                        anchors.fill: parent
+                        fillMode: VideoOutput.PreserveAspectCrop
+                        visible: _pendingWallpaper && bgUtil.getBackgroundType(_pendingWallpaper) === "video"
                     }
                 }
             }
 
-            // Animated Image (GIF, WebP, APNG)
-            AnimatedImage {
-                anchors.fill: parent
-                source: Settings.backgroundImagePath
-                fillMode: Image.PreserveAspectCrop
-                opacity: 1.0
-                playing: true
-                paused: false
-                cache: true
+            Connections {
+                target: Settings
+                function onBackgroundImagePathChanged() {
+                    if (Settings.backgroundImagePath !== _currentWallpaper && Settings.backgroundImagePath !== "") {
+                        var newWallpaper = Settings.backgroundImagePath
+                        var newType = bgUtil.getBackgroundType(newWallpaper)
+                        console.log("Background: Switching to", newWallpaper, "type:", newType)
 
-                visible: hasImage && detectedType === "animated"
+                        _pendingWallpaper = newWallpaper
+                        clearPendingTimer.stop()
 
-                onSourceChanged: {
-                    console.log("Background: Animated image source changed")
-                }
+                        if (useLayer1) {
+                            layer2.opacity = 1
+                            layer1.opacity = 0
+                        } else {
+                            layer1.opacity = 1
+                            layer2.opacity = 0
+                        }
+                        useLayer1 = !useLayer1
+                        _currentWallpaper = newWallpaper
 
-                onCurrentFrameChanged: {
-                    if (currentFrame === frameCount - 1) {
-                        currentFrame = 0
+                        clearPendingTimer.start()
                     }
                 }
             }
