@@ -8,6 +8,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.config
+import qs.core
 import qs.components.base
 
 /**
@@ -22,6 +23,7 @@ import qs.components.base
 PanelWindow {
     id: wallpaperSelector
 
+    screen: targetScreen
     property var targetScreen: (Quickshell.screens && Quickshell.screens.length > 0) ? Quickshell.screens[0] : null
     property var wallpapers: []
     property int selectedIndex: 0
@@ -55,17 +57,11 @@ PanelWindow {
     
     readonly property int _centerX: computeCenterX()
 
-    function getScreenAtCursor() {
-        const cursorX = Qt.mouseX;
-        const cursorY = Qt.mouseY;
+    function getFocusedScreen() {
         const screens = Quickshell.screens || [];
-        
         for (let i = 0; i < screens.length; i++) {
-            const s = screens[i];
-            if (cursorX >= s.x && cursorX < s.x + s.width &&
-                cursorY >= s.y && cursorY < s.y + s.height) {
-                return s;
-            }
+            if (screens[i].name === Niri.focused_output_name)
+                return screens[i];
         }
         return screens[0] || null;
     }
@@ -97,7 +93,7 @@ PanelWindow {
         WlrLayershell.layer = WlrLayer.Overlay
         WlrLayershell.namespace = "quickshell-wallpaper-selector"
         wallpaperScanner.running = true
-        targetScreen = getScreenAtCursor()
+        targetScreen = getFocusedScreen()
     }
 
     Timer {
@@ -263,19 +259,25 @@ PanelWindow {
             if (!_isHiding) {
                 originalWallpaper = Settings.backgroundImagePath
                 isPreviewing = false
-                _userHasManuallySelected = false  // Reset to sync with current wallpaper on open
+                _userHasManuallySelected = false
                 console.log("WallpaperSelector: Saved original wallpaper:", originalWallpaper)
 
                 hideAnimationTimer.stop()
                 WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
                 _showAnimation = false
                 mainContainer.forceActiveFocus()
-                targetScreen = getScreenAtCursor()
+                targetScreen = getFocusedScreen()
                 Qt.callLater(() => {
                     _showAnimation = true
                     mainContainer.forceActiveFocus()
                     scrollToSelected()
                 })
+                const screen = wallpaperSelector.screen || targetScreen;
+                if (screen) {
+                    const baseX = (screen.width - 1200) / 2;
+                    const baseY = screen.height - panelHeight - 50;
+                    PopupRegistry.register("wallpaperSelector", Niri.focused_output_name, baseX, baseY + 50, 1200 + 50, panelHeight + 50, Settings.cardRadius);
+                }
             }
         } else {
             if (!_isHiding && !_completingHide) {
@@ -453,6 +455,7 @@ PanelWindow {
                 _completingHide = true
                 _isHiding = false
                 visible = false
+                PopupRegistry.unregister("wallpaperSelector");
                 Qt.callLater(() => {
                     _completingHide = false
                 })
@@ -566,12 +569,24 @@ PanelWindow {
 
         // Slide and fade animation
         transform: Translate {
+            id: slideTransform
             y: wallpaperSelector._showAnimation ? 0 : 50
 
             Behavior on y {
                 NumberAnimation {
                     duration: Settings.animationDurationMedium
                     easing.type: Settings.easingStandard
+                }
+            }
+
+            onYChanged: {
+                const entry = PopupRegistry._getEntry("wallpaperSelector");
+                if (!entry || !entry.entry.pocketVisible) return;
+                const screen = wallpaperSelector.screen || wallpaperSelector.targetScreen;
+                if (screen) {
+                    const baseX = (screen.width - 1200) / 2;
+                    const baseY = screen.height - panelHeight - 50;
+                    PopupRegistry.updateGeometry("wallpaperSelector", baseX, baseY + y, 1200 + 50, panelHeight + 50);
                 }
             }
         }
@@ -585,14 +600,12 @@ PanelWindow {
             }
         }
 
-        // Main card
-        Card {
+        Item {
             anchors.fill: parent
-            showBorder: true
-            contentPadding: 16
 
             ColumnLayout {
                 anchors.fill: parent
+                anchors.margins: 16
                 spacing: 12
 
                 // Title

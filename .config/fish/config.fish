@@ -13,6 +13,8 @@ set -gx SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-agent.socket
 set -gx FLUTTER_ROOT /opt/flutter
 set -gx QS_ICON_THEME Papirus
 set -x QT_QPA_PLATFORMTHEME kvantum
+
+set -U fish_greeting
 # Add paths
 fish_add_path /opt/flutter/bin
 fish_add_path $ANDROID_HOME/tools

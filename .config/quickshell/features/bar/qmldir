@@ -1,5 +1,6 @@
 module qs.features.bar
 
 UnifiedBar 1.0 UnifiedBar.qml
-Frame 1.0 Frame.qml
+PocketFrame 1.0 PocketFrame.qml
 BarOverlay 1.0 BarOverlay.qml
+LauncherPanel 1.0 LauncherPanel.qml

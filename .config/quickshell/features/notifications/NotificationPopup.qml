@@ -13,9 +13,11 @@ import qs.components.base
  */
 PanelWindow {
     id: win
-    
+
     // Required properties set by the manager
     required property var notificationData
+    property var notifScreen: null
+    screen: notifScreen
     property int screenY: 0
     property bool exiting: false
     property bool _isDestroying: false
@@ -125,16 +127,11 @@ PanelWindow {
             }
         }
         
-        // Main popup card
-        Rectangle {
+        // Main popup content
+        Item {
             id: popupCard
             width: flickable.width
             height: flickable.height
-            color: Theme.surfaceBase
-            radius: Settings.cardRadius
-
-            border.width: Settings.cardBorderWidth
-            border.color: Theme.cardBorder
             
             NotificationCard {
                 anchors.fill: parent
@@ -235,13 +232,31 @@ PanelWindow {
                 enterX.restart()
                 win.entered()
             })
+            const screen = win.screen;
+            if (screen) {
+                const x = screen.width - Settings.notificationWidth - Settings.notificationRightMargin - Settings.screenBorderWidth;
+                const y = Settings.notificationTopMargin + screenY;
+                PopupRegistry.register("notif_" + notificationData.id, Niri.focused_output_name, x, y, Settings.notificationWidth + Settings.screenBorderWidth + 50, Settings.notificationHeight, Settings.cardRadius);
+            }
         } else {
             forceExit()
         }
     }
-    
+
+    onScreenYChanged: {
+        const screen = win.screen;
+        if (screen) {
+            PopupRegistry.updateGeometry("notif_" + notificationData.id,
+                screen.width - Settings.notificationWidth - Settings.notificationRightMargin - Settings.screenBorderWidth,
+                Settings.notificationTopMargin + screenY,
+                Settings.notificationWidth + Settings.screenBorderWidth + 50,
+                Settings.notificationHeight);
+        }
+    }
+
     Component.onDestruction: {
         _isDestroying = true
+        PopupRegistry.unregister("notif_" + notificationData.id);
         exitWatchdog.stop()
     }
 }

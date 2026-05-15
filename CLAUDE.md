@@ -1,1 +1,2 @@
-- Always check qs log after making changes to ensure it is still valid
+- When changing niri config, run `niri validate` to check for errors
+- When changing quickshell config, execute `qs log` to check for errors
