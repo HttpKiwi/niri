@@ -8,15 +8,15 @@ import qs.core
 import qs.features.bar
 import qs.features.background
 import qs.features.decorations
+import qs.features.lockscreen
 import qs.features.notifications
-import qs.features.osd
 import qs.features.wallpaper
 
 ShellRoot {
     Background {}
     UnifiedBar {}
     RoundedScreen {}
-    VolumeOSD {}
+    LockScreen {}
 
     IpcHandler {
         target: "appLauncher"
@@ -41,15 +41,21 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "wallpaperSelector"
+
+        function toggleSelector() {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            if (!state) return;
+            state.wallpaper = !state.wallpaper;
+        }
+    }
+
     NotificationManager {
         id: notificationManager
     }
 
     NotificationHistoryPanel {
         id: notificationHistoryPanel
-    }
-
-    WallpaperSelector {
-        id: wallpaperSelector
     }
 }
