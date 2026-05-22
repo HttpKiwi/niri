@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  ".qsb/Caelestia/Blobs/shaders/blob.frag.qsb"
+  ".qsb/Caelestia/Blobs/shaders/blob.vert.qsb"
+  ".qt/rcc/qrc_blob_shaders.cpp"
+  ".qt/rcc/qrc_qmake_Caelestia_Blobs.cpp"
+  "CMakeFiles/caelestia-blobs.dir/link.d"
+  "CMakeFiles/caelestia-blobs_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/caelestia-blobs_autogen.dir/ParseCache.txt"
+  "caelestia-blobs_autogen"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobgroup.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobgroup.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobinvertedrect.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobinvertedrect.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobmaterial.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobmaterial.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobrect.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobrect.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobshape.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobshape.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/build/.qt/rcc/qrc_blob_shaders.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/build/.qt/rcc/qrc_blob_shaders.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/build/.qt/rcc/qrc_qmake_Caelestia_Blobs.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/build/.qt/rcc/qrc_qmake_Caelestia_Blobs.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/caelestia-blobs_autogen/mocs_compilation.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/caelestia-blobs_autogen/mocs_compilation.cpp.o.d"
+  "CMakeFiles/caelestia-blobs.dir/caelestia-blobs_qmltyperegistrations.cpp.o"
+  "CMakeFiles/caelestia-blobs.dir/caelestia-blobs_qmltyperegistrations.cpp.o.d"
+  "caelestia-blobs.qmltypes"
+  "caelestia-blobs_autogen/mocs_compilation.cpp"
+  "caelestia-blobs_autogen/timestamp"
+  "caelestia-blobs_qmltyperegistrations.cpp"
+  "libcaelestia-blobs.pdb"
+  "libcaelestia-blobs.so"
+  "meta_types/caelestia-blobs_json_file_list.txt"
+  "meta_types/caelestia-blobs_json_file_list.txt.timestamp"
+  "meta_types/qt6caelestia-blobs_metatypes.json"
+  "meta_types/qt6caelestia-blobs_metatypes.json.gen"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/caelestia-blobs.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

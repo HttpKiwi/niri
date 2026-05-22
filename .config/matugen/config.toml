@@ -60,8 +60,11 @@ post_hook = "kitty @ load-config"
 # [templates.Telegram]
 # input_path = "~/.config/matugen/templates/telegram-colors.tdesktop-theme"
 # output_path = "~/.config/telegram-desktop/themes/material-you.tdesktop-theme"
+[templates.equibop]
+input_path = "~/.config/matugen/templates/discord.css"
+output_path = "~/.config/equibop/themes/HyprLuna.css"
 
-[templates.vencord]
+[templates.vesktop]
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/vesktop/themes/HyprLuna.css"
 

@@ -62,8 +62,8 @@ QtObject {
     // Layout Settings
     // ========================================
     readonly property int screenBorderWidth: 6
-    readonly property int screenTransitionRadius: 20
     readonly property int screenCornerRadius: 20
+    readonly property int screenSmoothing: 20
     readonly property int cardRadius: 12
     readonly property int cardBorderWidth: 1
     readonly property int cardMargin: 4
@@ -83,6 +83,18 @@ QtObject {
     readonly property int flickMaxVelocity: 2500
     readonly property int flickDeceleration: 1500
     readonly property int flickSlideDistance: 400
+    // ========================================
+    // Lockscreen Settings
+    // ========================================
+    readonly property int lockscreenBlurRadius: 30
+    readonly property string lockscreenTimeFormat: "HH:mm"
+    readonly property string lockscreenDateFormat: "dddd, MMMM d"
+    readonly property int lockscreenCardWidth: 380
+    readonly property int lockscreenCardPadding: 28
+    readonly property int lockscreenClockSize: 64
+    readonly property int lockscreenDateSize: 16
+    readonly property int lockscreenInputHeight: 48
+    readonly property int lockscreenInputRadius: 24
     // ========================================
     // Background Settings
     // ========================================

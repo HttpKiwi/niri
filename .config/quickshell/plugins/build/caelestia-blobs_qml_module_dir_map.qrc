@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/Caelestia/Blobs">/home/httpkiwi/niri/.config/quickshell/plugins/build</file>
+
+  </qresource>
+</RCC>

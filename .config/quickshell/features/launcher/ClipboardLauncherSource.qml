@@ -11,6 +11,7 @@ QtObject {
     property var items: []
     property bool itemsLoaded: false
     property var _clipboardItems: []
+    property bool _isLoading: false
 
     property var cliphistProcess: Process {
         id: cliphistProc
@@ -19,6 +20,7 @@ QtObject {
 
         stdout: StdioCollector {
             onStreamFinished: {
+                _isLoading = false;
                 var output = this.text;
                 if (!output) {
                     itemsLoaded = true;
@@ -43,8 +45,19 @@ QtObject {
         }
     }
 
+    Component.onCompleted: {
+        cliphistProc.running = true;
+        cliphistProc.running = false;
+    }
+
+    function refreshItems() {
+        _isLoading = true;
+        itemsLoaded = false;
+        cliphistProc.running = true;
+    }
+
     function loadItems() {
-        if (itemsLoaded) return;
+        if (itemsLoaded || _isLoading) return;
         cliphistProc.running = true;
     }
 

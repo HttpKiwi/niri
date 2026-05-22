@@ -184,36 +184,13 @@ return {
 
   -- add any tools you want to have installed below
   {
-    "mason-org/mason.nvim",
+    "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
         "stylua",
         "shellcheck",
         "shfmt",
         "flake8",
-      },
-    },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        qmlls = {
-          cmd = { "qmlls", "-E" },
-          filetypes = { "qml" },
-          root_dir = function(fname)
-            return require("lspconfig.util").root_pattern("*.qmlproject", "*.pro", ".git")(fname)
-          end,
-          init_options = {
-            generateQmllsIni = true,
-            qmllsIniDirectory = vim.fn.getcwd(),
-            extraImportPaths = {
-              vim.fn.getcwd(),
-              "/usr/lib/qt6/qml",
-              -- Add other paths as needed
-            },
-          },
-        },
       },
     },
   },

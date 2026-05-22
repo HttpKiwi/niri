@@ -20,27 +20,21 @@ Scope {
     property var targetScreen: (Quickshell.screens && Quickshell.screens.length > 0) ? Quickshell.screens[0] : null
 
     Component.onCompleted: {
-        targetScreen = getScreenAtCursor();
+        targetScreen = getFocusedScreen();
     }
 
-    function getScreenAtCursor() {
-        const cursorX = Qt.mouseX;
-        const cursorY = Qt.mouseY;
+    function getFocusedScreen() {
         const screens = Quickshell.screens || [];
-        
         for (let i = 0; i < screens.length; i++) {
-            const s = screens[i];
-            if (cursorX >= s.x && cursorX < s.x + s.width &&
-                cursorY >= s.y && cursorY < s.y + s.height) {
-                return s;
-            }
+            if (screens[i].name === Niri.focused_output_name)
+                return screens[i];
         }
         return screens[0] || null;
     }
 
     onShouldShowOsdChanged: {
         if (shouldShowOsd) {
-            targetScreen = getScreenAtCursor();
+            targetScreen = getFocusedScreen();
         }
     }
 
@@ -89,7 +83,8 @@ Scope {
             implicitWidth: Settings.osdWidth
             implicitHeight: Settings.osdHeight
             exclusiveZone: -1
-            
+            screen: root.targetScreen
+
             // Position at bottom-center using margins
             anchors {
                 bottom: true
@@ -103,22 +98,54 @@ Scope {
             
             // Mask to clip to rounded shape
             mask: Region {
-                item: osdCard
+                item: osdContainer
             }
-            
+
+            Component.onCompleted: registerPocket()
+
+            function registerPocket() {
+                const screen = root.targetScreen || Quickshell.screens[0];
+                if (screen) {
+                    const x = (screen.width - Settings.osdWidth) / 2;
+                    const y = screen.height - Settings.osdHeight - Settings.osdBottomMargin;
+                    PopupRegistry.register("osd", Niri.focused_output_name, x, y + slideTransform.y, Settings.osdWidth, Settings.osdHeight + 50, Settings.cardRadius);
+                }
+            }
+
+            Connections {
+                target: root
+                function onShouldShowOsdChanged() {
+                    if (root.shouldShowOsd)
+                        osdWindow.registerPocket()
+                    else
+                        PopupRegistry.unregister("osd");
+                }
+            }
+
             Item {
                 id: osdContainer
                 anchors.fill: parent
-                
+
                 // Slide-up animation
                 transform: Translate {
                     id: slideTransform
                     y: root.shouldShowOsd ? 0 : 150
-                    
+
                     Behavior on y {
                         NumberAnimation {
                             duration: Settings.animationDurationMedium
                             easing.type: Settings.easingStandard
+                        }
+                    }
+
+                    onYChanged: {
+                        const entry = PopupRegistry._getEntry("osd");
+                        if (!entry || !entry.entry.pocketVisible) return;
+                        const screen = root.targetScreen || Quickshell.screens[0];
+                        if (screen) {
+                            const baseX = (screen.width - Settings.osdWidth) / 2;
+                            const baseY = screen.height - Settings.osdHeight - Settings.osdBottomMargin;
+                            PopupRegistry.updateGeometry("osd", baseX, baseY + y, Settings.osdWidth, Settings.osdHeight + 50);
                         }
                     }
                 }
@@ -133,24 +160,21 @@ Scope {
                     }
                 }
                 
-                // Main OSD card
-                Card {
-                    id: osdCard
+                ColumnLayout {
                     anchors.fill: parent
-                    elevation: 3
-                    showBorder: true
+                    anchors.topMargin: 12
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    anchors.bottomMargin: 8
+                    spacing: 4
                     
-                    ColumnLayout {
-                        anchors.fill: parent
-                        spacing: 4
+                    // Header row with icon and device name
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
                         
-                        // Header row with icon and device name
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 12
-                            
-                            // Volume icon
-                            Text {
+                        // Volume icon
+                        Text {
                                 readonly property int volPct: Math.round((Audio.muted ? 0 : Audio.volume) * 100)
                                 text: Audio.muted ? "\ue04f" : volPct > 50 ? "\ue050" : volPct > 30 ? "\ue04d" : "\ue04e"
                                 color: Audio.muted ? Theme.stateMuted : Theme.accent
@@ -197,4 +221,3 @@ Scope {
             }
         }
     }
-}

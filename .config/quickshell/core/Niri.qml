@@ -41,6 +41,16 @@ QtObject {
         return []
     }
 
+    // Map a QScreen name to a Niri output name
+    function niriNameFor(screenName) {
+        if (!screenName) return ""
+        const names = getMonitorNames()
+        for (const n of names) {
+            if (screenName.includes(n) || n.includes(screenName)) return n
+        }
+        return screenName
+    }
+
     // Helper function to determine if a workspace is active
     function isWorkspaceActive(workspace, monitorName) {
         if (monitorName) {

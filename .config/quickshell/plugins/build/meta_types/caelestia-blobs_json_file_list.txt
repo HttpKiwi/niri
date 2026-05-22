@@ -1,0 +1,4 @@
+/home/httpkiwi/niri/.config/quickshell/plugins/build/caelestia-blobs_autogen/include/../3EMUYWZ5ZZ/moc_blobgroup.cpp.json
+/home/httpkiwi/niri/.config/quickshell/plugins/build/caelestia-blobs_autogen/include/../3EMUYWZ5ZZ/moc_blobinvertedrect.cpp.json
+/home/httpkiwi/niri/.config/quickshell/plugins/build/caelestia-blobs_autogen/include/../3EMUYWZ5ZZ/moc_blobrect.cpp.json
+/home/httpkiwi/niri/.config/quickshell/plugins/build/caelestia-blobs_autogen/include/../3EMUYWZ5ZZ/moc_blobshape.cpp.json

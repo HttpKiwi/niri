@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
@@ -10,7 +9,7 @@ import qs.core
 import qs.config
 import qs.components.base
 import qs.components.indicators
-import qs.features.decorations
+import qs.features.notifications
 
 
 Scope {
@@ -37,6 +36,7 @@ Scope {
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
+            WlrLayershell.keyboardFocus: window.panelState && window.panelState.launcher ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
@@ -80,13 +80,16 @@ Scope {
 
                 // Left - Workspaces
                 Row {
-                    id: workspaces
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: Settings.barContentMargin
                     spacing: Settings.barWorkspaceSpacing
 
-                    Repeater {
+                    Row {
+                        id: workspaces
+                        spacing: Settings.barWorkspaceSpacing
+
+                        Repeater {
                         model: {
                             try {
                                 if (window.targetMonitor) {
@@ -117,9 +120,10 @@ Scope {
                                            modelData.output === monitorName
                                 }
                                 return modelData.is_focused
-                            }
-                        }
-                    }
+    }
+}
+}
+}
                 }
 
                 // Center - Window title
@@ -152,6 +156,11 @@ Scope {
                         VolumeIndicator {}
                     }
 
+                    // Headset battery pill
+                    Pill {
+                        HeadsetBatteryIndicator {}
+                    }
+
                     // Status pill
                     Pill {
                         ResourceIndicator {}
@@ -169,11 +178,99 @@ Scope {
                 }
             }
 
-            Frame {
-                id: frame
+            PocketFrame {
+                id: pocketFrame
                 screenWidth: window.screen?.width ?? 0
                 screenHeight: window.screen?.height ?? 0
+                screenName: Niri.niriNameFor(window.screen?.name ?? "")
                 z: -1
+            }
+
+            Item {
+                id: notifWrapper
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: Settings.barHeight
+                anchors.rightMargin: Settings.screenBorderWidth
+                width: Settings.notificationWidth + Settings.screenBorderWidth + 50
+                height: notifList.count * Settings.notificationSpacing + (notifList.count > 0 ? Settings.notificationHeight - Settings.notificationSpacing : 0)
+                clip: true
+
+                Behavior on height {
+                    enabled: height > 0
+                    NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+                }
+
+                ListView {
+                    id: notifList
+                    anchors.fill: parent
+                    model: NotificationModel.model
+                    spacing: Settings.notificationSpacing - Settings.notificationHeight
+                    orientation: ListView.Vertical
+                    interactive: false
+
+                    delegate: Item {
+                        required property var modelData
+                        required property int index
+
+                        width: notifList.width
+                        height: Settings.notificationHeight
+                        clip: true
+
+                        Timer {
+                            interval: Math.max(modelData.timeout || Settings.notificationTimeout, 3000)
+                            running: true
+                            repeat: false
+                            onTriggered: NotificationModel.model.remove(index)
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            color: Theme.surfaceBase
+                            radius: Settings.screenCornerRadius
+
+                            NotificationCard {
+                                anchors.fill: parent
+                                anchors.margins: 0
+                                notification: {
+                                    "summary": modelData.summary,
+                                    "body": modelData.body,
+                                    "appName": modelData.appName,
+                                    "appIcon": modelData.appIcon,
+                                    "image": modelData.image
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton
+                            onClicked: NotificationModel.model.remove(index)
+                        }
+                    }
+                }
+            }
+
+            readonly property var panelState: {
+                const niriName = Niri.niriNameFor(window.screen?.name ?? "");
+                return niriName ? PanelStates.register(niriName) : null;
+            }
+
+            LauncherPanel {
+                id: launcherPanel
+                panelState: window.panelState
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                width: 500
+            }
+
+            Component.onCompleted: {
+                pocketFrame.notifWrapper = notifWrapper;
+                pocketFrame.launcherPanel = launcherPanel;
+                const niriName = Niri.niriNameFor(window.screen?.name ?? "");
+                if (niriName) {
+                    PopupRegistry.notifWrappers[niriName] = notifWrapper;
+                }
             }
 
             Rectangle {
@@ -183,7 +280,7 @@ Scope {
                     topMargin: Settings.barHeight
                     leftMargin: Settings.screenBorderWidth
                     rightMargin: Settings.screenBorderWidth
-                    bottomMargin: Settings.screenBorderWidth
+                    bottomMargin: window.panelState && window.panelState.launcher ? Settings.screenBorderWidth + launcherPanel.height : Settings.screenBorderWidth
                 }
                 visible: false
             }
@@ -195,4 +292,3 @@ Scope {
         }
     }
 }
-

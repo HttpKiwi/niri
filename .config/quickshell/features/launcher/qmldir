@@ -1,0 +1,4 @@
+module qs.features.launcher
+
+AppLauncherSource 1.0 AppLauncherSource.qml
+ClipboardLauncherSource 1.0 ClipboardLauncherSource.qml

@@ -47,6 +47,7 @@ declare -A CACHE_FILES=(
     ["${HOME}/.cache/ags/user/generated/kitty-colors.conf"]="kitty-colors.conf"
 
     # Apps
+    ["${CONFIG_HOME}/equibop/themes/HyprLuna.css"]="equibop.css"
     ["${CONFIG_HOME}/vesktop/themes/HyprLuna.css"]="vesktop.css"
     ["${HOME}/.cache/wal/colors.json"]="pywalfox-colors.json"
     ["${CONFIG_HOME}/fuzzel/colors.ini"]="fuzzel.ini"
@@ -94,7 +95,7 @@ generate_cache() {
     # Run matugen to generate all theme files
     log "Running matugen with scheme=$SCHEME_TYPE, mode=$COLOR_MODE, contrast=$CONTRAST"
     # Note: We allow matugen to fail on post-hooks (like kitty reload) as long as files are generated
-    matugen image "$wallpaper_path" -t "$SCHEME_TYPE" -m "$COLOR_MODE" --contrast "$CONTRAST" 2>&1 | while read -r line; do
+    matugen image "$wallpaper_path" -t "$SCHEME_TYPE" -m "$COLOR_MODE" --contrast "$CONTRAST" --prefer darkness 2>&1 | while read -r line; do
         log "  matugen: $line"
     done || true
 

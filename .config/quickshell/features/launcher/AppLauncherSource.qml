@@ -45,6 +45,11 @@ QtObject {
     }
 
     // Load usage ONCE at startup
+    function refreshItems() {
+        itemsLoaded = false;
+        loadItems();
+    }
+
     Component.onCompleted: {
         usageLoader.running = true;
         

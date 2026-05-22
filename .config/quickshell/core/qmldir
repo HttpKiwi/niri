@@ -7,3 +7,6 @@ singleton Color 1.0 Color.qml
 singleton NotificationService 1.0 NotificationService.qml
 singleton NotificationStore 1.0 NotificationStore.qml
 singleton FuzzyMatcher 1.0 FuzzyMatcher.qml
+singleton PopupRegistry 1.0 PopupRegistry.qml
+singleton NotificationModel 1.0 NotificationModel.qml
+singleton PanelStates 1.0 PanelStates.qml

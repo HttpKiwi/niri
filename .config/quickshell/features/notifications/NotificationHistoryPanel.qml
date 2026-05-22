@@ -118,36 +118,36 @@ PanelWindow {
 
     onVisibleChanged: {
         if (visible) {
-            // Only reset if we're not in the middle of a hide animation
             if (!_isHiding) {
-                // Cancel any pending hide
                 hideAnimationTimer.stop()
                 updateNotifications()
                 WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive
                 _showAnimation = false
-                // Reset selection
                 selectedGroupIndex = groupedNotifications.length > 0 ? 0 : -1
                 selectedNotificationIndex = -1
                 isGroupSelected = true
-                // Force focus to receive keyboard events
                 container.forceActiveFocus()
                 Qt.callLater(() => {
                     _showAnimation = true
-                    // Ensure focus is maintained
                     container.forceActiveFocus()
                 })
+                const screen = historyPanel.screen;
+                if (screen) {
+                    const overlap = 50;
+                    var baseX = screen.width - 16 - sidebarWidth - Settings.screenBorderWidth;
+                    PopupRegistry.register("historyPanel", Niri.focused_output_name,
+                        baseX + slideTransform.x, Settings.barHeight,
+                        sidebarWidth + Settings.screenBorderWidth + overlap, screen.height - Settings.barHeight - 300,
+                        Settings.cardRadius);
+                }
             }
-            // If _isHiding is true, we're re-showing for animation, so don't reset
         } else {
-            // When visible becomes false, start hide animation if not already hiding
-            // and if we're not completing a hide (timer is handling final hide)
             if (!_isHiding && !_completingHide) {
-                // Re-show panel to allow animation to play (use callLater to avoid recursion)
                 Qt.callLater(() => {
-                    if (!visible && !_isHiding && !_completingHide) {  // Only if still supposed to be hidden
+                    if (!visible && !_isHiding && !_completingHide) {
                         _isHiding = true
                         _showAnimation = false
-                        visible = true  // Keep visible for animation
+                        visible = true
                         WlrLayershell.keyboardFocus = WlrKeyboardFocus.None
                         hideAnimationTimer.restart()
                     }
@@ -401,13 +401,13 @@ PanelWindow {
         id: hideAnimationTimer
         interval: Settings.animationDurationMedium
         onTriggered: {
-            // Animation should be complete now - actually hide the panel
             if (_isHiding) {
-                _completingHide = true  // Mark that we're completing the hide
+                _completingHide = true
                 _isHiding = false
                 visible = false
+                PopupRegistry.unregister("historyPanel");
                 Qt.callLater(() => {
-                    _completingHide = false  // Reset after hide completes
+                    _completingHide = false
                 })
             }
         }
@@ -440,14 +440,9 @@ PanelWindow {
     Item {
         id: container
         anchors.fill: parent
-        clip: true  // Clip for smooth edges
+        clip: true
         focus: true
 
-        // Only enable layer rendering when visible to save memory
-        layer.enabled: visible
-        layer.smooth: true
-        
-        // Handle keyboard events here as well to ensure they're captured
         Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Escape) {
                 historyPanel._showAnimation = false
@@ -469,42 +464,47 @@ PanelWindow {
             }
         }
 
-        // Slide animation from right (Windows-style sidebar)
         transform: Translate {
             id: slideTransform
-            x: historyPanel._showAnimation ? 0 : sidebarWidth  // Slide in from right
+            x: historyPanel._showAnimation ? 0 : sidebarWidth
 
             Behavior on x {
-                // Always enabled to allow hide animation
                 NumberAnimation {
                     duration: Settings.animationDurationMedium
                     easing.type: Easing.OutCubic
                 }
             }
+
+            onXChanged: {
+                const entry = PopupRegistry._getEntry("historyPanel");
+                if (!entry || !entry.entry.pocketVisible) return;
+                const screen = historyPanel.screen;
+                if (screen) {
+                    const overlap = 50;
+                    var baseX = screen.width - 16 - sidebarWidth - Settings.screenBorderWidth;
+                    PopupRegistry.updateGeometry("historyPanel", baseX + x, Settings.barHeight,
+                        sidebarWidth + Settings.screenBorderWidth + overlap, screen.height - Settings.barHeight - 300);
+                }
+            }
         }
 
-        // Fade animation - animate based on _showAnimation, not visible
         opacity: historyPanel._showAnimation ? 1 : 0
 
         Behavior on opacity {
-            // Always enabled to allow hide animation
             NumberAnimation {
                 duration: Settings.animationDurationShort
                 easing.type: Easing.Linear
             }
         }
 
-        // Main card
-        Card {
+        Item {
             id: mainCard
-
             anchors.fill: parent
-            showBorder: true
-            contentPadding: Settings.cardPadding
 
             Item {
                 id: contentWrapper
                 anchors.fill: parent
+                anchors.margins: Settings.cardPadding
 
                 Column {
                     id: contentColumn

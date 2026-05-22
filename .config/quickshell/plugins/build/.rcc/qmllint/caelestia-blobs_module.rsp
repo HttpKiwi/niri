@@ -1,0 +1,12 @@
+-I
+/home/httpkiwi/niri/.config/quickshell/plugins/build
+-I
+/home/httpkiwi/niri/.config/quickshell/plugins/build
+-I
+/usr/lib/qt6/qml
+--resource
+/home/httpkiwi/niri/.config/quickshell/plugins/build/.qt/rcc/qmake_Caelestia_Blobs.qrc
+--resource
+/home/httpkiwi/niri/.config/quickshell/plugins/build/.qt/rcc/blob_shaders.qrc
+--module
+Caelestia.Blobs

@@ -54,8 +54,8 @@ output "HDMI-A-1" {
 }
 
 blur {
-  passes 3
-  noise 0.2
+  passes 2
+  noise 0.05
   saturation 1.2
   offset 1.8
 }
@@ -82,11 +82,9 @@ layout {
     // Focus ring (currently disabled)
     focus-ring {
       width 0
-        active-color "#7fc8ff"
-        inactive-color "#505050"
-        active-gradient from="#80c8ff" to="#bbddff" angle=45
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
-    }
+        active-color "#525252"
+        // inactive-gradient from="#505050" to="#808080" angle=45     
+      }
 
     
     // Window shadows (currently disabled)
@@ -145,6 +143,8 @@ spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
 spawn-at-startup "bash" "-c" "xwayland-satellite :1"
+spawn-at-startup "bash" "-c" "udiskie"
+spawn-at-startup "bash" "-c" "sunshine"
 // ============================================================================
 // ENVIRONMENT VARIABLES
 // ============================================================================
@@ -184,7 +184,7 @@ window-rule {
 
 window-rule {
   match is-active=false
-  opacity 0.95
+  opacity 0.90
   }
 
 window-rule {
