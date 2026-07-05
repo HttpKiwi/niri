@@ -19,7 +19,104 @@ layout(std140, binding = 0) uniform buf {
     vec4 invertedOuter;
     vec4 invertedInner;
     vec4 rectData[80];
+    float chromeTime;
+    float chromeCellSize;
+    float chromeDotSize;
+    float chromeAnimSpeed;
+    float chromeIntensity;
+    float chromeScreenW;
+    float chromeScreenH;
+    float chromeOriginX;
+    float chromeOriginY;
+    int chromeEnabled;
+    float _chromePad0;
+    float _chromePad1;
+    vec4 chromeColor1;
+    vec4 chromeColor2;
+    vec4 chromeColor3;
+    vec4 chromeBaseColor;
 };
+
+// Flex Volume–style aurora on dark chrome:
+//   - Most pixels = pure surfaceBase
+//   - Organic ribbons via multi-stage domain warping (no planar diagonal waves)
+//   - Light dot-matrix mesh on top
+
+// Nested domain warp — breaks linear wave fronts into flowing liquid paths
+vec2 domainWarp(vec2 p, float t) {
+    // Stage 1
+    vec2 q = vec2(
+        sin(p.y * 1.4 + t * 0.28) + sin(p.x * 0.7 - t * 0.17) * 0.6,
+        cos(p.x * 1.3 - t * 0.22) + cos(p.y * 0.65 + t * 0.19) * 0.6
+    );
+    // Stage 2 — warp the warp
+    vec2 r = vec2(
+        sin((p.x + q.y) * 1.6 + t * 0.14) * 0.85,
+        cos((p.y + q.x) * 1.55 - t * 0.11) * 0.85
+    );
+    // Stage 3 — high viscosity meander
+    return vec2(
+        sin((p.x + r.y * 1.3) * 1.35 - t * 0.09) * 0.7,
+        cos((p.y + r.x * 1.3) * 1.35 + t * 0.1) * 0.7
+    );
+}
+
+// Organic ribbon: field lives entirely in warped space, so paths curve and split
+float organicRibbon(vec2 p, float t, float scale, float phase) {
+    vec2 w = domainWarp(p * scale + vec2(phase * 0.37, phase * 0.21), t + phase);
+
+    // Value from warped domain only — not sin(ax+by), so no diagonal fronts
+    float field = sin(w.x * 2.4 + phase) * cos(w.y * 2.1 - phase * 0.6);
+    // Second warped sample for thicker/thinner variation along the path
+    vec2 w2 = domainWarp(p * scale * 1.3 - w * 0.4 + phase, t * 0.7 - phase);
+    field = field * 0.65 + sin(w2.x * 1.8 - w2.y * 1.2) * 0.35;
+
+    // Narrow soft peaks only
+    return pow(smoothstep(0.55, 0.92, field), 1.3);
+}
+
+vec3 chromeSurfaceColor(vec2 scenePixel) {
+    vec2 pixel = scenePixel - vec2(chromeOriginX, chromeOriginY);
+    vec2 uv = pixel / vec2(max(chromeScreenW, 1.0), max(chromeScreenH, 1.0));
+    vec2 p = uv;
+    p.x *= chromeScreenW / max(chromeScreenH, 1.0);
+    p *= 1.4;
+
+    float t = chromeTime * chromeAnimSpeed;
+
+    vec3 surface = chromeBaseColor.rgb;
+    vec3 primary = chromeColor1.rgb;
+    vec3 secondary = chromeColor2.rgb;
+    vec3 tertiary = chromeColor3.rgb;
+
+    // Independent organic streams (different scale/phase → non-parallel paths)
+    float r1 = organicRibbon(p, t * 0.85, 1.0, 0.0);
+    float r2 = organicRibbon(p, t * 1.05, 1.25, 2.7);
+    float r3 = organicRibbon(p, t * 0.7, 0.8, 5.1);
+
+    float strength = clamp(chromeIntensity, 0.0, 1.0);
+
+    vec3 col = surface;
+    col = mix(col, primary, r1 * strength);
+    col = mix(col, secondary, r2 * strength * 0.85);
+    col = mix(col, tertiary, r3 * strength * 0.7);
+
+    // Soft halo into the dark base
+    float halo = max(max(r1, r2), r3);
+    halo = pow(halo, 0.5) * strength * 0.22;
+    vec3 haloColor = primary * r1 + secondary * r2 + tertiary * r3;
+    float haloW = max(r1 + r2 + r3, 0.001);
+    col = mix(col, haloColor / haloW, halo);
+
+    // Light dot-matrix mesh
+    vec2 cell = mod(pixel, chromeCellSize);
+    float dist = length(cell - vec2(chromeCellSize * 0.5));
+    float radius = chromeDotSize * chromeCellSize * 0.5;
+    float dotMask = 1.0 - smoothstep(radius * 0.55, radius, dist);
+    col = mix(col, col + vec3(0.08), dotMask * 0.45);
+
+    return col;
+}
 
 float sdRoundedBox(vec2 p, vec2 center, vec2 halfSize, float radius) {
     vec2 d = abs(p - center) - halfSize + vec2(radius);
@@ -209,5 +306,9 @@ void main() {
 
     float fw = fwidth(mergedSdf);
     float alpha = 1.0 - smoothstep(-fw, fw, mergedSdf);
-    fragColor = vec4(color.rgb * alpha, alpha) * qt_Opacity;
+    vec3 surfaceRgb = color.rgb;
+    if (chromeEnabled != 0) {
+        surfaceRgb = chromeSurfaceColor(pixel);
+    }
+    fragColor = vec4(surfaceRgb * alpha, alpha) * qt_Opacity;
 }

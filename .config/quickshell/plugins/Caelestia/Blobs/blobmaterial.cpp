@@ -31,7 +31,7 @@ bool BlobMaterialShader::updateUniformData(RenderState& state, QSGMaterial* newM
     Q_UNUSED(oldMaterial);
     auto* mat = static_cast<BlobMaterial*>(newMaterial);
     QByteArray* buf = state.uniformData();
-    Q_ASSERT(buf->size() >= 1440);
+    Q_ASSERT(buf->size() >= 1552);
 
     if (state.isMatrixDirty()) {
         const QMatrix4x4 m = state.combinedMatrix();
@@ -84,6 +84,46 @@ bool BlobMaterialShader::updateUniformData(RenderState& state, QSGMaterial* newM
         memcpy(buf->data() + base + 48, d3, 16);
         memcpy(buf->data() + base + 64, r.radius, 16);
     }
+
+    memcpy(buf->data() + 1440, &mat->m_chromeTime, 4);
+    memcpy(buf->data() + 1444, &mat->m_chromeCellSize, 4);
+    memcpy(buf->data() + 1448, &mat->m_chromeDotSize, 4);
+    memcpy(buf->data() + 1452, &mat->m_chromeAnimSpeed, 4);
+    memcpy(buf->data() + 1456, &mat->m_chromeIntensity, 4);
+    memcpy(buf->data() + 1460, &mat->m_chromeScreenW, 4);
+    memcpy(buf->data() + 1464, &mat->m_chromeScreenH, 4);
+    memcpy(buf->data() + 1468, &mat->m_chromeOriginX, 4);
+    memcpy(buf->data() + 1472, &mat->m_chromeOriginY, 4);
+    memcpy(buf->data() + 1476, &mat->m_chromeEnabled, 4);
+
+    const float chromeColor1[4] = {
+        static_cast<float>(mat->m_chromeColor1.redF()),
+        static_cast<float>(mat->m_chromeColor1.greenF()),
+        static_cast<float>(mat->m_chromeColor1.blueF()),
+        static_cast<float>(mat->m_chromeColor1.alphaF()),
+    };
+    const float chromeColor2[4] = {
+        static_cast<float>(mat->m_chromeColor2.redF()),
+        static_cast<float>(mat->m_chromeColor2.greenF()),
+        static_cast<float>(mat->m_chromeColor2.blueF()),
+        static_cast<float>(mat->m_chromeColor2.alphaF()),
+    };
+    const float chromeColor3[4] = {
+        static_cast<float>(mat->m_chromeColor3.redF()),
+        static_cast<float>(mat->m_chromeColor3.greenF()),
+        static_cast<float>(mat->m_chromeColor3.blueF()),
+        static_cast<float>(mat->m_chromeColor3.alphaF()),
+    };
+    const float chromeBaseColor[4] = {
+        static_cast<float>(mat->m_chromeBaseColor.redF()),
+        static_cast<float>(mat->m_chromeBaseColor.greenF()),
+        static_cast<float>(mat->m_chromeBaseColor.blueF()),
+        static_cast<float>(mat->m_chromeBaseColor.alphaF()),
+    };
+    memcpy(buf->data() + 1488, chromeColor1, 16);
+    memcpy(buf->data() + 1504, chromeColor2, 16);
+    memcpy(buf->data() + 1520, chromeColor3, 16);
+    memcpy(buf->data() + 1536, chromeBaseColor, 16);
 
     return true;
 }

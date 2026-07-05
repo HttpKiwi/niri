@@ -22,16 +22,15 @@ Item {
 
     readonly property int maxVisibleItems: 10
     readonly property int itemHeight: 40
-    readonly property int searchBoxContentHeight: 30
-    readonly property int searchBoxPadding: 10
-    readonly property int listCardPadding: 5
-    readonly property int verticalSpacing: 10
-    readonly property int tabBarHeight: 20
-    readonly property int tabBarSpacing: 6
-    readonly property int searchBoxTotalHeight: tabBarHeight + tabBarSpacing + searchBoxContentHeight + (searchBoxPadding * 2)
+    readonly property int searchInputHeight: 36
+    readonly property int searchInputHorizontalPadding: 12
+    readonly property int tabBarHeight: 28
+    readonly property int topPadding: 12
+    readonly property int bottomPadding: 12
+    readonly property int separatorHeight: 1
+    readonly property int searchAreaHeight: tabBarHeight + 8 + searchInputHeight
     property int listContentHeight: 0
-    readonly property int listCardTotalHeight: listContentHeight + (listCardPadding * 2)
-    readonly property int calculatedHeight: searchBoxTotalHeight + verticalSpacing + listCardTotalHeight
+    readonly property int calculatedHeight: searchAreaHeight + 8 + separatorHeight + listContentHeight + topPadding + bottomPadding
 
     readonly property bool shouldBeActive: panelState.launcher
     property real offsetScale: shouldBeActive ? 0 : 1
@@ -53,6 +52,14 @@ Item {
         NumberAnimation {
             duration: Settings.animationDurationShort
             easing.type: Easing.Linear
+        }
+    }
+
+    Behavior on implicitHeight {
+        enabled: panelState.launcher
+        NumberAnimation {
+            duration: Settings.animationDurationShort
+            easing.type: Easing.OutQuad
         }
     }
 
@@ -160,46 +167,43 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.surfaceBase
+        color: Settings.chromeShaderEnabled ? "transparent" : Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
         radius: Settings.screenCornerRadius
     }
 
     Column {
         anchors.fill: parent
-        anchors.topMargin: 8
+        anchors.topMargin: 12
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        anchors.bottomMargin: 12
         spacing: 8
 
         Column {
             id: searchArea
             width: parent.width
-            spacing: 6
+            spacing: 8
 
             Row {
                 id: tabBar
                 width: parent.width
-                height: 20
-                spacing: 8
+                height: tabBarHeight
+                spacing: 6
 
                 Repeater {
                     model: sources
-                    delegate: Item {
+                    delegate: Pill {
                         width: 100
                         height: parent.height
+                        color: index === currentSourceIndex ? Theme.accentContainer : Theme.pillBackground
+                        opacity: index === currentSourceIndex ? 1 : 0.6
 
-                        Rectangle {
-                            id: tabBg
-                            anchors.fill: parent
-                            radius: 4
-                            color: index === currentSourceIndex ? Theme.accentContainer : "transparent"
-                            opacity: index === currentSourceIndex ? 0.8 : 0.3
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.displayName
-                                font.pixelSize: 11
-                                font.weight: index === currentSourceIndex ? Font.Bold : Font.Normal
-                                color: index === currentSourceIndex ? Theme.textOnPrimaryContainer : Theme.textSecondary
-                            }
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.displayName
+                            font.pixelSize: 12
+                            font.weight: index === currentSourceIndex ? Font.Bold : Font.Normal
+                            color: index === currentSourceIndex ? Theme.textOnPrimaryContainer : Theme.textSecondary
                         }
 
                         MouseArea {
@@ -215,37 +219,52 @@ Item {
 
             Rectangle {
                 width: parent.width
-                height: 1
-                color: Theme.outline
-                opacity: 0.2
-            }
+                height: searchInputHeight
+                radius: Theme.pillRadius
+                color: Theme.pillBackground
 
-            TextInput {
-                id: searchInput
-                width: parent.width
-                height: 30
+                TextInput {
+                    id: searchInput
+                    anchors.fill: parent
+                    anchors.leftMargin: searchInputHorizontalPadding
+                    anchors.rightMargin: searchInputHorizontalPadding
 
-                focus: true
-                font.pixelSize: 18
-                color: Theme.textPrimary
-                selectByMouse: false
-                renderType: Text.QtRendering
-                antialiasing: true
-                onTextChanged: updateFilter()
+                    focus: true
+                    font.pixelSize: 16
+                    color: Theme.textPrimary
+                    selectByMouse: false
+                    renderType: Text.QtRendering
+                    antialiasing: true
+                    verticalAlignment: Text.AlignVCenter
+                    onTextChanged: updateFilter()
 
-                Keys.onUpPressed: selectPrevious()
-                Keys.onDownPressed: selectNext()
-                Keys.onEscapePressed: panelState.launcher = false
-                Keys.onReturnPressed: executeSelected()
-                Keys.onEnterPressed: executeSelected()
+                    Text {
+                        anchors.fill: parent
+                        anchors.leftMargin: searchInputHorizontalPadding
+                        anchors.rightMargin: searchInputHorizontalPadding
+                        verticalAlignment: Text.AlignVCenter
+                        text: "Search"
+                        font.pixelSize: 16
+                        color: Theme.textSecondary
+                        opacity: searchInput.text === "" ? 1 : 0
+                        renderType: Text.QtRendering
+                        antialiasing: true
+                    }
 
-                Keys.onPressed: function(event) {
-                    if (event.key === Qt.Key_Tab) {
-                        if (event.modifiers & Qt.ShiftModifier)
-                            switchToSource((currentSourceIndex - 1 + sources.length) % sources.length);
-                        else
-                            switchToSource((currentSourceIndex + 1) % sources.length);
-                        event.accepted = true;
+                    Keys.onUpPressed: selectPrevious()
+                    Keys.onDownPressed: selectNext()
+                    Keys.onEscapePressed: panelState.launcher = false
+                    Keys.onReturnPressed: executeSelected()
+                    Keys.onEnterPressed: executeSelected()
+
+                    Keys.onPressed: function(event) {
+                        if (event.key === Qt.Key_Tab) {
+                            if (event.modifiers & Qt.ShiftModifier)
+                                switchToSource((currentSourceIndex - 1 + sources.length) % sources.length);
+                            else
+                                switchToSource((currentSourceIndex + 1) % sources.length);
+                            event.accepted = true;
+                        }
                     }
                 }
             }
@@ -261,17 +280,8 @@ Item {
             Item {
                 id: listArea
                 width: parent.width
-                height: implicitHeight
-                implicitHeight: listContentHeight
+                height: listContentHeight
                 clip: true
-
-                Behavior on implicitHeight {
-                    enabled: panelState.launcher
-                    NumberAnimation {
-                        duration: Settings.animationDurationShort
-                        easing.type: Easing.OutQuad
-                    }
-                }
 
             ListView {
                 id: listView

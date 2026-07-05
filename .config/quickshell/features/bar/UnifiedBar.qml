@@ -10,6 +10,9 @@ import qs.config
 import qs.components.base
 import qs.components.indicators
 import qs.features.notifications
+import qs.features.osd
+import qs.features.wallpaper
+import qs.features.controlcenter
 
 
 Scope {
@@ -36,10 +39,20 @@ Scope {
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            WlrLayershell.keyboardFocus: window.panelState && window.panelState.launcher ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.historyPanel) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
+
+            WindowBlur {
+                targetWindow: window
+                blurEnabled: Settings.blurEnabled
+                blurX: topBar.x
+                blurY: topBar.y
+                blurWidth: topBar.width
+                blurHeight: topBar.height
+                blurRadius: Settings.screenCornerRadius
+            }
 
             anchors {
                 left: true
@@ -64,19 +77,24 @@ Scope {
                 screen: window.screen
             }
 
-            // Top Bar
-            Rectangle {
+            // Top Bar — content overlay only; chrome fill comes from PocketFrame's top border
+            Item {
                 id: topBar
 
                 implicitHeight: Settings.barHeight
                 width: window.screen?.width ?? 0
                 height: Settings.barHeight
-                color: "transparent"
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
                 visible: true
-                z: 0  // Explicitly set z to ensure corners can be above
+                z: 1
+
+                Rectangle {
+                    anchors.fill: parent
+                    visible: !Settings.chromeShaderEnabled
+                    color: Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
+                }
 
                 // Left - Workspaces
                 Row {
@@ -90,38 +108,14 @@ Scope {
                         spacing: Settings.barWorkspaceSpacing
 
                         Repeater {
-                        model: {
-                            try {
-                                if (window.targetMonitor) {
-                                    const workspaces = Niri.getWorkspacesForMonitor(window.targetMonitor)
-                                    return workspaces || []
-                                } else {
-                                    // Try to get monitor name from screen
-                                    const screenName = window.screen?.name || ""
-                                    if (screenName) {
-                                        const workspaces = Niri.getWorkspacesForMonitor(screenName)
-                                        return workspaces || []
-                                    }
-                                    return Niri.workspaces || []
-                                }
-                            } catch (e) {
-                                console.warn("Error getting workspaces:", e)
-                                return []
-                            }
-                        }
+                        model: Niri.workspaceModel
 
                         delegate: WorkspaceIndicator {
                             required property var modelData
+                            visible: modelData.output === (window.targetMonitor || window.screen?.name || "")
                             workspace: modelData
-                            isActive: {
-                                if (window.targetMonitor || window.screen?.name) {
-                                    const monitorName = window.targetMonitor || window.screen?.name
-                                    return modelData.idx === Niri.focused_workspace_idx &&
-                                           modelData.output === monitorName
-                                }
-                                return modelData.is_focused
-    }
-}
+                            isActive: modelData.isFocused
+                        }
 }
 }
                 }
@@ -191,10 +185,19 @@ Scope {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 anchors.topMargin: Settings.barHeight
-                anchors.rightMargin: Settings.screenBorderWidth
+                anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.historyPanel ? historyPanelShift : 0)
                 width: Settings.notificationWidth + Settings.screenBorderWidth + 50
                 height: notifList.count * Settings.notificationSpacing + (notifList.count > 0 ? Settings.notificationHeight - Settings.notificationSpacing : 0)
                 clip: true
+
+                readonly property int historyPanelShift: Settings.controlCenterWidth
+
+                Behavior on anchors.rightMargin {
+                    NumberAnimation {
+                        duration: Settings.animationDurationMedium
+                        easing.type: Easing.OutCubic
+                    }
+                }
 
                 Behavior on height {
                     enabled: height > 0
@@ -221,39 +224,31 @@ Scope {
                             interval: Math.max(modelData.timeout || Settings.notificationTimeout, 3000)
                             running: true
                             repeat: false
-                            onTriggered: NotificationModel.model.remove(index)
+                            onTriggered: NotificationService.hidePopup(modelData.id, true)
                         }
 
                         Rectangle {
                             anchors.fill: parent
-                            color: Theme.surfaceBase
+                            color: Settings.chromeShaderEnabled ? "transparent" : Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
                             radius: Settings.screenCornerRadius
 
                             NotificationCard {
                                 anchors.fill: parent
                                 anchors.margins: 0
-                                notification: {
-                                    "summary": modelData.summary,
-                                    "body": modelData.body,
-                                    "appName": modelData.appName,
-                                    "appIcon": modelData.appIcon,
-                                    "image": modelData.image
+                                notification: modelData
+                                onActionInvoked: {
+                                    // activate() already removed this id from the model
                                 }
+                                onCloseRequested: NotificationService.hidePopup(modelData.id, false)
                             }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton
-                            onClicked: NotificationModel.model.remove(index)
                         }
                     }
                 }
             }
 
+            readonly property string screenName: Niri.niriNameFor(window.screen?.name ?? "")
             readonly property var panelState: {
-                const niriName = Niri.niriNameFor(window.screen?.name ?? "");
-                return niriName ? PanelStates.register(niriName) : null;
+                return screenName ? PanelStates.register(screenName) : null;
             }
 
             LauncherPanel {
@@ -264,9 +259,32 @@ Scope {
                 width: 500
             }
 
+            OSDWrapper {
+                id: osdPanel
+                panelState: window.panelState
+                screenName: window.screenName
+            }
+
+            WallpaperPanel {
+                id: wallpaperPanel
+                panelState: window.panelState
+            }
+
+            ControlCenterPanel {
+                id: controlCenterPanel
+                panelState: window.panelState
+                screenName: window.screenName
+                screenWidth: window.screen?.width ?? 0
+                screenHeight: window.screen?.height ?? 0
+                z: 1
+            }
+
             Component.onCompleted: {
                 pocketFrame.notifWrapper = notifWrapper;
                 pocketFrame.launcherPanel = launcherPanel;
+                pocketFrame.osdPanel = osdPanel;
+                pocketFrame.wallpaperPanel = wallpaperPanel;
+                pocketFrame.controlCenterPanel = controlCenterPanel;
                 const niriName = Niri.niriNameFor(window.screen?.name ?? "");
                 if (niriName) {
                     PopupRegistry.notifWrappers[niriName] = notifWrapper;
@@ -280,14 +298,45 @@ Scope {
                     topMargin: Settings.barHeight
                     leftMargin: Settings.screenBorderWidth
                     rightMargin: Settings.screenBorderWidth
+                        + (window.panelState && window.panelState.historyPanel
+                            ? Settings.controlCenterWidth
+                            : 0)
                     bottomMargin: window.panelState && window.panelState.launcher ? Settings.screenBorderWidth + launcherPanel.height : Settings.screenBorderWidth
                 }
                 visible: false
             }
 
+            // Hit targets for popups that live inside the click-through hole
+            Item {
+                id: notifHitRegion
+                x: notifWrapper.x
+                y: notifWrapper.y
+                width: notifWrapper.height > 0 ? notifWrapper.width : 0
+                height: notifWrapper.height > 0 ? notifWrapper.height : 0
+            }
+
+            Item {
+                id: osdHitRegion
+                x: osdPanel.visualX
+                y: osdPanel.visualY
+                width: osdPanel.pocketActive ? osdPanel.visualW : 0
+                height: osdPanel.pocketActive ? osdPanel.visualH : 0
+            }
+
+            // Input on chrome (Xor hole), then add popup hit regions back
             mask: Region {
                 item: innerClickThrough
                 intersection: Intersection.Xor
+
+                Region {
+                    item: notifHitRegion
+                    intersection: Intersection.Subtract
+                }
+
+                Region {
+                    item: osdHitRegion
+                    intersection: Intersection.Subtract
+                }
             }
         }
     }

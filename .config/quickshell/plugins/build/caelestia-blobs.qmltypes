@@ -32,8 +32,148 @@ Module {
             index: 1
             lineNumber: 15
         }
-        Signal { name: "smoothingChanged"; lineNumber: 44 }
-        Signal { name: "colorChanged"; lineNumber: 45 }
+        Property {
+            name: "proceduralEnabled"
+            type: "bool"
+            read: "proceduralEnabled"
+            write: "setProceduralEnabled"
+            notify: "proceduralEnabledChanged"
+            index: 2
+            lineNumber: 16
+        }
+        Property {
+            name: "chromeTime"
+            type: "double"
+            read: "chromeTime"
+            write: "setChromeTime"
+            notify: "chromeTimeChanged"
+            index: 3
+            lineNumber: 17
+        }
+        Property {
+            name: "chromeScreenWidth"
+            type: "double"
+            read: "chromeScreenWidth"
+            write: "setChromeScreenWidth"
+            notify: "chromeScreenWidthChanged"
+            index: 4
+            lineNumber: 18
+        }
+        Property {
+            name: "chromeScreenHeight"
+            type: "double"
+            read: "chromeScreenHeight"
+            write: "setChromeScreenHeight"
+            notify: "chromeScreenHeightChanged"
+            index: 5
+            lineNumber: 19
+        }
+        Property {
+            name: "chromeOriginX"
+            type: "double"
+            read: "chromeOriginX"
+            write: "setChromeOriginX"
+            notify: "chromeOriginXChanged"
+            index: 6
+            lineNumber: 20
+        }
+        Property {
+            name: "chromeOriginY"
+            type: "double"
+            read: "chromeOriginY"
+            write: "setChromeOriginY"
+            notify: "chromeOriginYChanged"
+            index: 7
+            lineNumber: 21
+        }
+        Property {
+            name: "cellSize"
+            type: "double"
+            read: "cellSize"
+            write: "setCellSize"
+            notify: "cellSizeChanged"
+            index: 8
+            lineNumber: 22
+        }
+        Property {
+            name: "dotSize"
+            type: "double"
+            read: "dotSize"
+            write: "setDotSize"
+            notify: "dotSizeChanged"
+            index: 9
+            lineNumber: 23
+        }
+        Property {
+            name: "animSpeed"
+            type: "double"
+            read: "animSpeed"
+            write: "setAnimSpeed"
+            notify: "animSpeedChanged"
+            index: 10
+            lineNumber: 24
+        }
+        Property {
+            name: "intensity"
+            type: "double"
+            read: "intensity"
+            write: "setIntensity"
+            notify: "intensityChanged"
+            index: 11
+            lineNumber: 25
+        }
+        Property {
+            name: "color1"
+            type: "QColor"
+            read: "color1"
+            write: "setColor1"
+            notify: "color1Changed"
+            index: 12
+            lineNumber: 26
+        }
+        Property {
+            name: "color2"
+            type: "QColor"
+            read: "color2"
+            write: "setColor2"
+            notify: "color2Changed"
+            index: 13
+            lineNumber: 27
+        }
+        Property {
+            name: "color3"
+            type: "QColor"
+            read: "color3"
+            write: "setColor3"
+            notify: "color3Changed"
+            index: 14
+            lineNumber: 28
+        }
+        Property {
+            name: "baseColor"
+            type: "QColor"
+            read: "baseColor"
+            write: "setBaseColor"
+            notify: "baseColorChanged"
+            index: 15
+            lineNumber: 29
+        }
+        Signal { name: "smoothingChanged"; lineNumber: 102 }
+        Signal { name: "colorChanged"; lineNumber: 103 }
+        Signal { name: "proceduralEnabledChanged"; lineNumber: 104 }
+        Signal { name: "chromeTimeChanged"; lineNumber: 105 }
+        Signal { name: "chromeScreenWidthChanged"; lineNumber: 106 }
+        Signal { name: "chromeScreenHeightChanged"; lineNumber: 107 }
+        Signal { name: "chromeOriginXChanged"; lineNumber: 108 }
+        Signal { name: "chromeOriginYChanged"; lineNumber: 109 }
+        Signal { name: "cellSizeChanged"; lineNumber: 110 }
+        Signal { name: "dotSizeChanged"; lineNumber: 111 }
+        Signal { name: "animSpeedChanged"; lineNumber: 112 }
+        Signal { name: "intensityChanged"; lineNumber: 113 }
+        Signal { name: "color1Changed"; lineNumber: 114 }
+        Signal { name: "color2Changed"; lineNumber: 115 }
+        Signal { name: "color3Changed"; lineNumber: 116 }
+        Signal { name: "baseColorChanged"; lineNumber: 117 }
     }
     Component {
         file: "blobinvertedrect.hpp"

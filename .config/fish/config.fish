@@ -1,3 +1,12 @@
+# Seamless auto-start for Niri
+if status is-login
+    if test -z "$WAYLAND_DISPLAY" -a "$XDG_VTNR" = 1
+        # The '-l' flag forces niri-session to bypass its internal login shell loop,
+        # which prevents an infinite recursion fork-bomb in Fish.
+        exec niri-session -l
+    end
+end
+
 if status is-interactive
     # Commands to run in interactive sessions can go here
 end
@@ -24,3 +33,6 @@ fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
 
 starship init fish | source
 export PATH="$HOME/.local/bin:$PATH"
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/httpkiwi/.local/bin" $PATH

@@ -1,3 +1,6 @@
+# Local reference implementations
+.references/
+
 # GitHub Copilot
 .config/github-copilot/
 

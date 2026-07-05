@@ -289,14 +289,14 @@ libcaelestia-blobs.so: CMakeFiles/caelestia-blobs.dir/Caelestia/Blobs/blobmateri
 libcaelestia-blobs.so: CMakeFiles/caelestia-blobs.dir/build/.qt/rcc/qrc_blob_shaders.cpp.o
 libcaelestia-blobs.so: CMakeFiles/caelestia-blobs.dir/build.make
 libcaelestia-blobs.so: CMakeFiles/caelestia-blobs.dir/compiler_depend.ts
-libcaelestia-blobs.so: /usr/lib/libQt6Quick.so.6.11.0
-libcaelestia-blobs.so: /usr/lib/libQt6OpenGL.so.6.11.0
-libcaelestia-blobs.so: /usr/lib/libQt6Gui.so.6.11.0
+libcaelestia-blobs.so: /usr/lib/libQt6Quick.so.6.11.1
+libcaelestia-blobs.so: /usr/lib/libQt6OpenGL.so.6.11.1
+libcaelestia-blobs.so: /usr/lib/libQt6Gui.so.6.11.1
 libcaelestia-blobs.so: /usr/lib/libGLX.so
 libcaelestia-blobs.so: /usr/lib/libOpenGL.so
-libcaelestia-blobs.so: /usr/lib/libQt6Qml.so.6.11.0
-libcaelestia-blobs.so: /usr/lib/libQt6Network.so.6.11.0
-libcaelestia-blobs.so: /usr/lib/libQt6Core.so.6.11.0
+libcaelestia-blobs.so: /usr/lib/libQt6Qml.so.6.11.1
+libcaelestia-blobs.so: /usr/lib/libQt6Network.so.6.11.1
+libcaelestia-blobs.so: /usr/lib/libQt6Core.so.6.11.1
 libcaelestia-blobs.so: CMakeFiles/caelestia-blobs.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/httpkiwi/niri/.config/quickshell/plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Linking CXX shared library libcaelestia-blobs.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/caelestia-blobs.dir/link.txt --verbose=$(VERBOSE)

@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Quickshell
 import qs.core
 import qs.config
 
@@ -18,9 +17,21 @@ QtObject {
     }
 
     function _add(notification) {
-        if (!notification || !notification.summary) return
+        if (!notification || !notification.summary)
+            return
+
+        const desktopEntry = notification.desktopEntry || ""
+        const id = notification.id || 0
+
+        console.log(
+            "Notification actions:", notification.actions?.length || 0,
+            "desktopEntry:", desktopEntry || "(none)"
+        )
 
         if (NotificationModel.count() >= maxNotifications) {
+            const oldest = NotificationModel.model.get(NotificationModel.count() - 1)
+            if (oldest)
+                NotificationService.release(oldest.id)
             NotificationModel.model.remove(NotificationModel.count() - 1)
         }
 
@@ -31,23 +42,23 @@ QtObject {
                 appName: notification.appName || "",
                 appIcon: notification.appIcon || "",
                 image: notification.image || "",
-                id: notification.id || 0
+                id: id,
+                desktopEntry: desktopEntry
             })
         } catch (e) {}
 
+        // Display fields only — actions stay on live Notification via NotificationService
         NotificationModel.add({
             summary: notification.summary || "",
             body: notification.body || "",
             appName: notification.appName || "",
             appIcon: notification.appIcon || "",
             image: notification.image || "",
-            id: notification.id || 0,
-            timeout: notification.expireTimeout || Settings.notificationTimeout
+            id: id,
+            desktopEntry: desktopEntry,
+            timeout: notification.expireTimeout > 0
+                ? notification.expireTimeout * 1000
+                : Settings.notificationTimeout
         })
-    }
-
-    function _getWrapper() {
-        const name = Niri.focused_output_name;
-        return name ? PopupRegistry.notifWrappers[name] : null;
     }
 }

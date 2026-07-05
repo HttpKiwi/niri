@@ -179,15 +179,13 @@ Item {
                 spacing: Settings.barWorkspaceSpacing
 
                 Repeater {
-                    model: {
-                        var name = root.screen?.name ?? ""
-                        return name ? (Niri.workspaces_by_monitor[name] || Niri.workspaces || []) : (Niri.workspaces || [])
-                    }
+                    model: Niri.workspaceModel
 
                     delegate: WorkspaceIndicator {
                         required property var modelData
+                        visible: modelData.output === (root.screen?.name ?? "")
                         workspace: modelData
-                        isActive: modelData.is_focused
+                        isActive: modelData.isFocused
                     }
                 }
             }

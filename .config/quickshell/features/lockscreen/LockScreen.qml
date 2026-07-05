@@ -19,6 +19,10 @@ Scope {
         }
     }
 
+    Component.onCompleted: {
+        lock.locked = false  
+    }
+
     IpcHandler {
         target: "lock"
 

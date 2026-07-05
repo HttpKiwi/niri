@@ -62,6 +62,8 @@ QtObject {
     readonly property color accentContainer: colors.primary_container
     readonly property color accentSecondary: colors.secondary
     readonly property color accentSecondaryContainer: colors.secondary_container
+    readonly property color tertiary: colors.tertiary
+    readonly property color tertiaryContainer: colors.tertiary_container
     
     // ========================================
     // State Colors
@@ -85,6 +87,63 @@ QtObject {
     readonly property color errorContainer: colors.error_container
     readonly property color onError: colors.on_error
     
+    // ========================================
+    // Alpha / Glass Helpers
+    // ========================================
+    function withAlpha(color, alpha) {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
+
+    // Semi-transparent tinted glass over an internally blurred backdrop
+    function glass(opacity, tintStrength) {
+        const t = tintStrength
+        const s = root.surface
+        const p = root.primary
+        return Qt.rgba(
+            s.r * (1 - t) + p.r * t,
+            s.g * (1 - t) + p.g * t,
+            s.b * (1 - t) + p.b * t,
+            opacity
+        )
+    }
+
+    function glassBorder(opacity, tintStrength) {
+        const t = Math.min(tintStrength * 1.5, 1)
+        const o = root.textPrimary
+        const p = root.primary
+        return Qt.rgba(
+            o.r * (1 - t) + p.r * t,
+            o.g * (1 - t) + p.g * t,
+            o.b * (1 - t) + p.b * t,
+            opacity
+        )
+    }
+
+    // Opaque elevated card (no blur behind)
+    function elevatedCard(tintStrength) {
+        const t = tintStrength
+        const s = root.surfaceElevated
+        const p = root.primary
+        return Qt.rgba(
+            s.r * (1 - t) + p.r * t,
+            s.g * (1 - t) + p.g * t,
+            s.b * (1 - t) + p.b * t,
+            1
+        )
+    }
+
+    function elevatedCardBorder(tintStrength) {
+        const t = Math.min(tintStrength * 1.5, 1)
+        const o = root.outline
+        const p = root.primary
+        return Qt.rgba(
+            o.r * (1 - t) + p.r * t,
+            o.g * (1 - t) + p.g * t,
+            o.b * (1 - t) + p.b * t,
+            0.45
+        )
+    }
+
     // ========================================
     // Dimensions (from Settings, exposed here for convenience)
     // ========================================

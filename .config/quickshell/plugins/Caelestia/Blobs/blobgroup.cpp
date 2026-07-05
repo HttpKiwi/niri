@@ -25,7 +25,60 @@ void BlobGroup::setColor(const QColor& c) {
         return;
     m_color = c;
     emit colorChanged();
-    markDirty();
+    markPaintDirty();
+}
+
+// Chrome uniforms only affect the fragment shader — no geometry/physics work
+#define CHROME_PAINT_SETTER(Type, name, Name) \
+    void BlobGroup::set##Name(Type v) { \
+        if (m_##name == v) \
+            return; \
+        m_##name = v; \
+        emit name##Changed(); \
+        markPaintDirty(); \
+    }
+
+CHROME_PAINT_SETTER(bool, proceduralEnabled, ProceduralEnabled)
+CHROME_PAINT_SETTER(qreal, chromeTime, ChromeTime)
+CHROME_PAINT_SETTER(qreal, chromeScreenWidth, ChromeScreenWidth)
+CHROME_PAINT_SETTER(qreal, chromeScreenHeight, ChromeScreenHeight)
+CHROME_PAINT_SETTER(qreal, chromeOriginX, ChromeOriginX)
+CHROME_PAINT_SETTER(qreal, chromeOriginY, ChromeOriginY)
+CHROME_PAINT_SETTER(qreal, cellSize, CellSize)
+CHROME_PAINT_SETTER(qreal, dotSize, DotSize)
+CHROME_PAINT_SETTER(qreal, animSpeed, AnimSpeed)
+CHROME_PAINT_SETTER(qreal, intensity, Intensity)
+
+void BlobGroup::setColor1(const QColor& c) {
+    if (m_color1 == c)
+        return;
+    m_color1 = c;
+    emit color1Changed();
+    markPaintDirty();
+}
+
+void BlobGroup::setColor2(const QColor& c) {
+    if (m_color2 == c)
+        return;
+    m_color2 = c;
+    emit color2Changed();
+    markPaintDirty();
+}
+
+void BlobGroup::setColor3(const QColor& c) {
+    if (m_color3 == c)
+        return;
+    m_color3 = c;
+    emit color3Changed();
+    markPaintDirty();
+}
+
+void BlobGroup::setBaseColor(const QColor& c) {
+    if (m_baseColor == c)
+        return;
+    m_baseColor = c;
+    emit baseColorChanged();
+    markPaintDirty();
 }
 
 void BlobGroup::addShape(BlobShape* shape) {
@@ -64,6 +117,13 @@ void BlobGroup::markDirty() {
         static_cast<BlobShape*>(m_invertedRect)->polish();
         static_cast<BlobShape*>(m_invertedRect)->update();
     }
+}
+
+void BlobGroup::markPaintDirty() {
+    for (auto* shape : std::as_const(m_shapes))
+        shape->update();
+    if (m_invertedRect)
+        static_cast<BlobShape*>(m_invertedRect)->update();
 }
 
 void BlobGroup::markShapeDirty(BlobShape* source) {

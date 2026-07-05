@@ -4,3 +4,4 @@ LockScreen 1.0 LockScreen.qml
 LockSurface 1.0 LockSurface.qml
 LockInfo 1.0 LockInfo.qml
 LockAuth 1.0 LockAuth.qml
+AutoLock 1.0 AutoLock.qml

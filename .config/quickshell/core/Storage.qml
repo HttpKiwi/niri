@@ -1,0 +1,244 @@
+pragma Singleton
+pragma ComponentBehavior: Bound
+
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import qs.config
+
+/**
+ * Storage - JSON-based persistence for shell state
+ * Uses FileView for reading and Python heredoc for safe writing
+ *
+ * Data structure:
+ * {
+ *   "notifications": [{id, appName, summary, body, appIcon, image, desktopEntry, timestamp, dismissed}],
+ *   "settings": {key: value}
+ * }
+ */
+QtObject {
+    id: root
+
+    readonly property string dataPath: `${Quickshell.shellDir}/shell_data.json`
+
+    // Internal storage
+    property var _data: ({ notifications: [], settings: {} })
+
+    signal notificationsChanged()
+
+    // FileView for reading
+    property var fileView: FileView {
+        path: root.dataPath
+        watchChanges: true
+
+        JsonAdapter {
+            id: adapter
+            property var notifications
+            property var settings
+        }
+
+        onAdapterUpdated: {
+            if (adapter.notifications) {
+                root._data = {
+                    notifications: adapter.notifications || [],
+                    settings: adapter.settings || {}
+                }
+                root.notificationsChanged()
+            }
+        }
+
+        Component.onCompleted: {
+            if (adapter.notifications) {
+                root._data = {
+                    notifications: adapter.notifications || [],
+                    settings: adapter.settings || {}
+                }
+            } else {
+                root._data = { notifications: [], settings: {} }
+            }
+            root.notificationsChanged()
+        }
+    }
+
+    // Reusable Process for saving
+    property var saveProcess: Process {
+        running: false
+    }
+
+    Component.onCompleted: {
+        loadData()
+    }
+
+    function loadData() {
+        try {
+            fileView.reload()
+        } catch (e) {
+            console.warn("Storage: Error loading data:", e)
+            root._data = { notifications: [], settings: {} }
+        }
+    }
+
+    function saveData() {
+        try {
+            const jsonStr = JSON.stringify(root._data, null, 2)
+            const filePath = root.dataPath
+            const dirPath = Quickshell.shellDir
+            const tempInputPath = `${filePath}.input.tmp`
+            const tempOutputPath = `${filePath}.tmp`
+
+            const writeCommand = `cat > '${tempInputPath}' << 'JSONEOF'
+${jsonStr}
+JSONEOF
+python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); data = json.load(open('${tempInputPath}')); f = open('${tempOutputPath}', 'w'); json.dump(data, f, indent=2); f.close(); shutil.move('${tempOutputPath}', '${filePath}'); os.remove('${tempInputPath}')"`
+
+            saveProcess.command = ["sh", "-c", writeCommand]
+            saveProcess.running = true
+            root.notificationsChanged()
+        } catch (e) {
+            console.error("Storage: Error saving data:", e)
+        }
+    }
+
+    // Notification operations
+    function addNotification(notification) {
+        if (!notification || !notification.appName) return
+
+        const notificationData = {
+            id: String(notification.id || Date.now()),
+            appName: notification.appName || "Unknown",
+            summary: notification.summary || "",
+            body: notification.body || "",
+            appIcon: notification.appIcon || "",
+            image: notification.image || "",
+            desktopEntry: notification.desktopEntry || "",
+            timestamp: notification.timestamp || new Date().toISOString(),
+            dismissed: false
+        }
+
+        root._data.notifications.unshift(notificationData)
+        trimOldNotifications()
+        saveData()
+    }
+
+    function dismissNotification(notificationId) {
+        const id = String(notificationId)
+        for (var i = 0; i < root._data.notifications.length; i++) {
+            if (root._data.notifications[i].id === id) {
+                root._data.notifications[i].dismissed = true
+                break
+            }
+        }
+        saveData()
+    }
+
+    function removeNotification(notificationId) {
+        const id = String(notificationId)
+        root._data.notifications = root._data.notifications.filter(function(n) {
+            return n.id !== id
+        })
+        saveData()
+    }
+
+    function getActiveNotifications(callback) {
+        var active = root._data.notifications.filter(function(n) {
+            return !n.dismissed
+        })
+        callback(active)
+    }
+
+    function getAllNotifications(callback) {
+        callback(root._data.notifications.slice())
+    }
+
+    function getGroupedNotifications(callback) {
+        var groups = {}
+        for (var i = 0; i < root._data.notifications.length; i++) {
+            var n = root._data.notifications[i]
+            if (!n.dismissed) {
+                if (!groups[n.appName]) {
+                    groups[n.appName] = {
+                        appName: n.appName,
+                        notifications: [],
+                        count: 0
+                    }
+                }
+                groups[n.appName].notifications.push(n)
+                groups[n.appName].count++
+            }
+        }
+        var result = []
+        for (var key in groups) {
+            result.push(groups[key])
+        }
+        callback(result)
+    }
+
+    function getNotificationsByApp(appName, callback) {
+        var result = root._data.notifications.filter(function(n) {
+            return n.appName === appName
+        })
+        callback(result)
+    }
+
+    function clearApp(appName) {
+        root._data.notifications = root._data.notifications.filter(function(n) {
+            return n.appName !== appName
+        })
+        saveData()
+    }
+
+    function clearAll() {
+        root._data.notifications = []
+        saveData()
+    }
+
+    function trimOldNotifications() {
+        var maxAgeDays = Settings.notificationHistoryMaxAgeDays || 0
+        var maxPerApp = Settings.notificationHistoryMaxPerApp || 100
+        var maxTotal = Settings.notificationHistoryMaxTotal || 1000
+
+        var now = new Date()
+
+        // Age-based trim
+        if (maxAgeDays > 0) {
+            var maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000
+            root._data.notifications = root._data.notifications.filter(function(n) {
+                if (!n.timestamp) return true
+                try {
+                    var notificationDate = new Date(n.timestamp)
+                    return (now - notificationDate) <= maxAgeMs
+                } catch (e) {
+                    return true
+                }
+            })
+        }
+
+        // Per-app limit
+        var appCounts = {}
+        for (var i = root._data.notifications.length - 1; i >= 0; i--) {
+            var n = root._data.notifications[i]
+            var appName = n.appName || "Unknown"
+            if (!appCounts[appName]) appCounts[appName] = 0
+            appCounts[appName]++
+            if (appCounts[appName] > maxPerApp) {
+                root._data.notifications.splice(i, 1)
+            }
+        }
+
+        // Total limit
+        if (root._data.notifications.length > maxTotal) {
+            root._data.notifications = root._data.notifications.slice(0, maxTotal)
+        }
+    }
+
+    // Settings operations
+    function getSetting(key, callback) {
+        var value = root._data.settings[key] || null
+        callback(value)
+    }
+
+    function setSetting(key, value) {
+        root._data.settings[key] = value
+        saveData()
+    }
+}

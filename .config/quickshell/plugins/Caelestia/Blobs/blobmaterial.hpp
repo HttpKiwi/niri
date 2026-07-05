@@ -33,6 +33,21 @@ public:
     float m_invertedOuter[4] = {};
     float m_invertedInner[4] = {};
     BlobRectData m_rects[16] = {};
+
+    float m_chromeTime = 0;
+    float m_chromeCellSize = 7;
+    float m_chromeDotSize = 0.3f;
+    float m_chromeAnimSpeed = 0.2f;
+    float m_chromeIntensity = 1;
+    float m_chromeScreenW = 1920;
+    float m_chromeScreenH = 1080;
+    float m_chromeOriginX = 50;
+    float m_chromeOriginY = 50;
+    int m_chromeEnabled = 0;
+    QColor m_chromeColor1;
+    QColor m_chromeColor2;
+    QColor m_chromeColor3;
+    QColor m_chromeBaseColor;
 };
 
 class BlobMaterialShader : public QSGMaterialShader {

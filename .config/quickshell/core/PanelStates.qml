@@ -9,15 +9,16 @@ QtObject {
 
     function register(monitorName) {
         if (!_states[monitorName]) {
-            _states[monitorName] = Qt.createQmlObject(
-                "import QtQuick; QtObject { property bool launcher: false; property bool clipboard: false }",
-                root
-            );
+            _states[monitorName] = panelStateComponent.createObject(root);
         }
-        return _states[monitorName]
+        return _states[monitorName];
     }
 
     function forName(monitorName) {
-        return _states[monitorName] || null
+        return _states[monitorName] || null;
+    }
+
+    property Component panelStateComponent: Component {
+        PanelState {}
     }
 }

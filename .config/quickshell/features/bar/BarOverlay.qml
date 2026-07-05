@@ -40,28 +40,13 @@ Item {
         Repeater {
             id: wsRepeater
 
-            model: {
-                const screenName = overlayRoot.targetScreen?.name || ""
-                if (screenName) {
-                    const ws = Niri.workspaces_by_monitor[screenName]
-                    return ws ? ws.length : 0
-                }
-                return Niri.workspaces ? Niri.workspaces.length : 0
-            }
+            model: Niri.workspaceModel
 
             delegate: WorkspaceIndicator {
-                required property int index
-
-                workspace: {
-                    const screenName = overlayRoot.targetScreen?.name || ""
-                    if (screenName) {
-                        const ws = Niri.workspaces_by_monitor[screenName]
-                        return ws ? ws[index] : {}
-                    }
-                    return Niri.workspaces ? Niri.workspaces[index] : {}
-                }
-
-                isActive: workspace.is_active || false
+                required property var modelData
+                visible: modelData.output === (overlayRoot.targetScreen?.name || "")
+                workspace: modelData
+                isActive: modelData.isFocused
             }
         }
     }

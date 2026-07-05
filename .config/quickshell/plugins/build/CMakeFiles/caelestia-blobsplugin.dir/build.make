@@ -119,9 +119,9 @@ libcaelestia-blobsplugin.so: CMakeFiles/caelestia-blobsplugin.dir/caelestia-blob
 libcaelestia-blobsplugin.so: CMakeFiles/caelestia-blobsplugin.dir/build.make
 libcaelestia-blobsplugin.so: CMakeFiles/caelestia-blobsplugin.dir/compiler_depend.ts
 libcaelestia-blobsplugin.so: libcaelestia-blobs.so
-libcaelestia-blobsplugin.so: /usr/lib/libQt6Qml.so.6.11.0
-libcaelestia-blobsplugin.so: /usr/lib/libQt6Network.so.6.11.0
-libcaelestia-blobsplugin.so: /usr/lib/libQt6Core.so.6.11.0
+libcaelestia-blobsplugin.so: /usr/lib/libQt6Qml.so.6.11.1
+libcaelestia-blobsplugin.so: /usr/lib/libQt6Network.so.6.11.1
+libcaelestia-blobsplugin.so: /usr/lib/libQt6Core.so.6.11.1
 libcaelestia-blobsplugin.so: CMakeFiles/caelestia-blobsplugin.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/httpkiwi/niri/.config/quickshell/plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared module libcaelestia-blobsplugin.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/caelestia-blobsplugin.dir/link.txt --verbose=$(VERBOSE)

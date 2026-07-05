@@ -9,9 +9,10 @@ Rectangle {
     id: root
     
     // Button properties
-    property string icon: "×"
+    property string icon: "\ue5cd"
     property int iconSize: 16
     property int buttonSize: 24
+    property string iconFontFamily: Settings.fontFamilyIcons
     
     // State
     property bool isHovered: false
@@ -28,8 +29,8 @@ Rectangle {
     Text {
         text: root.icon
         color: root.isHovered ? Theme.textOnPrimaryContainer : Theme.textSecondary
+        font.family: root.iconFontFamily
         font.pixelSize: root.iconSize
-        font.bold: true
         anchors.centerIn: parent
         
         Behavior on color {
@@ -41,8 +42,8 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        preventStealing: true  // Prevent Flickable from stealing mouse events
-        propagateComposedEvents: false  // Don't propagate to parent Flickable
+        preventStealing: true
+        propagateComposedEvents: false
         onEntered: root.isHovered = true
         onExited: root.isHovered = false
         onPressed: mouse.accepted = true

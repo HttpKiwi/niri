@@ -28,7 +28,7 @@ CMAKE_BUILD_TYPE:STRING=Release
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=/usr/sbin/c++
+CMAKE_CXX_COMPILER:STRING=/usr/sbin/c++
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -162,6 +162,9 @@ CMAKE_OBJCOPY:FILEPATH=/usr/sbin/objcopy
 
 //Path to a program.
 CMAKE_OBJDUMP:FILEPATH=/usr/sbin/objdump
+
+//No help, variable specified on the command line.
+CMAKE_PREFIX_PATH:UNINITIALIZED=/usr
 
 //Value Computed by CMake
 CMAKE_PROJECT_COMPAT_VERSION:STATIC=
@@ -386,7 +389,7 @@ CMAKE_CACHE_MAJOR_VERSION:INTERNAL=4
 //Minor version of cmake used to create the current loaded cache
 CMAKE_CACHE_MINOR_VERSION:INTERNAL=3
 //Patch version of cmake used to create the current loaded cache
-CMAKE_CACHE_PATCH_VERSION:INTERNAL=2
+CMAKE_CACHE_PATCH_VERSION:INTERNAL=4
 //ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
 CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.
@@ -590,6 +593,8 @@ QT_FEATURE_accessibility_atspi_bridge:INTERNAL=ON
 QT_FEATURE_action:INTERNAL=ON
 //Qt feature: aesni (from target Qt6::Core)
 QT_FEATURE_aesni:INTERNAL=ON
+//Qt feature: android_16kb_pages (from target Qt6::Core)
+QT_FEATURE_android_16kb_pages:INTERNAL=OFF
 //Qt feature: android_style_assets (from target Qt6::Core)
 QT_FEATURE_android_style_assets:INTERNAL=OFF
 //Qt feature: animation (from target Qt6::Core)
@@ -931,7 +936,7 @@ QT_FEATURE_metal:INTERNAL=OFF
 //Qt feature: mimetype (from target Qt6::Core)
 QT_FEATURE_mimetype:INTERNAL=ON
 //Qt feature: mimetype_database (from target Qt6::Core)
-QT_FEATURE_mimetype_database:INTERNAL=ON
+QT_FEATURE_mimetype_database:INTERNAL=OFF
 //Qt feature: mips_dsp (from target Qt6::Core)
 QT_FEATURE_mips_dsp:INTERNAL=OFF
 //Qt feature: mips_dspr2 (from target Qt6::Core)

@@ -33,6 +33,14 @@ input {
     focus-follows-mouse max-scroll-amount="80%"
 }
 
+hotkey-overlay {
+  skip-at-startup
+}
+
+xwayland-satellite {
+    path "xwayland-satellite"
+}
+
 // ============================================================================
 // OUTPUT CONFIGURATION
 // ============================================================================
@@ -54,8 +62,8 @@ output "HDMI-A-1" {
 }
 
 blur {
-  passes 2
-  noise 0.05
+  passes 4
+  noise 0.01
   saturation 1.2
   offset 1.8
 }
@@ -123,7 +131,7 @@ prefer-no-csd
 cursor {
     // Change the cursor image.
     xcursor-theme "Breeze5_Snow"
-    xcursor-size 16
+    xcursor-size 24
 }
 
 // ============================================================================
@@ -137,12 +145,10 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
-spawn-at-startup "bash" "-c" "python3 ~/.config/quickshell/scripts/niri_status.py"
-spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
+ spawn-at-startup "bash" "-c" "QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
-spawn-at-startup "bash" "-c" "xwayland-satellite :1"
 spawn-at-startup "bash" "-c" "udiskie"
 spawn-at-startup "bash" "-c" "sunshine"
 // ============================================================================
@@ -151,7 +157,6 @@ spawn-at-startup "bash" "-c" "sunshine"
 
 environment {
     // Set the DPI for X11 applications.
-    DISPLAY ":1"
     QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
     QT_QPA_PLATFORM "wayland;xcb"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
@@ -185,7 +190,7 @@ window-rule {
 window-rule {
   match is-active=false
   opacity 0.90
-  }
+}
 
 window-rule {
   match title="Picture-in-Picture"
@@ -194,33 +199,9 @@ window-rule {
 }
 
 window-rule {
-  match title="^YouTube$"
-  opacity 1.0
-}
-
-layer-rule {
-    match namespace="^launcher$"
-    geometry-corner-radius 12
-    background-effect {
-        blur true
-    }
-    shadow {
-        on
-        softness 50
-        spread 1
-        offset x=5 y=5
-        color "#000000"
-    }
-}
-
-window-rule {
     match app-id="^zen$"
     default-column-width { proportion 1.0; }
-}
-
-window-rule {
-    match app-id="org.telegram.desktop"
-    default-column-width { proportion 0.33333; }
+    opacity 1.0
 }
 
 window-rule {
@@ -233,14 +214,10 @@ layer-rule {
     place-within-backdrop true
 }
 
-layer-rule {
-    match namespace="quickshell:unifiedBar"
-}
-
 animations {
    
     workspace-switch {
-        spring damping-ratio=0.85 stiffness=1000 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
     }
 
     overview-open-close {
@@ -257,7 +234,7 @@ binds {
     // ========================================================================
     // COMPOSITOR CONTROLS
     // ========================================================================
-    
+    Mod+Escape { spawn "qs" "ipc" "call" "lock" "lockSession"; }
     Mod+Shift+Slash { show-hotkey-overlay; }
     Mod+O { toggle-overview; }
     Mod+Shift+E { quit; }

@@ -1,4 +1,6 @@
 import QtQuick
+import Quickshell
+import Quickshell.Io
 pragma Singleton
 
 /**
@@ -6,9 +8,59 @@ pragma Singleton
  * All hardcoded values should be defined here for easy customization
  */
 QtObject {
-    // Path to background image if using image mode
-
     id: root
+
+    // ========================================
+    // Wallpaper persistence
+    // ========================================
+    readonly property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
+    readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
+    readonly property string defaultWallpaper: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
+
+    property string backgroundImagePath: ""
+
+    property var wallpaperLoader: Process {
+        running: true
+        command: ["cat", root.currentWallpaperFile]
+
+        stdout: SplitParser {
+            id: wallpaperParser
+            property string collectedOutput: ""
+            onRead: data => { collectedOutput += data }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                const output = wallpaperParser.collectedOutput.trim()
+                if (output) {
+                    try {
+                        const data = JSON.parse(output)
+                        if (data.path) {
+                            root.backgroundImagePath = data.path
+                        } else {
+                            root.backgroundImagePath = root.defaultWallpaper
+                            defaultWallpaperSaver.running = true
+                        }
+                    } catch (e) {
+                        root.backgroundImagePath = root.defaultWallpaper
+                        defaultWallpaperSaver.running = true
+                    }
+                } else {
+                    root.backgroundImagePath = root.defaultWallpaper
+                    defaultWallpaperSaver.running = true
+                }
+                wallpaperParser.collectedOutput = ""
+            }
+        }
+    }
+
+    // ========================================
+    // Wallpaper saver (creates default JSON if missing)
+    // ========================================
+    property var defaultWallpaperSaver: Process {
+        running: false
+        command: ["sh", "-c", `echo '{"path": "${root.defaultWallpaper}"}' > '${root.currentWallpaperFile}'`]
+    }
 
     // ========================================
     // Notification Settings
@@ -29,9 +81,9 @@ QtObject {
     // OSD Settings
     // ========================================
     readonly property int osdTimeout: 1000
-    readonly property int osdWidth: 360
-    readonly property int osdHeight: 70
-    readonly property int osdBottomMargin: 10
+    // Vertical pill on the left frame
+    readonly property int osdWidth: 48
+    readonly property int osdHeight: 200
     // ========================================
     // Bar Settings
     // ========================================
@@ -47,6 +99,15 @@ QtObject {
     readonly property int workspaceIndicatorHeight: 12
     readonly property int workspaceIndicatorInactiveWidth: 12
     readonly property int workspaceIndicatorActiveWidth: 24
+    // ========================================
+    // Hidden Application IDs (hidden from launcher)
+    // ========================================
+    readonly property var hiddenAppIds: [
+        "avahi-discover",
+        "bssh",
+        "bvnc"
+    ]
+
     // ========================================
     // Animation Settings
     // ========================================
@@ -67,7 +128,12 @@ QtObject {
     readonly property int cardRadius: 12
     readonly property int cardBorderWidth: 1
     readonly property int cardMargin: 4
-    readonly property int cardPadding: 12
+    readonly property int cardPadding: 16
+    // Tinted frosted glass (over niri layer blur)
+    readonly property real glassOpacity: 0.45
+    readonly property real glassBorderOpacity: 0.16
+    // How much matugen primary tints the glass (0 = neutral, 0.2 = clear wash)
+    readonly property real glassTintStrength: 0.14
     // ========================================
     // Typography Settings
     // ========================================
@@ -76,7 +142,7 @@ QtObject {
     readonly property int fontSizeLarge: 12
     readonly property int fontSizeIcon: 24
     readonly property string fontFamilyDefault: "sans-serif"
-    readonly property string fontFamilyIcons: "Material Symbols"
+    readonly property string fontFamilyIcons: "Material Symbols Rounded"
     // ========================================
     // Flickable Settings
     // ========================================
@@ -96,10 +162,44 @@ QtObject {
     readonly property int lockscreenInputHeight: 48
     readonly property int lockscreenInputRadius: 24
     // ========================================
+    // Idle/Sleep Settings
+    // ========================================
+    readonly property int idleLockTimeout: 300
+    readonly property int idleSleepTimeout: 600
+    // ========================================
+    // Control Center Settings
+    // ========================================
+    readonly property int controlCenterWidth: 420
+    // Inset from screen frame — keep equal to pocketPadding for symmetric blob margins
+    readonly property int controlCenterPadding: 14
+    readonly property int controlCenterBottomMargin: 6
+    readonly property int confirmDialogWidth: 320
+    readonly property int confirmDialogPadding: 24
+    readonly property int systemActionsSpacing: 12
+    // ========================================
+    // Blur Settings
+    // ========================================
+    readonly property bool blurEnabled: true
+    readonly property real blurBorderOpacity: 0.35
+    // ========================================
+    // Surface Transparency
+    // ========================================
+    readonly property real surfaceTransparency: 0.6
+    // ========================================
     // Background Settings
     // ========================================
     readonly property string backgroundType: "image"
     readonly property string backgroundColor: "#091518"
-    property string backgroundImagePath: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
     property int wallpaperChangeDirection: 1 // 1 = right, -1 = left
+    // ========================================
+    // Chrome Shader (prototype)
+    // ========================================
+    readonly property bool chromeShaderEnabled: true
+    // Dot-matrix mesh (Flex Volume–style grain)
+    readonly property real chromeCellSize: 5
+    readonly property real chromeDotSize: 0.35
+    // Aurora drift speed
+    readonly property real chromeAnimSpeed: 0.2
+    // Ribbon color strength (1 = full matugen color on ribbons)
+    readonly property real chromeIntensity: 1
 }

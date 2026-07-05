@@ -310,3 +310,144 @@ Crossfade transition uses dual-layer system with 300ms `Easing.InOutQuad` animat
 - Use `MatugenPreferences` singleton for color scheme preferences
 - The wallpaper selector saves to `current_wallpaper.json` in the wallpapers directory
 - Use `qs config` to inspect Quickshell configuration
+
+---
+
+## Lockscreen Module (`qs.features.lockscreen`)
+
+### Architecture
+- Uses `WlSessionLock` (Quickshell 0.3.0+) for proper session locking via `ext-session-lock-v1`
+- `WlSessionLockSurface` is a **QWindow**, not a QQuickItem — `Keys` and `focus` properties don't work on it directly
+- Use a child `FocusScope` or `MouseArea` to capture input
+- Authentication via `PamContext` with custom PAM config at `features/lockscreen/pam.d/quickshell`
+
+### PAM Flow
+1. User types password → presses Enter
+2. Store password in `_pendingPassword`, clear input field
+3. Call `pamContext.start()` to begin authentication
+4. When `responseRequired` changes to true, call `pamContext.respond(_pendingPassword)`
+5. On `PamResult.Success` → emit unlock signal, on failure → shake animation + error message
+
+### IPC Usage
+```bash
+quickshell ipc call lock lockSession    # Lock
+quickshell ipc call lock unlockSession  # Unlock (testing)
+quickshell ipc call lock isLocked       # Check status
+```
+
+### Niri Keybind
+```kdl
+bind SUPER+Escape { spawn "quickshell ipc call lock lockSession"; }
+```
+
+### Important Gotchas
+- `WlSessionLockSurface` cannot use `Keys.onPressed` directly — use a child `FocusScope` or `MouseArea`
+- `forceActiveFocus()` on `WlSessionLockSurface` will crash — use it on child `TextInput` instead
+- Content must start visible (opacity 1) when the surface is created, otherwise you get a black screen
+- Use a delayed timer (`lockAnimTimer`) to trigger the fade-in animation after surface creation
+
+---
+
+## Quickshell Plugin System (Caelestia Blobs)
+
+### How It's Compiled
+Build system: CMake + Qt6's QML module system
+
+```cmake
+# plugins/CMakeLists.txt
+qt_add_qml_module(caelestia-blobs
+    URI Caelestia.Blobs
+    VERSION 1.0
+    SOURCES
+        Caelestia/Blobs/blobgroup.hpp
+        Caelestia/Blobs/blobgroup.cpp
+        # ... more sources
+)
+qt_add_shaders(caelestia-blobs "blob_shaders"
+    BATCHABLE OPTIMIZED NOHLSL NOMSL
+    GLSL "300es,330"
+    PREFIX "/"
+    FILES
+        Caelestia/Blobs/shaders/blob.frag
+        Caelestia/Blobs/shaders/blob.vert
+)
+```
+
+Build command:
+```bash
+cd ~/.config/quickshell/plugins/build
+cmake .. -DCMAKE_PREFIX_PATH=$(pkg-config --variable=prefix Qt6Core)
+make
+```
+
+Quickshell automatically loads compiled QML modules from the `build/` directory.
+
+### Architecture
+| Component | Role |
+|---|---|
+| `BlobGroup` | Manages shapes, holds `color` + `smoothing` |
+| `BlobShape` | Base `QQuickItem` with custom `updatePaintNode()` |
+| `BlobRect` | Rectangle with spring physics for deformation |
+| `BlobInvertedRect` | Creates a "hole" (frame) in the blob |
+| `BlobMaterial` | `QSGMaterial` that packs rect data into uniforms |
+| `blob.frag` | GLSL shader using SDF merging (`smin`) |
+
+The shader uses signed distance functions to merge multiple rectangles into a single smooth blob. `smoothing` controls the blend radius.
+
+### Creating a Custom Plugin
+1. Create directory structure:
+```
+plugins/MyPlugin/
+├── CMakeLists.txt
+├── MyPlugin/
+│   ├── MyComponent.hpp
+│   └── MyComponent.cpp
+```
+
+2. Use `QML_ELEMENT` macro in C++ to expose types to QML
+3. Build with CMake, Quickshell loads from `build/` automatically
+
+---
+
+## Matugen Cache System
+
+### Location
+`~/.config/quickshell/scripts/matugen-cache.sh`
+
+### How It Works
+- Caches all matugen-generated theme files per wallpaper in `~/.config/quickshell/common/.matugen_cache/`
+- Nested structure: `.matugen_cache/<scheme-type>/<mode>/<wallpaper.jpg>/`
+- On wallpaper change, checks cache first — if exists, applies cached files instantly
+- If no cache, runs matugen to generate, then caches all outputs
+
+### Post-Hooks
+After applying cached files, runs reload signals for:
+- Gradience (GTK4/libadwaita)
+- GTK theme toggle
+- Kitty (SIGUSR1 + socket reload)
+
+### Zen Browser
+**Removed from matugen-cache.sh.** The zen browser template and chrome directory touch were removed to avoid conflicts with transparent-zen. If you need zen theming back, re-add it to:
+- `CACHE_FILES` array in `matugen-cache.sh`
+- `run_post_hooks()` function
+- `~/.config/matugen/config.toml` (uncomment `[templates.zen]`)
+
+---
+
+## Reference Implementations
+
+Local references available at:
+- `~/.references/niri-caelestia-shell/` — Caelestia shell for Niri
+- `~/.references/caelestia-shell/` — Original Caelestia shell
+
+Key modules to study:
+- `modules/lock/` — Lockscreen with `WlSessionLock` + `PamContext`
+- `modules/background/` — Background with `BackgroundEffect`
+- `modules/bar/` — Bar implementation with blob effects
+
+### end-4/dots-hyprland Lockscreen Pattern
+- Desktop windows slide DOWN off-screen (Hyprland workspace animation)
+- Lockscreen content: clock centered, bottom toolbar with username/password/power pills
+- Toolbar fades in + scales up (0.9→1) on lock
+- Toolbar scales down + fades out on unlock
+- All pills are rounded rectangles with semi-transparent backgrounds

@@ -113,20 +113,18 @@ Item {
                     if (!root.exiting)
                         root.startExit()
                 }
+                onActionInvoked: {
+                    // NotificationService.activate() already removed this entry
+                }
             }
 
             MouseArea {
                 id: cardHoverArea
                 anchors.fill: parent
                 hoverEnabled: true
-                acceptedButtons: Qt.LeftButton
+                acceptedButtons: Qt.NoButton
                 propagateComposedEvents: true
                 z: -1
-
-                onClicked: {
-                    if (!root.exiting && !flickable.moving)
-                        root.startExit()
-                }
             }
         }
     }

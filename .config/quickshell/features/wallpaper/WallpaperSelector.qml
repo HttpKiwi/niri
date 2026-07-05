@@ -42,10 +42,10 @@ PanelWindow {
     property bool _userHasManuallySelected: false
 
     // Dimensions
-    readonly property int thumbnailSize: 200
-    readonly property int thumbnailSpacing: 12
-    readonly property int expandedWidth: 356
-    readonly property int panelHeight: thumbnailSize + 220
+    readonly property int thumbnailSize: 130
+    readonly property int thumbnailSpacing: 8
+    readonly property int expandedWidth: 230
+    readonly property int panelHeight: thumbnailSize + 140
 
     function computeCenterX() {
         var screen = wallpaperSelector.screen || targetScreen;
@@ -69,7 +69,7 @@ PanelWindow {
     visible: false
     color: "transparent"
     exclusiveZone: -1
-    implicitWidth: 1200
+    implicitWidth: 1000
     implicitHeight: panelHeight
 
     // Position at bottom center using margins
@@ -274,9 +274,9 @@ PanelWindow {
                 })
                 const screen = wallpaperSelector.screen || targetScreen;
                 if (screen) {
-                    const baseX = (screen.width - 1200) / 2;
+                    const baseX = (screen.width - 1000) / 2;
                     const baseY = screen.height - panelHeight - 50;
-                    PopupRegistry.register("wallpaperSelector", Niri.focused_output_name, baseX, baseY + 50, 1200 + 50, panelHeight + 50, Settings.cardRadius);
+                    PopupRegistry.register("wallpaperSelector", Niri.focused_output_name, baseX, baseY + 50, 1000 + 50, panelHeight + 50, Settings.cardRadius);
                 }
             }
         } else {
@@ -584,9 +584,9 @@ PanelWindow {
                 if (!entry || !entry.entry.pocketVisible) return;
                 const screen = wallpaperSelector.screen || wallpaperSelector.targetScreen;
                 if (screen) {
-                    const baseX = (screen.width - 1200) / 2;
+                    const baseX = (screen.width - 1000) / 2;
                     const baseY = screen.height - panelHeight - 50;
-                    PopupRegistry.updateGeometry("wallpaperSelector", baseX, baseY + y, 1200 + 50, panelHeight + 50);
+                    PopupRegistry.updateGeometry("wallpaperSelector", baseX, baseY + y, 1000 + 50, panelHeight + 50);
                 }
             }
         }
@@ -605,8 +605,8 @@ PanelWindow {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 16
-                spacing: 12
+                anchors.margins: 12
+                spacing: 8
 
                 // Title
                 Text {
@@ -621,7 +621,7 @@ PanelWindow {
                 // Matugen options toolbar
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 40
+                    Layout.preferredHeight: 32
                     spacing: 12
 
                     Item { Layout.fillWidth: true } // Spacer

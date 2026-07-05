@@ -18,7 +18,7 @@ Rectangle {
     property int contentPadding: Settings.cardPadding
     
     // Apply theme colors based on elevation
-    color: Theme.surfaceBase
+    color: Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
     radius: Settings.cardRadius
     antialiasing: true  // Smooth rounded corners
     border.color: showBorder ? Theme.cardBorder : "transparent"

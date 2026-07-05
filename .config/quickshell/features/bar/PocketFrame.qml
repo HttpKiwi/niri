@@ -14,7 +14,9 @@ Item {
     property string screenName: ""
     property Item notifWrapper: null
     property Item launcherPanel: null
-
+    property Item osdPanel: null
+    property Item wallpaperPanel: null
+    property Item controlCenterPanel: null
     readonly property real blobMargin: 50
     readonly property real borderTop: Settings.barHeight + blobMargin
     readonly property real borderSide: Settings.screenBorderWidth + blobMargin
@@ -39,6 +41,21 @@ Item {
             id: blobGroup
             color: Theme.surfaceBase
             smoothing: Settings.screenSmoothing
+            proceduralEnabled: Settings.chromeShaderEnabled
+            chromeTime: ChromeClock.time
+            chromeScreenWidth: frameRoot.screenWidth
+            chromeScreenHeight: frameRoot.screenHeight
+            chromeOriginX: frameRoot.blobMargin
+            chromeOriginY: frameRoot.blobMargin
+            cellSize: Settings.chromeCellSize
+            dotSize: Settings.chromeDotSize
+            animSpeed: Settings.chromeAnimSpeed
+            intensity: Settings.chromeIntensity
+            // Saturated matugen accents (Theme.color props, not string lookups)
+            color1: Theme.primary
+            color2: Theme.accentSecondary
+            color3: Theme.tertiary
+            baseColor: Theme.surfaceBase
         }
 
         BlobInvertedRect {
@@ -58,22 +75,68 @@ Item {
             width: notifWrapper ? notifWrapper.width : 0
             height: notifWrapper ? notifWrapper.height : 0
             radius: Settings.screenCornerRadius
-            deformScale: 0.00001
+            deformScale: notifWrapper && notifWrapper.height > 0 ? 0.00001 : 0
             stiffness: 200
             damping: 60
+            visible: notifWrapper ? notifWrapper.height > 0 : false
         }
 
         BlobRect {
             group: blobGroup
-            x: launcherPanel && launcherPanel.visible ? launcherPanel.x + blobMargin : 0
-            y: launcherPanel && launcherPanel.visible ? launcherPanel.y + blobMargin : 0
+            // Extend into the left frame so the vertical pill merges (no gap)
+            x: osdPanel ? osdPanel.visualX + blobMargin - Settings.screenBorderWidth : 0
+            y: osdPanel ? osdPanel.visualY + blobMargin : 0
+            width: osdPanel && osdPanel.pocketActive
+                ? osdPanel.visualW + Settings.screenBorderWidth
+                : 0
+            height: osdPanel && osdPanel.pocketActive ? osdPanel.visualH : 0
+            radius: osdPanel ? osdPanel.width / 2 : Settings.cardRadius
+            deformScale: osdPanel && osdPanel.pocketActive ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: osdPanel ? osdPanel.pocketActive : false
+        }
+
+        BlobRect {
+            group: blobGroup
+            x: launcherPanel ? launcherPanel.x + blobMargin : 0
+            y: launcherPanel ? launcherPanel.y + blobMargin : 0
             width: launcherPanel && launcherPanel.visible ? launcherPanel.width : 0
             height: launcherPanel && launcherPanel.visible ? launcherPanel.height : 0
             radius: Settings.screenCornerRadius
-            deformScale: 0.00001
+            deformScale: launcherPanel && launcherPanel.visible ? 0.00001 : 0
             stiffness: 200
             damping: 60
             visible: launcherPanel ? launcherPanel.visible : false
+        }
+
+        BlobRect {
+            group: blobGroup
+            x: wallpaperPanel ? wallpaperPanel.x + blobMargin : 0
+            y: wallpaperPanel ? wallpaperPanel.y + blobMargin : 0
+            width: wallpaperPanel && wallpaperPanel.visible ? wallpaperPanel.width : 0
+            height: wallpaperPanel && wallpaperPanel.visible ? wallpaperPanel.height : 0
+            radius: Settings.screenCornerRadius
+            deformScale: wallpaperPanel && wallpaperPanel.visible ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: wallpaperPanel ? wallpaperPanel.visible : false
+        }
+
+        // Control center — flush with the right frame so the pocket merges (no gap)
+        BlobRect {
+            group: blobGroup
+            x: controlCenterPanel ? controlCenterPanel.visualX + blobMargin : 0
+            y: controlCenterPanel ? controlCenterPanel.visualY + blobMargin : 0
+            width: controlCenterPanel && controlCenterPanel.pocketActive
+                ? controlCenterPanel.visualW + Settings.screenBorderWidth
+                : 0
+            height: controlCenterPanel && controlCenterPanel.pocketActive ? controlCenterPanel.visualH : 0
+            radius: Settings.screenCornerRadius
+            deformScale: controlCenterPanel && controlCenterPanel.pocketActive ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: controlCenterPanel ? controlCenterPanel.pocketActive : false
         }
 
         Repeater {
@@ -103,7 +166,7 @@ Item {
                 visible: pocketVisible && onThisScreen
                 stiffness: 200
                 damping: 60
-                deformScale: 0.00001
+                deformScale: pocketVisible && onThisScreen ? 0.00001 : 0
             }
         }
     }

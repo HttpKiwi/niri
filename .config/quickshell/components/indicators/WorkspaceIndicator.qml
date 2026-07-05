@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import qs.core
 import qs.config
 
@@ -14,8 +13,8 @@ Item {
     required property var workspace
     required property bool isActive
 
-    width: dot.width
-    height: Settings.workspaceIndicatorHeight
+    width: visible ? dot.width : 0
+    height: visible ? Settings.workspaceIndicatorHeight : 0
 
     Rectangle {
         id: dot
@@ -43,6 +42,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
+        enabled: root.visible
         
         onEntered: {
             if (!root.isActive) {
@@ -57,18 +57,7 @@ Item {
         }
         
         onClicked: {
-            try {
-                const command = ["niri", "msg", "action", "focus-workspace", `${root.workspace.idx}`]
-                Qt.createQmlObject(`
-                    import Quickshell.Io;
-                    Process {
-                        command: ${JSON.stringify(command)}
-                        running: true
-                    }
-                `, root)
-            } catch (e) {
-                console.error("Error switching workspace:", e)
-            }
+            Niri.focusWorkspace(root.workspace.index)
         }
     }
 }

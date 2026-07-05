@@ -194,7 +194,8 @@ WlSessionLockSurface {
                 spacing: 6
 
                 Text {
-                    text: "👤"
+                    text: "\ue7fd"
+                    font.family: Settings.fontFamilyIcons
                     font.pixelSize: 16
                 }
 
@@ -271,8 +272,9 @@ WlSessionLockSurface {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "→"
+                    text: "\ue5c8"
                     color: "#ffffff"
+                    font.family: Settings.fontFamilyIcons
                     font.pixelSize: 16
                 }
 
@@ -299,8 +301,9 @@ WlSessionLockSurface {
 
             Text {
                 anchors.centerIn: parent
-                text: "⏻"
+                text: "\ue8ac"
                 color: Theme.textSecondary
+                font.family: Settings.fontFamilyIcons
                 font.pixelSize: 18
             }
 

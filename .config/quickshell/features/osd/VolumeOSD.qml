@@ -8,6 +8,7 @@ import Quickshell.Services.Pipewire
 import qs.core
 import qs.config
 import qs.components.base
+import qs.components.base
 
 /**
  * VolumeOSD - Floating volume indicator
@@ -84,6 +85,12 @@ Scope {
             implicitHeight: Settings.osdHeight
             exclusiveZone: -1
             screen: root.targetScreen
+
+            WindowBlur {
+                targetWindow: osdWindow
+                blurEnabled: Settings.blurEnabled
+                blurRadius: Settings.cardRadius
+            }
 
             // Position at bottom-center using margins
             anchors {

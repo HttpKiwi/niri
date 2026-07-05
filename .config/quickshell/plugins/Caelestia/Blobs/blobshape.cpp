@@ -360,6 +360,20 @@ QSGNode* BlobShape::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) {
     material->m_color = m_group->color();
     material->m_hasInverted = m_cachedHasInverted ? 1 : 0;
     material->m_invertedRadius = m_cachedInvertedRadius;
+    material->m_chromeEnabled = m_group->proceduralEnabled() ? 1 : 0;
+    material->m_chromeTime = static_cast<float>(m_group->chromeTime());
+    material->m_chromeCellSize = static_cast<float>(m_group->cellSize());
+    material->m_chromeDotSize = static_cast<float>(m_group->dotSize());
+    material->m_chromeAnimSpeed = static_cast<float>(m_group->animSpeed());
+    material->m_chromeIntensity = static_cast<float>(m_group->intensity());
+    material->m_chromeScreenW = static_cast<float>(m_group->chromeScreenWidth());
+    material->m_chromeScreenH = static_cast<float>(m_group->chromeScreenHeight());
+    material->m_chromeOriginX = static_cast<float>(m_group->chromeOriginX());
+    material->m_chromeOriginY = static_cast<float>(m_group->chromeOriginY());
+    material->m_chromeColor1 = m_group->color1();
+    material->m_chromeColor2 = m_group->color2();
+    material->m_chromeColor3 = m_group->color3();
+    material->m_chromeBaseColor = m_group->baseColor();
     memcpy(material->m_invertedOuter, m_cachedInvertedOuter, sizeof(m_cachedInvertedOuter));
     memcpy(material->m_invertedInner, m_cachedInvertedInner, sizeof(m_cachedInvertedInner));
 

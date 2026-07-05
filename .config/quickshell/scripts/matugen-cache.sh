@@ -51,7 +51,6 @@ declare -A CACHE_FILES=(
     ["${CONFIG_HOME}/vesktop/themes/HyprLuna.css"]="vesktop.css"
     ["${HOME}/.cache/wal/colors.json"]="pywalfox-colors.json"
     ["${CONFIG_HOME}/fuzzel/colors.ini"]="fuzzel.ini"
-    ["${HOME}/.zen/yak8abkd.Default (release)/chrome/userChrome.css"]="zen-userChrome.css"
     ["${HOME}/.vscode/extensions/hyprluna.hyprluna-theme-1.0.2/themes/hyprluna.json"]="vscode-hyprluna.json"
 )
 
@@ -121,6 +120,8 @@ generate_cache() {
     done
 
     log "Cache generated successfully ($cached_count files cached)"
+
+    run_post_hooks
 }
 
 # Apply cached files to their destinations
@@ -175,12 +176,15 @@ run_post_hooks() {
             DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
             export DBUS_SESSION_BUS_ADDRESS
 
-            gradience-cli apply -p "$gradience_file" --gtk both 2>/dev/null || true
+            # PYTHONPATH workaround for python 3.13→3.14 upgrade
+            PYTHONPATH=/usr/lib/python3.13/site-packages gradience-cli apply -p "$gradience_file" --gtk both 2>/dev/null || true
             log "  Gradience theme applied"
 
             # Restart Nautilus to apply theme changes
             if pgrep -x nautilus > /dev/null 2>&1; then
                 killall nautilus 2>/dev/null || true
+                sleep 0.3
+                nautilus -w &>/dev/null &
                 log "  Nautilus restarted for theme update"
             fi
         fi
@@ -194,32 +198,39 @@ run_post_hooks() {
         gsettings set org.gnome.desktop.interface gtk-theme "" 2>/dev/null || true
         sleep 0.1
         gsettings set org.gnome.desktop.interface gtk-theme "adw-gtk3-${COLOR_MODE}" 2>/dev/null || true
+        gsettings set org.gnome.desktop.interface color-scheme "prefer-${COLOR_MODE}" 2>/dev/null || true
         log "  GTK theme reloaded"
+    fi
+
+    # Zen Browser theme - portal handles it dynamically, don't override in user.js
+    local zen_profile="${HOME}/.zen/yak8abkd.Default (release)"
+    if [ -d "$zen_profile" ]; then
+        local zen_user_js="${zen_profile}/user.js"
+        local zen_prefs_js="${zen_profile}/prefs.js"
+
+        if grep -q 'user_pref("ui.systemUsesDarkTheme"' "$zen_prefs_js" 2>/dev/null; then
+            sed -i '/user_pref("ui.systemUsesDarkTheme"/d' "$zen_prefs_js" 2>/dev/null || true
+            log "  Removed stale ui.systemUsesDarkTheme from prefs.js"
+        fi
+
+        : > "$zen_user_js"  # Empty user.js
+        log "  Zen user.js cleared (portal handles theme)"
     fi
 
     # Kitty reload - use socket-based remote control
     if pgrep -x kitty > /dev/null 2>&1; then
-        # Try to find kitty socket and reload via remote control
-        for socket in /tmp/kitty-*.sock /run/user/$(id -u)/kitty-*.sock; do
+        local kitty_reloaded=false
+        for socket in /run/user/$(id -u)/kitty*; do
             if [ -S "$socket" ]; then
-                kitty @ --to "unix:$socket" load-config 2>/dev/null && log "  Kitty reloaded via $socket" && break
+                if kitty @ --to "unix:$socket" load-config 2>/dev/null; then
+                    log "  Kitty reloaded via $socket"
+                    kitty_reloaded=true
+                fi
             fi
         done
-        # Fallback: send SIGUSR1 signal
-        pkill -SIGUSR1 kitty 2>/dev/null || true
-        log "  Kitty reload signal sent"
-    fi
-
-    # Zen browser - touch chrome directory to trigger userChrome.css reload
-    # Zen/Firefox watches the chrome directory for changes
-    if pgrep -i "zen" > /dev/null 2>&1; then
-        local zen_chrome="${HOME}/.zen/yak8abkd.Default (release)/chrome"
-        if [ -d "$zen_chrome" ]; then
-            # Touch chrome directory to trigger reload
-            touch "$zen_chrome"
-            # Also touch userChrome.css specifically
-            [ -f "$zen_chrome/userChrome.css" ] && touch "$zen_chrome/userChrome.css"
-            log "  Zen browser chrome directory touched for reload"
+        if ! $kitty_reloaded; then
+            pkill -SIGUSR1 kitty 2>/dev/null || true
+            log "  Kitty reload signal sent (SIGUSR1)"
         fi
     fi
 

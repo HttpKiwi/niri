@@ -4,3 +4,5 @@ Card 1.0 Card.qml
 Pill 1.0 Pill.qml
 IconButton 1.0 IconButton.qml
 ProgressBar 1.0 ProgressBar.qml
+WindowBlur 1.0 WindowBlur.qml
+FrostedCard 1.0 FrostedCard.qml

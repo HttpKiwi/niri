@@ -64,6 +64,10 @@ post_hook = "kitty @ load-config"
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/equibop/themes/HyprLuna.css"
 
+[templates.equibop-acrylic]
+input_path = "~/.config/matugen/templates/discord-acrylic.css"
+output_path = "~/.config/equibop/themes/HyprLuna-Acrylic.css"
+
 [templates.vesktop]
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/vesktop/themes/HyprLuna.css"
@@ -76,14 +80,14 @@ output_path = "~/.config/vesktop/themes/HyprLuna.css"
 input_path = "~/.config/matugen/templates/hyprlunavsc.json"
 output_path = "~/.vscode/extensions/hyprluna.hyprluna-theme-1.0.2/themes/hyprluna.json"
 
-[templates.pywalfox]
-input_path = '~/.config/matugen/templates/pywalfox-colors.json'
-output_path = '~/.cache/wal/colors.json'
-post_hook = 'pywalfox update'
+#[templates.pywalfox]
+#input_path = '~/.config/matugen/templates/pywalfox-colors.json'
+#output_path = '~/.cache/wal/colors.json'
+#post_hook = 'pywalfox update'
 
-[templates.zen]
-input_path = "~/.config/matugen/templates/userChrome.css"
-output_path = "~/.zen/yak8abkd.Default (release)/chrome/userChrome.css"
+#[templates.zen]
+#input_path = "~/.config/matugen/templates/userChrome.css"
+#output_path = "~/.zen/yak8abkd.Default (release)/chrome/userChrome.css"
 
 # Kvantum for Material 3 theming of Qt apps
 [templates.kvantum]

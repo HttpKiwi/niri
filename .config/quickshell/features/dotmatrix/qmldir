@@ -1,0 +1,5 @@
+module qs.features.dotmatrix
+
+DotMatrixBackground 1.0 DotMatrixBackground.qml
+ChromeSurface 1.0 ChromeSurface.qml
+DotMatrixDemo 1.0 DotMatrixDemo.qml

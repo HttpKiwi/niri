@@ -107,7 +107,7 @@ ColumnLayout {
                     anchors.right: parent.right
                     anchors.rightMargin: 8
                     anchors.verticalCenter: parent.verticalCenter
-                    icon: "→"
+                    icon: "\ue5c8"
                     iconSize: 16
                     buttonSize: 32
                     onClicked: {
