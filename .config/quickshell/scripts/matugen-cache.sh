@@ -22,7 +22,7 @@ COLOR_MODE="dark"
 CONTRAST="0"
 
 # Configuration
-WALLPAPER_DIR="/home/httpkiwi/Pictures/Wallpapers"
+WALLPAPER_DIR="${WALLPAPER_DIR:-${HOME}/Pictures/Wallpapers}"
 CACHE_ROOT="$WALLPAPER_DIR/.matugen_cache"
 CONFIG_HOME="${HOME}/.config"
 
@@ -179,14 +179,6 @@ run_post_hooks() {
             # PYTHONPATH workaround for python 3.13→3.14 upgrade
             PYTHONPATH=/usr/lib/python3.13/site-packages gradience-cli apply -p "$gradience_file" --gtk both 2>/dev/null || true
             log "  Gradience theme applied"
-
-            # Restart Nautilus to apply theme changes
-            if pgrep -x nautilus > /dev/null 2>&1; then
-                killall nautilus 2>/dev/null || true
-                sleep 0.3
-                nautilus -w &>/dev/null &
-                log "  Nautilus restarted for theme update"
-            fi
         fi
     fi
 
@@ -232,6 +224,12 @@ run_post_hooks() {
             pkill -SIGUSR1 kitty 2>/dev/null || true
             log "  Kitty reload signal sent (SIGUSR1)"
         fi
+    fi
+
+    # Fuzzel — reload colors after theme file update
+    if pgrep -x fuzzel > /dev/null 2>&1; then
+        pkill -SIGUSR1 fuzzel 2>/dev/null || true
+        log "  Fuzzel reload signal sent (SIGUSR1)"
     fi
 
     log "Post-hooks completed"

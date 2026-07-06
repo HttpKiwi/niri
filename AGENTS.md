@@ -69,7 +69,6 @@ This is a custom desktop environment setup using:
     │
     ├── components/         # Reusable UI components
     │   ├── base/           # Card, Pill, PocketSlidePanel, PocketBottomPanel, …
-    │   ├── animations/
     │   └── indicators/
     │
     ├── features/           # Main UI features
@@ -81,8 +80,7 @@ This is a custom desktop environment setup using:
     │   ├── osd/            # OSDWrapper (volume pocket)
     │   ├── controlcenter/  # ControlCenterPanel
     │   ├── lockscreen/
-    │   ├── decorations/
-    │   └── dotmatrix/      # Shader prototypes (chrome)
+    │   └── decorations/
     │
     ├── plugins/            # Caelestia Blobs (build → system install)
     └── scripts/            # matugen-cache.sh, build-blobs-plugin.sh
@@ -196,8 +194,8 @@ PanelWindow {
 **Use JSDoc-style comments for top-level documentation:**
 ```qml
 /**
- * LauncherSource - Base interface for launcher data sources
- * Implement this to create new launcher backends (apps, clipboard, gifs, etc.)
+ * AppLauncherSource - Launcher source for desktop applications
+ * See ClipboardLauncherSource.qml for another reference implementation.
  */
 QtObject {
     // ...
@@ -276,24 +274,10 @@ anchors {
 
 ### Creating a New Launcher Source
 
-1. Create `features/launcher/XXXLauncherSource.qml`
-2. Extend `LauncherSource`:
-```qml
-import qs.core
+1. Create `features/launcher/XXXLauncherSource.qml` as a `QtObject` matching the `AppLauncherSource` pattern
+2. Implement: `sourceName`, `displayName`, `loadItems()`, `filterItems()`, `getItemDisplay()`, `executeItem()`, optional `getPrefix()`
+3. Add to `LauncherPanel.qml` sources array:
 
-LauncherSource {
-    readonly property string sourceName: "mySource"
-    readonly property string displayName: "My Source"
-
-    function loadItems() { /* Load data */ }
-    function filterItems(searchText) { /* Filter & sort */ }
-    function getItemDisplay(item) { /* Return {icon, title, subtitle} */ }
-    function executeItem(item) { /* Execute action */ }
-    function getPrefix() { return ":"; }  // Optional prefix for quick switching
-}
-```
-
-2. Add to `Launcher.qml` sources array:
 ```qml
 property var sources: [appLauncherSource, clipboardLauncherSource, mySource]
 ```
@@ -455,6 +439,7 @@ After applying cached files, runs reload signals for:
 - Gradience (GTK4/libadwaita)
 - GTK theme toggle
 - Kitty (SIGUSR1 + socket reload)
+- Fuzzel (SIGUSR1 when running)
 
 ### Zen Browser
 **Removed from matugen-cache.sh.** The zen browser template and chrome directory touch were removed to avoid conflicts with transparent-zen. If you need zen theming back, re-add it to:

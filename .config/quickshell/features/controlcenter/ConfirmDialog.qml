@@ -80,7 +80,8 @@ Item {
                 width: parent.width
                 text: root.title
                 color: root.isDestructive ? Theme.error : Theme.textPrimary
-                font.pixelSize: 16
+                font.family: Settings.fontFamilyDefault
+                font.pixelSize: Settings.fontSizeTitle
                 font.weight: Font.Bold
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -89,6 +90,7 @@ Item {
                 width: parent.width
                 text: root.message
                 color: Theme.textSecondary
+                font.family: Settings.fontFamilyDefault
                 font.pixelSize: Settings.fontSizeMedium
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
@@ -121,6 +123,7 @@ Item {
                         color: root.isDestructive
                             ? (controlButton.btnHovered ? Theme.error : Theme.textSecondary)
                             : (controlButton.btnHovered ? Theme.textOnPrimaryContainer : Theme.textSecondary)
+                        font.family: Settings.fontFamilyDefault
                         font.pixelSize: Settings.fontSizeMedium
                         font.weight: Font.Medium
                         horizontalAlignment: Text.AlignHCenter
@@ -162,6 +165,7 @@ Item {
                     contentItem: Text {
                         text: parent.text
                         color: cancelButton.btnHovered ? Theme.textPrimary : Theme.textSecondary
+                        font.family: Settings.fontFamilyDefault
                         font.pixelSize: Settings.fontSizeMedium
                         font.weight: Font.Medium
                         horizontalAlignment: Text.AlignHCenter

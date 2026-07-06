@@ -48,6 +48,7 @@ Item {
                     width: parent.width
                     text: root.notification ? (root.notification.appName || "Notification") : ""
                     color: Theme.textSecondary
+                    font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeSmall
                     font.weight: Font.Medium
                     elide: Text.ElideRight
@@ -56,6 +57,7 @@ Item {
                 Text {
                     text: root.notification ? (root.notification.summary || "") : ""
                     color: Theme.textPrimary
+                    font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeMedium
                     font.weight: Font.Medium
                     width: parent.width
@@ -67,6 +69,7 @@ Item {
                 Text {
                     text: root.notification ? (root.notification.body || "") : ""
                     color: Theme.textSecondary
+                    font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeSmall
                     width: parent.width
                     elide: Text.ElideRight

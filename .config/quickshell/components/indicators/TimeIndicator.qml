@@ -11,7 +11,8 @@ Text {
     
     text: Qt.formatTime(clock.date, "hh:mm")
     color: Theme.textPrimary
-    font.pixelSize: Settings.fontSizeLarge
+    font.family: Settings.fontFamilyDefault
+    font.pixelSize: Settings.fontSizeBar
     
     SystemClock {
         id: clock

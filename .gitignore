@@ -4,6 +4,10 @@
 # Quickshell plugin build artifacts (rebuild with plugins/build-blobs-plugin.sh)
 .config/quickshell/plugins/build/
 
+# Runtime / legacy quickshell data
+shell.db
+.config/quickshell/app_usage.json
+
 # GitHub Copilot
 .config/github-copilot/
 

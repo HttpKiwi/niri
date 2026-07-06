@@ -127,8 +127,9 @@ PocketSlidePanel {
 
         Text {
             Layout.alignment: Qt.AlignHCenter
-            text: root.muted ? "M" : Math.round(root.volume * 100) + "%"
+            text: root.muted ? "Muted" : Math.round(root.volume * 100) + "%"
             color: root.muted ? Theme.stateMuted : Theme.textPrimary
+            font.family: Settings.fontFamilyDefault
             font.pixelSize: Settings.fontSizeSmall
             font.weight: Font.Bold
 

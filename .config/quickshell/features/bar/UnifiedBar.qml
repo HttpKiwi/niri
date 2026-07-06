@@ -32,7 +32,6 @@ Scope {
             id: window
 
             property var modelData
-            property string targetMonitor: ""
             readonly property string niriScreenName: Niri.niriNameFor(window.screen?.name ?? "")
 
             color: "transparent"
@@ -132,7 +131,8 @@ Scope {
                     text: root.sanitizeTitle(Niri.title)
                     textFormat: Text.PlainText
                     color: Theme.textPrimary
-                    font.pixelSize: Settings.fontSizeLarge
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeBar
 
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter

@@ -109,7 +109,8 @@ Item {
                     Layout.fillWidth: true
                     text: root.appName || "Unknown"
                     color: Theme.textSecondary
-                    font.pixelSize: 11
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeSmall
                     font.weight: Font.Normal
                     elide: Text.ElideRight
                 }
@@ -154,7 +155,8 @@ Item {
                                 }
                             }
                             color: Theme.textSecondary
-                            font.pixelSize: 11
+                            font.family: Settings.fontFamilyDefault
+                            font.pixelSize: Settings.fontSizeSmall
                         }
 
                         Text {
@@ -258,7 +260,8 @@ Item {
                         Layout.fillWidth: true
                         text: root.notification ? (root.notification.summary || "") : ""
                         color: root.isCritical ? Theme.error : Theme.textPrimary
-                        font.pixelSize: 13
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeLarge
                         font.weight: root.isCritical ? Font.Bold : Font.Medium
                         elide: Text.ElideRight
                         wrapMode: Text.NoWrap
@@ -274,7 +277,8 @@ Item {
                             return body.replace(/\n/g, "<br/>")
                         }
                         color: Theme.textSecondary
-                        font.pixelSize: 12
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeMedium
                         wrapMode: Text.Wrap
                         maximumLineCount: root.bodyExpanded ? 100 : 2
                         elide: Text.ElideRight
@@ -320,7 +324,8 @@ Item {
                             anchors.centerIn: parent
                             text: modelData.text || ""
                             color: index === 0 ? Theme.accent : Theme.textPrimary
-                            font.pixelSize: 12
+                            font.family: Settings.fontFamilyDefault
+                            font.pixelSize: Settings.fontSizeMedium
                             font.weight: index === 0 ? Font.Medium : Font.Normal
                         }
                     }

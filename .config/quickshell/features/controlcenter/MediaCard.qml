@@ -126,6 +126,7 @@ Rectangle {
                     width: parent.width
                     text: Players.active?.identity ?? ""
                     color: Theme.accent
+                    font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeSmall
                     font.weight: Font.Medium
                     elide: Text.ElideRight
@@ -135,8 +136,9 @@ Rectangle {
                     width: parent.width
                     text: Players.active?.trackTitle || "No media playing"
                     color: Theme.textPrimary
-                    font.pixelSize: Settings.fontSizeMedium
-                    font.weight: Font.Bold
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeLarge
+                    font.weight: Font.DemiBold
                     elide: Text.ElideRight
                     maximumLineCount: 1
                     wrapMode: Text.NoWrap
@@ -146,6 +148,7 @@ Rectangle {
                     width: parent.width
                     text: Players.active?.trackArtist || ""
                     color: Theme.textSecondary
+                    font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeSmall
                     elide: Text.ElideRight
                     maximumLineCount: 1
@@ -166,6 +169,7 @@ Rectangle {
                 anchors.centerIn: parent
                 text: "No media playing"
                 color: Theme.textSecondary
+                font.family: Settings.fontFamilyDefault
                 font.pixelSize: Settings.fontSizeSmall
             }
         }
@@ -182,9 +186,9 @@ Rectangle {
                 delegate: Rectangle {
                     required property MprisPlayer modelData
 
-                    width: playerLabel.implicitWidth + 16
-                    height: 24
-                    radius: 12
+                    width: playerLabel.implicitWidth + 14
+                    height: 22
+                    radius: 11
                     color: modelData === Players.active ? Theme.accent : Theme.surfaceHighest
 
                     Behavior on color {
@@ -196,7 +200,8 @@ Rectangle {
                         anchors.centerIn: parent
                         text: Players.getIdentity(modelData)
                         color: modelData === Players.active ? Theme.textOnPrimary : Theme.textPrimary
-                        font.pixelSize: Settings.fontSizeSmall
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeCaption
                     }
 
                     MouseArea {
@@ -384,7 +389,8 @@ Rectangle {
                     anchors.left: parent.left
                     text: lengthStr(Players.active?.position ?? -1)
                     color: Theme.textSecondary
-                    font.pixelSize: Settings.fontSizeSmall
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeCaption
                 }
 
                 Text {
@@ -392,14 +398,15 @@ Rectangle {
                     anchors.right: parent.right
                     text: lengthStr(_safeLength > 0 ? _safeLength : -1)
                     color: Theme.textSecondary
-                    font.pixelSize: Settings.fontSizeSmall
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeCaption
                 }
             }
         }
     }
 
     function lengthStr(length: int): string {
-        if (length < 0) return "-1:-1";
+        if (length < 0) return "–:––";
         const hours = Math.floor(length / 3600);
         const mins = Math.floor((length % 3600) / 60);
         const secs = Math.floor(length % 60);

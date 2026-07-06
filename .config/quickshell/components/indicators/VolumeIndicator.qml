@@ -26,11 +26,11 @@ WrapperMouseArea {
         
         Text {
             id: icon
-            topPadding: 2
+            topPadding: 1
             fontSizeMode: Text.VerticalFit
             font.family: Settings.fontFamilyIcons
             color: Theme.textPrimary
-            font.pixelSize: Settings.fontSizeLarge
+            font.pixelSize: 14
             text: Audio.muted ? "\ue04f" : "\ue050"
         }
         
@@ -41,6 +41,7 @@ WrapperMouseArea {
             width: root.containsMouse ? implicitWidth : 0
             clip: true
             color: Theme.textPrimary
+            font.family: Settings.fontFamilyDefault
             font.pixelSize: Settings.fontSizeSmall
             text: Audio.getVolume() + "%"
             

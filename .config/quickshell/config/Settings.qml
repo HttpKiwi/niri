@@ -13,9 +13,11 @@ QtObject {
     // ========================================
     // Wallpaper persistence
     // ========================================
-    readonly property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
+    readonly property string homeDir: Quickshell.env("HOME") || ""
+    readonly property string username: Quickshell.env("USER") || ""
+    readonly property string wallpapersDir: homeDir + "/Pictures/Wallpapers"
     readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
-    readonly property string defaultWallpaper: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
+    readonly property string defaultWallpaper: wallpapersDir + "/cozycabininthewoods.webp"
     readonly property string matugenCacheScript: Quickshell.shellDir + "/scripts/matugen-cache.sh"
 
     property string backgroundImagePath: ""
@@ -138,11 +140,14 @@ QtObject {
     // ========================================
     // Typography Settings
     // ========================================
-    readonly property int fontSizeSmall: 12
+    readonly property int fontSizeCaption: 10
+    readonly property int fontSizeSmall: 11
     readonly property int fontSizeMedium: 12
-    readonly property int fontSizeLarge: 12
+    readonly property int fontSizeBar: 12
+    readonly property int fontSizeLarge: 13
+    readonly property int fontSizeTitle: 14
     readonly property int fontSizeIcon: 24
-    readonly property string fontFamilyDefault: "sans-serif"
+    readonly property string fontFamilyDefault: "Adwaita Sans"
     readonly property string fontFamilyIcons: "Material Symbols Rounded"
     // ========================================
     // Flickable Settings

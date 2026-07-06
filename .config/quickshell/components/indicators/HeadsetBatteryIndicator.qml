@@ -77,7 +77,8 @@ Row {
             visible: root.available
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.textPrimary
-            font.pixelSize: Settings.fontSizeSmall
+            font.family: Settings.fontFamilyDefault
+            font.pixelSize: Settings.fontSizeBar
             text: root.batteryLevel + "%"
         }
     }

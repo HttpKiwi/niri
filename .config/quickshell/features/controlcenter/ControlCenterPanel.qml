@@ -263,14 +263,15 @@ PocketSlidePanel {
 
                 Row {
                     width: parent.width
-                    height: 36
+                    height: 32
                     spacing: 10
 
                     Text {
                         width: parent.width - 34
                         text: "Notifications"
                         color: Theme.textPrimary
-                        font.pixelSize: 14
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeTitle
                         font.weight: Font.Bold
                     }
 
@@ -291,7 +292,7 @@ PocketSlidePanel {
                 ScrollView {
                     id: scrollView
                     width: parent.width
-                    height: parent.height - 44
+                    height: parent.height - 40
                     clip: true
 
                     ScrollBar.vertical: ScrollBar {
@@ -340,6 +341,7 @@ PocketSlidePanel {
                                 anchors.centerIn: parent
                                 text: "No notifications"
                                 color: Theme.textSecondary
+                                font.family: Settings.fontFamilyDefault
                                 font.pixelSize: Settings.fontSizeMedium
                             }
                         }

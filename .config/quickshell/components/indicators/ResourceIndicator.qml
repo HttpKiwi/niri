@@ -17,13 +17,15 @@ WrapperItem {
         Text {
             text: `C: ${Math.round(ResourceUsage.cpuUsage * 100)}%`
             color: Theme.textPrimary
-            font.pixelSize: Settings.fontSizeLarge
+            font.family: Settings.fontFamilyDefault
+            font.pixelSize: Settings.fontSizeBar
         }
         
         Text {
             text: `M: ${Math.round(ResourceUsage.memoryUsedPercentage * 100)}%`
             color: Theme.textPrimary
-            font.pixelSize: Settings.fontSizeLarge
+            font.family: Settings.fontFamilyDefault
+            font.pixelSize: Settings.fontSizeBar
         }
     }
 }

@@ -201,7 +201,7 @@ WlSessionLockSurface {
 
                 Text {
                     id: usernameText
-                    text: "httpkiwi"
+                    text: Settings.username
                     color: Theme.textSecondary
                     font.pixelSize: Settings.fontSizeMedium
                 }

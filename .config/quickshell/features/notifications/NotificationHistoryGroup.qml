@@ -196,7 +196,8 @@ Item {
                     Layout.fillWidth: true
                     text: root.appName || "Unknown"
                     color: root.hasCritical ? Theme.error : Theme.textPrimary
-                    font.pixelSize: 13
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeLarge
                     font.weight: root.hasCritical ? Font.Bold : Font.Medium
                     elide: Text.ElideRight
                 }
@@ -215,7 +216,8 @@ Item {
                         anchors.centerIn: parent
                         text: root.notificationCount.toString()
                         color: Theme.textOnPrimaryContainer
-                        font.pixelSize: 10
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeCaption
                         font.weight: Font.Medium
                     }
                 }
@@ -344,7 +346,8 @@ Item {
                 Text {
                     text: root.expanded ? "See fewer" : `+${root.notificationCount - 1} more notifications`
                     color: Theme.accent
-                    font.pixelSize: 12
+                    font.family: Settings.fontFamilyDefault
+                    font.pixelSize: Settings.fontSizeSmall
                     font.weight: Font.Medium
                 }
             }

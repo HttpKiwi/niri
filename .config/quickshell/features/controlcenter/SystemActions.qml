@@ -14,7 +14,7 @@ Rectangle {
     property var confirmDialog: null
     readonly property int contentPadding: 10
 
-    implicitHeight: 52 + contentPadding * 2
+    implicitHeight: 56 + contentPadding * 2
     width: parent ? parent.width : 380
     radius: Settings.cardRadius
     color: Theme.glass(Settings.glassOpacity, Settings.glassTintStrength)
@@ -115,9 +115,9 @@ Rectangle {
 
             Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: 40
-                height: 40
-                radius: 20
+                width: 36
+                height: 36
+                radius: 18
                 color: actionMouse.hovered
                     ? Theme.withAlpha(actionBtn.accentColor, 0.22)
                     : Theme.withAlpha(Theme.textPrimary, 0.08)
@@ -131,7 +131,7 @@ Rectangle {
                 Image {
                     anchors.centerIn: parent
                     source: Quickshell.iconPath(actionBtn.iconName, "")
-                    sourceSize: Qt.size(20, 20)
+                    sourceSize: Qt.size(18, 18)
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: source !== ""
@@ -143,6 +143,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: actionBtn.label
                 color: actionMouse.hovered ? actionBtn.accentColor : Theme.textPrimary
+                font.family: Settings.fontFamilyDefault
                 font.pixelSize: Settings.fontSizeSmall
                 font.weight: Font.Medium
 
