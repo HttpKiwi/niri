@@ -3,65 +3,167 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Services.Pam
 import qs.config
+import qs.core
 
 WlSessionLockSurface {
     id: root
 
     required property WlSessionLock lock
 
-    property bool _isUnlocking: false
-    property bool _showContent: false
-    property real _toolbarScale: 0.9
+    readonly property real overlayStrength: 0.38
+
+    property real _blurAmount: 0
+    property real _overlayOpacity: 0
+    property real _clockOpacity: 0
+    property real _clockOffset: 28
+    property real _toolbarScale: 0.92
     property real _toolbarOpacity: 0
     property string statusMessage: ""
     property string statusType: ""
     property bool _isProcessing: false
     property string _pendingPassword: ""
 
-    color: Qt.rgba(0, 0, 0, 1)
+    color: "transparent"
 
     Component.onCompleted: {
-        console.log("LockSurface created")
-        lockAnimTimer.start()
-    }
-
-    Timer {
-        id: lockAnimTimer
-        interval: 150
-        onTriggered: {
-            root._showContent = true
-            root._toolbarScale = 1
-            root._toolbarOpacity = 1
-            Qt.callLater(() => passwordInput.forceActiveFocus())
-        }
+        lockEnterAnim.start()
     }
 
     Connections {
         target: root.lock
 
         function onUnlockRequested() {
-            root._isUnlocking = true
-            root._toolbarScale = 0.9
-            root._toolbarOpacity = 0
-            unlockCompleteTimer.restart()
+            if (!unlockAnim.running)
+                unlockAnim.start()
         }
     }
 
-    Timer {
-        id: unlockCompleteTimer
-        interval: 400
-        onTriggered: {
-            root.lock.locked = false
-            root._showContent = false
+    SequentialAnimation {
+        id: lockEnterAnim
+
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "_blurAmount"
+                to: Settings.lockscreenBackdropBlur
+                duration: Settings.animationDurationLong
+                easing.type: Easing.OutCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_overlayOpacity"
+                to: 1
+                duration: Settings.animationDurationLong
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        PauseAnimation { duration: 60 }
+
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "_clockOpacity"
+                to: 1
+                duration: Settings.animationDurationLong
+                easing.type: Easing.OutCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_clockOffset"
+                to: 0
+                duration: Settings.animationDurationLong
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        PauseAnimation { duration: 80 }
+
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "_toolbarOpacity"
+                to: 1
+                duration: Settings.animationDurationMedium
+                easing.type: Easing.OutCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_toolbarScale"
+                to: 1
+                duration: 320
+                easing.type: Easing.OutCubic
+                easing.bezierCurve: [0.05, 0.7, 0.1, 1]
+            }
+        }
+
+        ScriptAction {
+            script: Qt.callLater(() => passwordInput.forceActiveFocus())
         }
     }
 
-    // Wallpaper background
+    SequentialAnimation {
+        id: unlockAnim
+
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "_toolbarOpacity"
+                to: 0
+                duration: Settings.animationDurationShort
+                easing.type: Easing.InCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_toolbarScale"
+                to: 0.92
+                duration: Settings.animationDurationMedium
+                easing.type: Easing.InCubic
+            }
+        }
+
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "_clockOpacity"
+                to: 0
+                duration: Settings.animationDurationMedium
+                easing.type: Easing.InCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_clockOffset"
+                to: 18
+                duration: Settings.animationDurationMedium
+                easing.type: Easing.InCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_overlayOpacity"
+                to: 0
+                duration: Settings.animationDurationMedium
+                easing.type: Easing.InCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_blurAmount"
+                to: 0
+                duration: Settings.animationDurationLong
+                easing.type: Easing.InCubic
+            }
+        }
+
+        ScriptAction {
+            script: root.lock.locked = false
+        }
+    }
+
     Image {
         id: wallpaper
         anchors.fill: parent
@@ -69,38 +171,35 @@ WlSessionLockSurface {
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         cache: true
-        opacity: root._isUnlocking ? 0 : (root._showContent ? 1 : 0)
 
-        Behavior on opacity {
-            NumberAnimation {
-                duration: Settings.animationDurationMedium
-                easing.type: Easing.OutCubic
-            }
+        layer.enabled: root._blurAmount > 0.5
+        layer.effect: MultiEffect {
+            autoPaddingEnabled: false
+            blurEnabled: true
+            blur: 1
+            blurMax: root._blurAmount
+            blurMultiplier: 1
         }
     }
 
-    // Dark overlay
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.35)
-        opacity: root._isUnlocking ? 0 : (root._showContent ? 1 : 0)
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: Settings.animationDurationMedium
-                easing.type: Easing.OutCubic
-            }
-        }
+        color: Settings.backgroundColor
+        visible: !Settings.backgroundImagePath
     }
 
-    // Full-screen mouse area to focus input
+    Rectangle {
+        anchors.fill: parent
+        color: Qt.rgba(0, 0, 0, overlayStrength)
+        opacity: root._overlayOpacity
+    }
+
     MouseArea {
         anchors.fill: parent
         onClicked: passwordInput.forceActiveFocus()
         onPositionChanged: passwordInput.forceActiveFocus()
     }
 
-    // Key capture
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
             passwordInput.text = ""
@@ -109,26 +208,11 @@ WlSessionLockSurface {
         passwordInput.forceActiveFocus()
     }
 
-    // Clock centered on screen
     ColumnLayout {
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: -root._clockOffset
         spacing: 8
-        opacity: (root._showContent && !root._isUnlocking) ? 1 : 0
-        y: (root._showContent && !root._isUnlocking) ? 0 : 20
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: Settings.animationDurationLong
-                easing.type: Easing.OutCubic
-            }
-        }
-
-        Behavior on y {
-            NumberAnimation {
-                duration: Settings.animationDurationLong
-                easing.type: Easing.OutCubic
-            }
-        }
+        opacity: root._clockOpacity
 
         Text {
             Layout.alignment: Qt.AlignHCenter
@@ -136,6 +220,7 @@ WlSessionLockSurface {
             color: "#ffffff"
             font.pixelSize: Settings.lockscreenClockSize
             font.weight: Font.Light
+            font.family: Settings.fontFamilyDefault
             horizontalAlignment: Text.AlignHCenter
 
             Timer {
@@ -152,11 +237,11 @@ WlSessionLockSurface {
             color: Qt.rgba(1.0, 1.0, 1.0, 0.65)
             font.pixelSize: Settings.lockscreenDateSize
             font.weight: Font.Normal
+            font.family: Settings.fontFamilyDefault
             horizontalAlignment: Text.AlignHCenter
         }
     }
 
-    // Bottom toolbar (end-4 style)
     RowLayout {
         anchors {
             horizontalCenter: parent.horizontalCenter
@@ -166,23 +251,8 @@ WlSessionLockSurface {
         spacing: 10
         scale: root._toolbarScale
         opacity: root._toolbarOpacity
+        transformOrigin: Item.Bottom
 
-        Behavior on scale {
-            NumberAnimation {
-                duration: 300
-                easing.type: Easing.OutCubic
-                easing.bezierCurve: [0.05, 0.7, 0.1, 1]
-            }
-        }
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
-        }
-
-        // Username pill
         Rectangle {
             color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.5)
             radius: height / 2
@@ -204,11 +274,11 @@ WlSessionLockSurface {
                     text: Settings.username
                     color: Theme.textSecondary
                     font.pixelSize: Settings.fontSizeMedium
+                    font.family: Settings.fontFamilyDefault
                 }
             }
         }
 
-        // Password input pill
         Rectangle {
             id: passwordCard
             color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.8)
@@ -256,10 +326,10 @@ WlSessionLockSurface {
                     return Qt.rgba(1.0, 1.0, 1.0, 0.4)
                 }
                 font.pixelSize: Settings.fontSizeMedium
+                font.family: Settings.fontFamilyDefault
                 visible: passwordInput.text.length === 0 && !passwordInput.activeFocus
             }
 
-            // Submit button
             Rectangle {
                 anchors.right: parent.right
                 anchors.rightMargin: 6
@@ -292,7 +362,6 @@ WlSessionLockSurface {
             }
         }
 
-        // Power button pill
         Rectangle {
             color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.5)
             radius: height / 2
@@ -361,7 +430,6 @@ WlSessionLockSurface {
         }
     }
 
-    // Shake animation for wrong password
     SequentialAnimation {
         id: shakeAnim
         NumberAnimation { target: passwordCard; property: "x"; to: -8; duration: 80; easing.type: Easing.OutQuad }

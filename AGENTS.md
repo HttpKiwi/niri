@@ -333,6 +333,9 @@ Bind `panelFlag` to a bool on `PanelState` (`launcher`, `wallpaper`, `controlCen
 
 ### Architecture
 - Uses `WlSessionLock` (Quickshell 0.3.0+) for proper session locking via `ext-session-lock-v1`
+- `LockState` singleton coordinates bar/frame retraction before the lock surface appears
+- Lock surface uses the current wallpaper with animated `MultiEffect` blur (not a desktop screencopy)
+- Enter: backdrop → clock → toolbar (staggered). Exit: toolbar → clock → backdrop, then release lock
 - `WlSessionLockSurface` is a **QWindow**, not a QQuickItem — `Keys` and `focus` properties don't work on it directly
 - Use a child `FocusScope` or `MouseArea` to capture input
 - Authentication via `PamContext` with custom PAM config at `features/lockscreen/pam.d/quickshell`
@@ -359,7 +362,8 @@ Mod+Escape { spawn "qs" "ipc" "call" "lock" "lockSession"; }
 ### Important Gotchas
 - `WlSessionLockSurface` cannot use `Keys.onPressed` directly — use a child `FocusScope` or `MouseArea`
 - `forceActiveFocus()` on `WlSessionLockSurface` will crash — use it on child `TextInput` instead
-- Content must start visible (opacity 1) when the surface is created, otherwise you get a black screen
+- Content surface color must be `transparent` — solid black causes a flash before wallpaper/screencopy appears
+- Bar and blob frame retract via `LockState` before `lock.locked = true` (`Settings.lockscreenEngageDelay`)
 - Use a delayed timer (`lockAnimTimer`) to trigger the fade-in animation after surface creation
 
 ---

@@ -33,6 +33,8 @@ Scope {
 
             property var modelData
             readonly property string niriScreenName: Niri.niriNameFor(window.screen?.name ?? "")
+            readonly property bool shellRetracted: LockState.shellRetracted
+            readonly property real chromeReveal: LockState.chromeReveal
 
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
@@ -84,7 +86,7 @@ Scope {
                 implicitHeight: Settings.barHeight
                 width: window.screen?.width ?? 0
                 height: Settings.barHeight
-                anchors.top: parent.top
+                y: -height * (1 - window.chromeReveal)
                 anchors.left: parent.left
                 anchors.right: parent.right
                 visible: true
@@ -179,6 +181,7 @@ Scope {
                 screenHeight: window.screen?.height ?? 0
                 screenName: Niri.niriNameFor(window.screen?.name ?? "")
                 z: -1
+                opacity: window.chromeReveal
             }
 
             Item {

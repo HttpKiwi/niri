@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.core
+import qs.config
 import qs.features.decorations
 
 /**
@@ -30,14 +31,18 @@ Scope {
             WlrLayershell.namespace: "quickshell:screenCorners"
             WlrLayershell.layer: WlrLayer.Overlay
             color: "transparent"
-            
+
             anchors {
                 top: true
                 left: true
                 right: true
                 bottom: true
             }
-            
+
+            Item {
+                anchors.fill: parent
+                opacity: LockState.chromeReveal
+
             Corner {
                 id: topLeftCorner
                 anchors.top: parent.top
@@ -72,6 +77,7 @@ Scope {
                 corner: 2  // bottomRight
                 radius: 12
                 color: "black"
+            }
             }
             
             mask: Region {

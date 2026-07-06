@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
+import qs.core
 
 Scope {
     id: lockScope
@@ -20,14 +21,73 @@ Scope {
     }
 
     Component.onCompleted: {
-        lock.locked = false  
+        lock.locked = false
+        LockState.locked = false
+        LockState.engaging = false
+        LockState.chromeReveal = 1
+    }
+
+    function hideChrome() {
+        chromeRevealAnim.stop()
+        chromeRevealAnim.duration = Settings.lockscreenEngageDelay
+        chromeRevealAnim.to = 0
+        chromeRevealAnim.start()
+    }
+
+    function revealChrome() {
+        if (lock.locked || LockState.engaging)
+            return
+        chromeRevealAnim.stop()
+        chromeRevealAnim.duration = Settings.lockscreenEngageDelay
+        chromeRevealAnim.to = 1
+        chromeRevealAnim.start()
+    }
+
+    NumberAnimation {
+        id: chromeRevealAnim
+        target: LockState
+        property: "chromeReveal"
+        easing.type: Easing.InOutCubic
+        onFinished: {
+            if (to === 1)
+                LockState.chromeReveal = 1
+            else if (to === 0)
+                LockState.chromeReveal = 0
+        }
+    }
+
+    Timer {
+        id: chromeRestoreTimer
+        interval: Settings.lockscreenChromeRestoreDelay
+        onTriggered: {
+            if (lock.locked || LockState.engaging)
+                return
+            LockState.locked = false
+            LockState.engaging = false
+            lockScope.revealChrome()
+        }
+    }
+
+    Connections {
+        target: lock
+        function onLockedChanged() {
+            if (!lock.locked)
+                chromeRestoreTimer.restart()
+        }
     }
 
     IpcHandler {
         target: "lock"
 
         function lockSession() {
-            lockTimer.restart()
+            if (lock.locked || LockState.engaging)
+                return
+            chromeRestoreTimer.stop()
+            chromeRevealAnim.stop()
+            LockState.engaging = true
+            LockState.locked = true
+            lockScope.hideChrome()
+            engageTimer.restart()
         }
 
         function unlockSession() {
@@ -35,14 +95,15 @@ Scope {
         }
 
         function isLocked() {
-            return lock.locked
+            return lock.locked || LockState.engaging
         }
     }
 
     Timer {
-        id: lockTimer
-        interval: 100
+        id: engageTimer
+        interval: Settings.lockscreenEngageDelay
         onTriggered: {
+            LockState.engaging = false
             lock.locked = true
         }
     }

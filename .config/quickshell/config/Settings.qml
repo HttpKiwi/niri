@@ -167,6 +167,11 @@ QtObject {
     readonly property int lockscreenDateSize: 16
     readonly property int lockscreenInputHeight: 48
     readonly property int lockscreenInputRadius: 24
+    // Delay after bar hides before session lock surface appears
+    readonly property int lockscreenEngageDelay: 280
+    // Delay after lock release before bar/blob chrome fades back in
+    readonly property int lockscreenChromeRestoreDelay: 180
+    readonly property int lockscreenBackdropBlur: 48
     // ========================================
     // Idle/Sleep Settings
     // ========================================
