@@ -22,15 +22,20 @@ Item {
         width: root.isActive ? Settings.workspaceIndicatorActiveWidth : Settings.workspaceIndicatorInactiveWidth
         height: parent.height
         radius: height / 2
-        color: root.isActive ? Theme.stateActive : Theme.stateInactive
-        
+
+        property bool hovered: false
+
+        color: root.isActive
+            ? Theme.stateActive
+            : (hovered ? Theme.stateHover : Theme.stateInactive)
+
         Behavior on width {
             NumberAnimation {
                 duration: Settings.animationDurationMedium
                 easing.type: Settings.easingStandard
             }
         }
-        
+
         Behavior on color {
             ColorAnimation {
                 duration: Settings.animationDurationShort
@@ -38,24 +43,15 @@ Item {
             }
         }
     }
-    
+
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
         enabled: root.visible
-        
-        onEntered: {
-            if (!root.isActive) {
-                dot.color = Theme.stateHover
-            }
-        }
-        
-        onExited: {
-            if (!root.isActive) {
-                dot.color = Theme.stateInactive
-            }
-        }
-        
+
+        onEntered: dot.hovered = true
+        onExited: dot.hovered = false
+
         onClicked: {
             Niri.focusWorkspace(root.workspace.index)
         }

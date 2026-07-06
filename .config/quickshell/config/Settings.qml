@@ -16,6 +16,7 @@ QtObject {
     readonly property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
     readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
     readonly property string defaultWallpaper: "/home/httpkiwi/Pictures/Wallpapers/cozycabininthewoods.webp"
+    readonly property string matugenCacheScript: Quickshell.shellDir + "/scripts/matugen-cache.sh"
 
     property string backgroundImagePath: ""
 

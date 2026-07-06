@@ -1,4 +1,0 @@
-module qs.features.shell
-
-ShellWindow 1.0 ShellWindow.qml
-Exclusions 1.0 Exclusions.qml

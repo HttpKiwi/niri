@@ -5,77 +5,46 @@ import QtQuick.Layouts
 import Quickshell
 import qs.config
 import qs.core
+import qs.components.base
 
 /**
  * OSDWrapper - Vertical volume OSD flush to the left frame, on the blob.
  */
-Item {
+PocketSlidePanel {
     id: root
 
-    required property var panelState
     required property string screenName
+
+    panelFlag: "osd"
+    slideFrom: "left"
 
     property real volume: Audio.volume
     property bool muted: Audio.muted
 
-    readonly property bool shouldBeActive: panelState && panelState.osd
-    readonly property real closedSlide: -(width + 5)
-    property real slideX: closedSlide
-
-    readonly property real visualX: x + slideX
-    readonly property real visualY: y
-    readonly property real visualW: width
-    readonly property real visualH: height
-    readonly property bool pocketActive: slideX > closedSlide
-
-    function show() {
-        if (screenName !== Niri.focused_output_name)
-            return;
-        panelState.osd = true;
-        slideX = 0;
-        timer.restart();
-    }
-
-    function hide() {
-        slideX = closedSlide;
-    }
-
-    Component.onCompleted: {
-        volume = Audio.volume;
-        muted = Audio.muted;
-        slideX = shouldBeActive ? 0 : closedSlide;
-    }
-
-    visible: pocketActive
     width: Settings.osdWidth
     height: Settings.osdHeight
     implicitWidth: width
     implicitHeight: height
 
-    // Flush with left frame border
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
     anchors.leftMargin: Settings.screenBorderWidth
 
-    transform: Translate {
-        x: root.slideX
+    function show() {
+        if (screenName !== Niri.focused_output_name)
+            return;
+        panelState.osd = true;
+        openPanel();
+        timer.restart();
     }
 
-    Behavior on slideX {
-        NumberAnimation {
-            duration: Settings.animationDurationMedium
-            easing.type: Settings.easingStandard
-        }
+    function hide() {
+        closePanel();
     }
 
-    Connections {
-        target: root.panelState
-        function onOsdChanged() {
-            if (root.panelState.osd)
-                root.slideX = 0;
-            else
-                root.hide();
-        }
+    Component.onCompleted: {
+        volume = Audio.volume;
+        muted = Audio.muted;
     }
 
     Connections {
@@ -96,7 +65,6 @@ Item {
         onTriggered: panelState.osd = false
     }
 
-    // Fallback only when chrome is off
     Rectangle {
         anchors.fill: parent
         radius: width / 2
@@ -126,7 +94,6 @@ Item {
             }
         }
 
-        // Vertical volume bar
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true

@@ -9,10 +9,11 @@ import qs.core
 import qs.components.base
 import qs.features.launcher
 
-Item {
+PocketBottomPanel {
     id: root
 
-    required property var panelState
+    panelFlag: "launcher"
+    bottomInset: 5
 
     property var sources: [appLauncherSource, clipboardLauncherSource]
     property int currentSourceIndex: 0
@@ -32,52 +33,32 @@ Item {
     property int listContentHeight: 0
     readonly property int calculatedHeight: searchAreaHeight + 8 + separatorHeight + listContentHeight + topPadding + bottomPadding
 
-    readonly property bool shouldBeActive: panelState.launcher
-    property real offsetScale: shouldBeActive ? 0 : 1
-
-    visible: offsetScale < 1
-    anchors.bottomMargin: (-implicitHeight - 5) * offsetScale
     implicitHeight: calculatedHeight
     implicitWidth: 500
-    opacity: 1 - offsetScale
-
-    Behavior on offsetScale {
-        NumberAnimation {
-            duration: Settings.animationDurationShort
-            easing.type: Easing.OutQuad
-        }
-    }
-
-    Behavior on opacity {
-        NumberAnimation {
-            duration: Settings.animationDurationShort
-            easing.type: Easing.Linear
-        }
-    }
 
     Behavior on implicitHeight {
-        enabled: panelState.launcher
         NumberAnimation {
             duration: Settings.animationDurationShort
             easing.type: Easing.OutQuad
         }
+    }
+
+    onOpened: {
+        currentSourceIndex = panelState.clipboard ? 1 : 0;
+        searchInput.text = "";
+        updateFilter();
+        Qt.callLater(function() { searchInput.forceActiveFocus(); });
+    }
+
+    onClosed: {
+        searchInput.text = "";
+        filteredModel.clear();
+        listContentHeight = 0;
+        selectedIndex = 0;
     }
 
     Connections {
         target: panelState
-        function onLauncherChanged() {
-            if (panelState.launcher) {
-                currentSourceIndex = panelState.clipboard ? 1 : 0;
-                searchInput.text = "";
-                updateFilter();
-                Qt.callLater(function() { searchInput.forceActiveFocus(); });
-            } else {
-                searchInput.text = "";
-                filteredModel.clear();
-                listContentHeight = 0;
-                selectedIndex = 0;
-            }
-        }
         function onClipboardChanged() {
             if (panelState.launcher) {
                 currentSourceIndex = panelState.clipboard ? 1 : 0;

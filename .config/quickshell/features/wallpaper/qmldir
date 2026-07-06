@@ -1,4 +1,3 @@
 module qs.features.wallpaper
 
-WallpaperSelector 1.0 WallpaperSelector.qml
 WallpaperPanel 1.0 WallpaperPanel.qml

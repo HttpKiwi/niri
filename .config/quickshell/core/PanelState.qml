@@ -13,7 +13,7 @@ QtObject {
     property bool clipboard: false
     property bool osd: false
     property bool wallpaper: false
-    property bool historyPanel: false
+    property bool controlCenter: false
 
     onLauncherChanged: {
         if (root.launcher)

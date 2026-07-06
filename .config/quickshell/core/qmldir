@@ -14,3 +14,4 @@ PanelState 1.0 PanelState.qml
 singleton PanelStates 1.0 PanelStates.qml
 singleton Players 1.0 Players.qml
 singleton ChromeClock 1.0 ChromeClock.qml
+singleton MatugenRunner 1.0 MatugenRunner.qml

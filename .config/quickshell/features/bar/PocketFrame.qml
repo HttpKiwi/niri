@@ -99,28 +99,28 @@ Item {
 
         BlobRect {
             group: blobGroup
-            x: launcherPanel ? launcherPanel.x + blobMargin : 0
-            y: launcherPanel ? launcherPanel.y + blobMargin : 0
-            width: launcherPanel && launcherPanel.visible ? launcherPanel.width : 0
-            height: launcherPanel && launcherPanel.visible ? launcherPanel.height : 0
+            x: launcherPanel ? launcherPanel.blobX + blobMargin : 0
+            y: launcherPanel ? launcherPanel.blobY + blobMargin : 0
+            width: launcherPanel && launcherPanel.blobH > 0 ? launcherPanel.blobW : 0
+            height: launcherPanel ? launcherPanel.blobH : 0
             radius: Settings.screenCornerRadius
-            deformScale: launcherPanel && launcherPanel.visible ? 0.00001 : 0
+            deformScale: launcherPanel && launcherPanel.blobH > 4 && launcherPanel.hideProgress < 0.85 ? 0.00001 : 0
             stiffness: 200
             damping: 60
-            visible: launcherPanel ? launcherPanel.visible : false
+            visible: launcherPanel ? launcherPanel.blobH > 0 : false
         }
 
         BlobRect {
             group: blobGroup
-            x: wallpaperPanel ? wallpaperPanel.x + blobMargin : 0
-            y: wallpaperPanel ? wallpaperPanel.y + blobMargin : 0
-            width: wallpaperPanel && wallpaperPanel.visible ? wallpaperPanel.width : 0
-            height: wallpaperPanel && wallpaperPanel.visible ? wallpaperPanel.height : 0
+            x: wallpaperPanel ? wallpaperPanel.blobX + blobMargin : 0
+            y: wallpaperPanel ? wallpaperPanel.blobY + blobMargin : 0
+            width: wallpaperPanel && wallpaperPanel.blobH > 0 ? wallpaperPanel.blobW : 0
+            height: wallpaperPanel ? wallpaperPanel.blobH : 0
             radius: Settings.screenCornerRadius
-            deformScale: wallpaperPanel && wallpaperPanel.visible ? 0.00001 : 0
+            deformScale: wallpaperPanel && wallpaperPanel.blobH > 4 && wallpaperPanel.hideProgress < 0.85 ? 0.00001 : 0
             stiffness: 200
             damping: 60
-            visible: wallpaperPanel ? wallpaperPanel.visible : false
+            visible: wallpaperPanel ? wallpaperPanel.blobH > 0 : false
         }
 
         // Control center — flush with the right frame so the pocket merges (no gap)

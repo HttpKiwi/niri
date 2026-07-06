@@ -43,8 +43,8 @@ This is a custom desktop environment setup using:
     ├── shell.qml           # Main entry point
     │
     ├── common/             # Shared resources
-    │   ├── Colors.json     # Color palette
-    │   └── Popup.qml       # Popup component
+    │   ├── Colors.json     # Matugen color palette (generated)
+    │   └── matugen-prefs.json
     │
     ├── config/             # Configuration files
     │   ├── Settings.qml    # Hardcoded values (durations, sizes, margins)
@@ -52,30 +52,40 @@ This is a custom desktop environment setup using:
     │   └── MatugenPreferences.qml  # Matugen settings
     │
     ├── core/               # Core logic and services
-    │   ├── LauncherSource.qml  # Base interface for launcher sources
-    │   ├── Niri.qml        # Niri event stream integration
-    │   ├── Color.qml       # Color utilities
-    │   ├── Audio.qml       # Audio management
-    │   ├── NotificationStore.qml    # Notification persistence
-    │   ├── NotificationService.qml  # D-Bus notification handling
-    │   ├── FuzzyMatcher.qml          # Search matching
-    │   └── ResourceUsage.qml         # System resource monitoring
+    │   ├── Niri.qml        # Niri QML plugin integration
+    │   ├── Color.qml       # Colors.json loader
+    │   ├── Audio.qml       # PipeWire audio
+    │   ├── Storage.qml     # JSON persistence (notifications + app usage)
+    │   ├── MatugenRunner.qml  # matugen-cache.sh runner
+    │   ├── NotificationStore.qml
+    │   ├── NotificationService.qml
+    │   ├── NotificationModel.qml
+    │   ├── PanelState.qml / PanelStates.qml  # Per-monitor panel flags
+    │   ├── Players.qml     # MPRIS + ipc target "mpris"
+    │   ├── PopupRegistry.qml
+    │   ├── ChromeClock.qml
+    │   ├── FuzzyMatcher.qml
+    │   └── ResourceUsage.qml
     │
     ├── components/         # Reusable UI components
-    │   ├── base/           # Basic components (Card, Pill, IconButton, etc.)
-    │   ├── animations/      # Animation components
-    │   └── indicators/      # Indicator components
+    │   ├── base/           # Card, Pill, PocketSlidePanel, PocketBottomPanel, …
+    │   ├── animations/
+    │   └── indicators/
     │
     ├── features/           # Main UI features
-    │   ├── bar/           # Top bar
-    │   ├── background/    # Desktop background
-    │   ├── wallpaper/     # Wallpaper selector
-    │   ├── launcher/      # App launcher with clipboard support
-    │   ├── notifications/ # Notification system
-    │   ├── osd/          # On-screen display
-    │   └── decorations/  # Window decorations
+    │   ├── bar/            # UnifiedBar, PocketFrame, LauncherPanel
+    │   ├── background/
+    │   ├── wallpaper/      # WallpaperPanel
+    │   ├── launcher/
+    │   ├── notifications/
+    │   ├── osd/            # OSDWrapper (volume pocket)
+    │   ├── controlcenter/  # ControlCenterPanel
+    │   ├── lockscreen/
+    │   ├── decorations/
+    │   └── dotmatrix/      # Shader prototypes (chrome)
     │
-    └── scripts/           # Helper scripts
+    ├── plugins/            # Caelestia Blobs (build → system install)
+    └── scripts/            # matugen-cache.sh, build-blobs-plugin.sh
 ```
 
 ---
@@ -292,12 +302,34 @@ property var sources: [appLauncherSource, clipboardLauncherSource, mySource]
 
 ## Background System
 
-The background system supports:
-- **Static images**: PNG, JPG, JPEG, BMP, SVG, TIFF
-- **Animated images**: GIF, WebP, APNG
-- **Videos**: MP4, WebM, MKV, MOV
+The background system currently displays static images via `Background.qml` (PNG, JPG, WebP, etc.). Video/GIF crossfade support is planned; `BackgroundUtil` was removed.
 
-Crossfade transition uses dual-layer system with 300ms `Easing.InOutQuad` animation.
+---
+
+## IPC Handlers (`shell.qml`)
+
+| Target | Functions | Niri keybind |
+|--------|-----------|--------------|
+| `appLauncher` | `toggleLauncher`, `toggleClipboard` | `Super+Space`, `Super+V` |
+| `controlCenter` | `toggleControlCenter` | `Super+N` |
+| `wallpaperSelector` | `toggleSelector` | `Super+Shift+W` |
+| `audio` | `raiseVolume`, `lowerVolume`, `toggleMute`, `toggleMicMute` | Volume keys |
+| `storage` | `clearAll` | — |
+| `lock` | `lockSession`, `unlockSession`, `isLocked` | `Mod+Escape` |
+| `mpris` | play/pause/next/… | (in `Players.qml`) |
+
+Per-monitor state via `PanelStates.forName(Niri.focused_output_name)`.
+
+---
+
+## Pocket Panel Components
+
+Bar pockets share animation bases in `components/base/`:
+
+- **PocketSlidePanel** — horizontal slide (OSD from left, control center from right)
+- **PocketBottomPanel** — bottom emerge (launcher, wallpaper)
+
+Bind `panelFlag` to a bool on `PanelState` (`launcher`, `wallpaper`, `controlCenter`, `osd`).
 
 ---
 
@@ -337,7 +369,7 @@ quickshell ipc call lock isLocked       # Check status
 
 ### Niri Keybind
 ```kdl
-bind SUPER+Escape { spawn "quickshell ipc call lock lockSession"; }
+Mod+Escape { spawn "qs" "ipc" "call" "lock" "lockSession"; }
 ```
 
 ### Important Gotchas
@@ -375,12 +407,10 @@ qt_add_shaders(caelestia-blobs "blob_shaders"
 
 Build command:
 ```bash
-cd ~/.config/quickshell/plugins/build
-cmake .. -DCMAKE_PREFIX_PATH=$(pkg-config --variable=prefix Qt6Core)
-make
+~/.config/quickshell/scripts/build-blobs-plugin.sh
 ```
 
-Quickshell automatically loads compiled QML modules from the `build/` directory.
+This builds in `plugins/build/` and installs to `/usr/lib/qt6/qml/Caelestia/Blobs/` (requires sudo). The `plugins/build/` directory is gitignored.
 
 ### Architecture
 | Component | Role |
@@ -415,10 +445,10 @@ plugins/MyPlugin/
 `~/.config/quickshell/scripts/matugen-cache.sh`
 
 ### How It Works
-- Caches all matugen-generated theme files per wallpaper in `~/.config/quickshell/common/.matugen_cache/`
+- Caches matugen outputs per wallpaper in `~/Pictures/Wallpapers/.matugen_cache/`
 - Nested structure: `.matugen_cache/<scheme-type>/<mode>/<wallpaper.jpg>/`
-- On wallpaper change, checks cache first — if exists, applies cached files instantly
-- If no cache, runs matugen to generate, then caches all outputs
+- On wallpaper change, `MatugenRunner` invokes `scripts/matugen-cache.sh`
+- If cache exists, applies cached files instantly; otherwise runs matugen then caches
 
 ### Post-Hooks
 After applying cached files, runs reload signals for:

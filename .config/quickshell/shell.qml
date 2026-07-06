@@ -16,7 +16,6 @@ import qs.features.decorations
 import qs.features.lockscreen
 import qs.features.notifications
 import qs.features.wallpaper
-import qs.features.dotmatrix
 
 ShellRoot {
     Background {}
@@ -57,17 +56,7 @@ ShellRoot {
         function toggleControlCenter() {
             const state = PanelStates.forName(Niri.focused_output_name);
             if (!state) return;
-            state.historyPanel = !state.historyPanel;
-        }
-    }
-
-    IpcHandler {
-        target: "notificationHistory"
-
-        function toggleHistory() {
-            const state = PanelStates.forName(Niri.focused_output_name);
-            if (!state) return;
-            state.historyPanel = !state.historyPanel;
+            state.controlCenter = !state.controlCenter;
         }
     }
 
@@ -82,13 +71,31 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "audio"
+
+        function raiseVolume() {
+            Audio.raiseVolume();
+        }
+
+        function lowerVolume() {
+            Audio.lowerVolume();
+        }
+
+        function toggleMute() {
+            Audio.toggleMute();
+        }
+
+        function toggleMicMute() {
+            Audio.toggleMicMute();
+        }
+    }
+
     NotificationManager {
         id: notificationManager
     }
 
     // Popups live in UnifiedBar (blob-mounted) so they share the bar input mask
-
-    DotMatrixDemo {}
 
     IpcHandler {
         target: "storage"

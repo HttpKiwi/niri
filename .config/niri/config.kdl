@@ -243,8 +243,8 @@ binds {
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Super+Space hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "bash" "-c" "OUTPUT=$(niri msg focused-output | head -1 | sed 's/Output \"//' | sed 's/\".*//'); export NIRI_FOCUSED_OUTPUT=\"$OUTPUT\"; qs ipc call appLauncher toggleLauncher";  }
-    Super+N hotkey-overlay-title="Open the Application Launcher: fuzzel" { spawn "qs" "ipc" "call" "notificationHistory" "toggleHistory";  }
+    Super+Space hotkey-overlay-title="Open Application Launcher" { spawn "bash" "-c" "OUTPUT=$(niri msg focused-output | head -1 | sed 's/Output \"//' | sed 's/\".*//'); export NIRI_FOCUSED_OUTPUT=\"$OUTPUT\"; qs ipc call appLauncher toggleLauncher";  }
+    Super+N hotkey-overlay-title="Open Control Center" { spawn "qs" "ipc" "call" "controlCenter" "toggleControlCenter";  }
     Super+V hotkey-overlay-title="Open the Clipboard History" { spawn "qs" "ipc" "call" "appLauncher" "toggleClipboard"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Super+B {spawn "zen-browser"; }
@@ -373,10 +373,10 @@ binds {
     // MEDIA KEYS & SPECIAL FUNCTIONS
     // ========================================================================
     
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "raiseVolume"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "lowerVolume"; }
+    XF86AudioMute        allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "toggleMute"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "toggleMicMute"; }
     XF86MonBrightnessUp   allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 + 10"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 - 10"; }
     XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }

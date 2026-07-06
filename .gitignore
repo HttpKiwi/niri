@@ -1,6 +1,9 @@
 # Local reference implementations
 .references/
 
+# Quickshell plugin build artifacts (rebuild with plugins/build-blobs-plugin.sh)
+.config/quickshell/plugins/build/
+
 # GitHub Copilot
 .config/github-copilot/
 

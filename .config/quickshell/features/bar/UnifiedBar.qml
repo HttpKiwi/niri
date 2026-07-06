@@ -33,13 +33,14 @@ Scope {
 
             property var modelData
             property string targetMonitor: ""
+            readonly property string niriScreenName: Niri.niriNameFor(window.screen?.name ?? "")
 
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.historyPanel) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
@@ -112,7 +113,7 @@ Scope {
 
                         delegate: WorkspaceIndicator {
                             required property var modelData
-                            visible: modelData.output === (window.targetMonitor || window.screen?.name || "")
+                            visible: modelData.output === window.niriScreenName
                             workspace: modelData
                             isActive: modelData.isFocused
                         }
@@ -185,12 +186,12 @@ Scope {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 anchors.topMargin: Settings.barHeight
-                anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.historyPanel ? historyPanelShift : 0)
+                anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.controlCenter ? controlCenterShift : 0)
                 width: Settings.notificationWidth + Settings.screenBorderWidth + 50
                 height: notifList.count * Settings.notificationSpacing + (notifList.count > 0 ? Settings.notificationHeight - Settings.notificationSpacing : 0)
                 clip: true
 
-                readonly property int historyPanelShift: Settings.controlCenterWidth
+                readonly property int controlCenterShift: Settings.controlCenterWidth
 
                 Behavior on anchors.rightMargin {
                     NumberAnimation {
@@ -298,10 +299,12 @@ Scope {
                     topMargin: Settings.barHeight
                     leftMargin: Settings.screenBorderWidth
                     rightMargin: Settings.screenBorderWidth
-                        + (window.panelState && window.panelState.historyPanel
+                        + (window.panelState && window.panelState.controlCenter
                             ? Settings.controlCenterWidth
                             : 0)
-                    bottomMargin: window.panelState && window.panelState.launcher ? Settings.screenBorderWidth + launcherPanel.height : Settings.screenBorderWidth
+                    bottomMargin: window.panelState && window.panelState.launcher && launcherPanel.pocketActive
+                        ? Settings.screenBorderWidth + launcherPanel.blobH
+                        : Settings.screenBorderWidth
                 }
                 visible: false
             }

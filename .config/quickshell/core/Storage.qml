@@ -13,7 +13,8 @@ import qs.config
  * Data structure:
  * {
  *   "notifications": [{id, appName, summary, body, appIcon, image, desktopEntry, timestamp, dismissed}],
- *   "settings": {key: value}
+ *   "settings": {key: value},
+ *   "appUsage": {appName: count}
  * }
  */
 QtObject {
@@ -22,7 +23,7 @@ QtObject {
     readonly property string dataPath: `${Quickshell.shellDir}/shell_data.json`
 
     // Internal storage
-    property var _data: ({ notifications: [], settings: {} })
+    property var _data: ({ notifications: [], settings: {}, appUsage: {} })
 
     signal notificationsChanged()
 
@@ -35,26 +36,25 @@ QtObject {
             id: adapter
             property var notifications
             property var settings
+            property var appUsage
         }
 
         onAdapterUpdated: {
-            if (adapter.notifications) {
+            if (adapter.notifications !== undefined || adapter.appUsage !== undefined) {
                 root._data = {
                     notifications: adapter.notifications || [],
-                    settings: adapter.settings || {}
+                    settings: adapter.settings || {},
+                    appUsage: adapter.appUsage || {}
                 }
                 root.notificationsChanged()
             }
         }
 
         Component.onCompleted: {
-            if (adapter.notifications) {
-                root._data = {
-                    notifications: adapter.notifications || [],
-                    settings: adapter.settings || {}
-                }
-            } else {
-                root._data = { notifications: [], settings: {} }
+            root._data = {
+                notifications: adapter.notifications || [],
+                settings: adapter.settings || {},
+                appUsage: adapter.appUsage || {}
             }
             root.notificationsChanged()
         }
@@ -65,8 +65,38 @@ QtObject {
         running: false
     }
 
+    property var legacyUsageMigrator: Process {
+        running: false
+        command: ["sh", "-c", `test -f '${Quickshell.shellDir}/app_usage.json' && cat '${Quickshell.shellDir}/app_usage.json' || true`]
+
+        stdout: SplitParser {
+            onRead: data => {
+                const trimmed = data.trim()
+                if (!trimmed)
+                    return
+                try {
+                    const legacy = JSON.parse(trimmed)
+                    if (legacy && typeof legacy === "object") {
+                        const merged = Object.assign({}, root._data.appUsage || {}, legacy)
+                        root._data.appUsage = merged
+                        root.saveData()
+                    }
+                } catch (e) {
+                    console.warn("Storage: Failed to migrate app_usage.json:", e)
+                }
+            }
+        }
+    }
+
+    property Timer usageSaveTimer: Timer {
+        interval: 500
+        repeat: false
+        onTriggered: root.saveData()
+    }
+
     Component.onCompleted: {
         loadData()
+        legacyUsageMigrator.running = true
     }
 
     function loadData() {
@@ -74,7 +104,7 @@ QtObject {
             fileView.reload()
         } catch (e) {
             console.warn("Storage: Error loading data:", e)
-            root._data = { notifications: [], settings: {} }
+            root._data = { notifications: [], settings: {}, appUsage: {} }
         }
     }
 
@@ -240,5 +270,21 @@ python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); d
     function setSetting(key, value) {
         root._data.settings[key] = value
         saveData()
+    }
+
+    // App launcher usage (merged from legacy app_usage.json)
+    function getAppUsageCount(appName) {
+        if (!appName || !root._data.appUsage)
+            return 0
+        return root._data.appUsage[appName] || 0
+    }
+
+    function recordAppUsage(appName) {
+        if (!appName)
+            return
+        if (!root._data.appUsage)
+            root._data.appUsage = {}
+        root._data.appUsage[appName] = (root._data.appUsage[appName] || 0) + 1
+        usageSaveTimer.restart()
     }
 }

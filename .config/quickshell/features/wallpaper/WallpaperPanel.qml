@@ -11,15 +11,18 @@ import qs.config
 import qs.core
 import qs.components.base
 
-Item {
+PocketBottomPanel {
     id: root
 
-    required property var panelState
+    panelFlag: "wallpaper"
+    bottomInset: 50
+    animationDuration: Settings.animationDurationMedium
+    easingType: Settings.easingStandard
 
     property var wallpapers: []
     property int selectedIndex: 0
-    property string wallpapersDir: "/home/httpkiwi/Pictures/Wallpapers"
-    property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
+    readonly property string wallpapersDir: Settings.wallpapersDir
+    readonly property string currentWallpaperFile: Settings.currentWallpaperFile
 
     property string originalWallpaper: ""
     property bool isPreviewing: false
@@ -32,46 +35,28 @@ Item {
     readonly property int panelHeight: thumbnailSize + 140
     readonly property int panelWidth: 1000
 
-    readonly property bool shouldBeActive: panelState.wallpaper
-    property real offsetScale: shouldBeActive ? 0 : 1
-
-    visible: offsetScale < 1
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
-    anchors.bottomMargin: -(implicitHeight + 50) * offsetScale
     implicitWidth: panelWidth
     implicitHeight: panelHeight
-    opacity: 1 - offsetScale
     focus: true
 
-    Behavior on offsetScale {
-        NumberAnimation {
-            duration: Settings.animationDurationMedium
-            easing.type: Settings.easingStandard
-        }
+    onOpened: {
+        originalWallpaper = Settings.backgroundImagePath;
+        isPreviewing = false;
+        _userHasManuallySelected = false;
+        Qt.callLater(function() {
+            root.forceActiveFocus();
+            scrollToSelected();
+        });
     }
 
-    Connections {
-        target: panelState
-        function onWallpaperChanged() {
-            if (panelState.wallpaper) {
-                originalWallpaper = Settings.backgroundImagePath;
-                isPreviewing = false;
-                _userHasManuallySelected = false;
-                Qt.callLater(function() {
-                    root.forceActiveFocus();
-                    scrollToSelected();
-                });
-            } else {
-                if (isPreviewing) {
-                    Settings.backgroundImagePath = originalWallpaper;
-                    if (originalWallpaper && originalWallpaper !== "") {
-                        matugenRunner.command = buildMatugenCommand(originalWallpaper);
-                        matugenRunner.running = true;
-                    }
-                    isPreviewing = false;
-                }
-            }
+    onClosed: {
+        if (isPreviewing) {
+            Settings.backgroundImagePath = originalWallpaper;
+            if (originalWallpaper && originalWallpaper !== "")
+                MatugenRunner.run(originalWallpaper);
+            isPreviewing = false;
         }
     }
 
@@ -169,23 +154,6 @@ Item {
         running: false
     }
 
-    Process {
-        id: matugenRunner
-        running: false
-
-        stdout: SplitParser {
-            onRead: function(data) {
-                console.log("Matugen Cache:", data);
-            }
-        }
-
-        stderr: SplitParser {
-            onRead: function(data) {
-                console.log("Matugen Cache:", data);
-            }
-        }
-    }
-
     onSelectedIndexChanged: {
         if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length) {
             const selectedWallpaper = wallpapers[selectedIndex];
@@ -203,33 +171,15 @@ Item {
             wallpaperDebounce.pendingWallpaper = selectedWallpaper.path;
             wallpaperDebounce.restart();
 
-            if (matugenRunner.running) {
-                matugenRunner.running = false;
-            }
-            matugenRunner.command = buildMatugenCommand(selectedWallpaper.path);
-            matugenRunner.running = true;
+            MatugenRunner.run(selectedWallpaper.path);
 
             scrollToSelected();
         }
     }
 
-    function buildMatugenCommand(wallpaperPath) {
-        return [
-            "/home/httpkiwi/.config/quickshell/scripts/matugen-cache.sh",
-            wallpaperPath,
-            "--scheme-type", MatugenPreferences.schemeType,
-            "--mode", MatugenPreferences.colorMode,
-            "--contrast", MatugenPreferences.contrastLevel.toString()
-        ];
-    }
-
     function regenerateCurrentWallpaper() {
-        if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length) {
-            const selectedWallpaper = wallpapers[selectedIndex];
-            if (matugenRunner.running) matugenRunner.running = false;
-            matugenRunner.command = buildMatugenCommand(selectedWallpaper.path);
-            matugenRunner.running = true;
-        }
+        if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length)
+            MatugenRunner.run(wallpapers[selectedIndex].path);
     }
 
     Connections {
@@ -260,10 +210,8 @@ Item {
 
     function cancelPreview() {
         Settings.backgroundImagePath = originalWallpaper;
-        if (originalWallpaper && originalWallpaper !== "") {
-            matugenRunner.command = buildMatugenCommand(originalWallpaper);
-            matugenRunner.running = true;
-        }
+        if (originalWallpaper && originalWallpaper !== "")
+            MatugenRunner.run(originalWallpaper);
         isPreviewing = false;
     }
 

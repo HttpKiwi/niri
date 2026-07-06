@@ -14,85 +14,49 @@ import qs.features.controlcenter
  * ControlCenterPanel - Floating cards on the blob pocket (bar pattern).
  * No PanelWindow chrome — hosted inside UnifiedBar over PocketFrame.
  */
-Item {
+PocketSlidePanel {
     id: root
 
-    required property var panelState
+    panelFlag: "controlCenter"
+    slideFrom: "right"
+    slideDuration: Settings.animationDurationMedium
+
     property real screenWidth: 0
     property real screenHeight: 0
     property string screenName: ""
 
     readonly property int panelWidth: Settings.controlCenterWidth
-    // Equal inset on all sides so cards sit centered in the blob
     readonly property int pocketPadding: Settings.controlCenterPadding
-    readonly property bool shouldBeActive: panelState && panelState.historyPanel
-    readonly property real closedSlide: panelWidth + 5
-    // Explicit value (not a binding) so Behavior always runs — slides in from the right
-    property real slideX: closedSlide
 
     property var groupedNotifications: []
     property int selectedGroupIndex: -1
     property int selectedNotificationIndex: -1
     property bool isGroupSelected: true
 
-    // Visual position in parent (UnifiedBar) coords — blob binds to this
-    readonly property real visualX: x + slideX
-    readonly property real visualY: y
-    readonly property real visualW: width
-    readonly property real visualH: height
-    readonly property bool pocketActive: slideX < closedSlide
-
-    visible: pocketActive
     implicitWidth: panelWidth
     width: panelWidth
     opacity: 1
+    focus: shouldBeActive
 
     anchors {
         top: parent.top
         bottom: parent.bottom
         right: parent.right
-        // Flush with frame so the pocket blob merges into the right border (no gap)
         topMargin: Settings.barHeight
         bottomMargin: Settings.screenBorderWidth
         rightMargin: Settings.screenBorderWidth
     }
 
-    transform: Translate {
-        x: root.slideX
-    }
-
-    Behavior on slideX {
-        NumberAnimation {
-            duration: Settings.animationDurationMedium
-            easing.type: Easing.OutCubic
-        }
-    }
-
     function updateNotifications() {
-        groupedNotifications = NotificationStore.getGroupedNotifications()
+        groupedNotifications = NotificationStore.getGroupedNotifications();
     }
 
-    function openCenter() {
+    onOpened: {
         updateNotifications();
         selectedGroupIndex = groupedNotifications.length > 0 ? 0 : -1;
         selectedNotificationIndex = -1;
         isGroupSelected = true;
-        slideX = 0;
         Qt.callLater(() => root.forceActiveFocus());
-    }
-
-    function closeCenter() {
-        slideX = closedSlide;
-    }
-
-    Connections {
-        target: root.panelState
-        function onHistoryPanelChanged() {
-            if (root.panelState.historyPanel)
-                root.openCenter();
-            else
-                root.closeCenter();
-        }
     }
 
     Connections {
@@ -102,20 +66,12 @@ Item {
         }
     }
 
-    Component.onCompleted: {
-        updateNotifications();
-        // Start off-screen; openCenter sets slideX=0 when active
-        slideX = shouldBeActive ? 0 : closedSlide;
-        if (shouldBeActive)
-            openCenter();
-    }
-
-    focus: shouldBeActive
+    Component.onCompleted: updateNotifications();
 
     Keys.onPressed: (event) => {
         if (!shouldBeActive) return;
         if (event.key === Qt.Key_Escape) {
-            if (panelState) panelState.historyPanel = false;
+            if (panelState) panelState.controlCenter = false;
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
             navigateDown();
