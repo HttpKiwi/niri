@@ -150,6 +150,31 @@ QtObject {
     readonly property string fontFamilyDefault: "Adwaita Sans"
     readonly property string fontFamilyIcons: "Material Symbols Rounded"
     // ========================================
+    // Launcher / HTTP
+    // ========================================
+    readonly property int launcherSearchDebounceMs: 350
+    readonly property int launcherTabTransitionMs: 150
+    readonly property int httpConnectTimeoutMs: 5000
+    readonly property int httpMaxTimeMs: 10000
+    readonly property bool httpLowPriority: true
+    readonly property string klipyApiBase: "https://api.klipy.com/api/v1"
+    readonly property string secretsFile: Quickshell.shellDir + "/secrets.env"
+    property string _klipyApiKeyFromFile: ""
+    property bool klipyReady: false
+    readonly property string klipyApiKey: {
+        const envKey = Quickshell.env("KLIPY_API_KEY") || ""
+        if (envKey && envKey !== "your-klipy-api-key")
+            return envKey
+        return _klipyApiKeyFromFile
+    }
+    readonly property string klipyLocale: "en_US"
+    readonly property int klipySearchLimit: 20
+    readonly property int launcherGifGridColumns: 3
+    readonly property int launcherGifGridSpacing: 8
+    readonly property int launcherGifGridMaxHeight: 340
+    readonly property int launcherGifCellMinHeight: 72
+    readonly property int launcherGifCellMaxHeight: 200
+    // ========================================
     // Flickable Settings
     // ========================================
     readonly property int flickMaxVelocity: 2500
@@ -213,4 +238,37 @@ QtObject {
     readonly property real chromeAnimSpeed: 0.2
     // Ribbon color strength (1 = full matugen color on ribbons)
     readonly property real chromeIntensity: 1
+
+    signal secretsLoaded()
+
+    property var secretsLoader: Process {
+        running: false
+        command: ["bash", "-c", "f='" + root.secretsFile + "'; if [ -f \"$f\" ]; then set -a; . \"$f\"; set +a; fi; printf '%s' \"$KLIPY_API_KEY\""]
+
+        stdout: SplitParser {
+            onRead: data => {
+                const key = data.trim()
+                if (key && key !== "your-klipy-api-key")
+                    root._klipyApiKeyFromFile = key
+                root.klipyReady = true
+                root.secretsLoaded()
+            }
+        }
+
+        onExited: (exitCode, exitStatus) => {
+            if (!root.klipyReady) {
+                root.klipyReady = true
+                root.secretsLoaded()
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        const envKey = Quickshell.env("KLIPY_API_KEY") || ""
+        if (envKey && envKey !== "your-klipy-api-key") {
+            klipyReady = true
+            return
+        }
+        secretsLoader.running = true
+    }
 }

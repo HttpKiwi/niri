@@ -7,6 +7,7 @@ QtObject {
 
     readonly property string sourceName: "clipboard"
     readonly property string displayName: "Clipboard"
+    readonly property string searchPlaceholder: "Search clipboard"
 
     property var items: []
     property bool itemsLoaded: false

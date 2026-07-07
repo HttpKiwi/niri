@@ -13,6 +13,7 @@ QtObject {
 
     readonly property string sourceName: "apps"
     readonly property string displayName: "Applications"
+    readonly property string searchPlaceholder: "Search applications"
 
     property var items: []
     property bool itemsLoaded: false
