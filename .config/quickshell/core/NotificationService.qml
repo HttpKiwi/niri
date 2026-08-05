@@ -121,20 +121,27 @@ Item {
      */
     function activateAction(data, actionIndex) {
         if (!data)
-            return;
-        const id = String(data.id ?? "");
-        const live = getLive(id);
+            return
+        const id = String(data.id ?? "")
+        const live = getLive(id)
         if (live?.actions && live.actions[actionIndex]?.invoke) {
             try {
-                live.actions[actionIndex].invoke();
+                live.actions[actionIndex].invoke()
             } catch (e) {
-                console.warn("NotificationService: action invoke failed:", e);
+                console.warn("NotificationService: action invoke failed:", e)
             }
-        } else {
-            activate(data);
-            return;
+            dismissUi(id)
+            return
         }
-        dismissUi(id);
+
+        // Stored action label only (live handle expired) — fall back to app focus
+        if (data.actions && data.actions[actionIndex]) {
+            console.warn("NotificationService: action no longer live, focusing app for", id)
+            activate(data)
+            return
+        }
+
+        activate(data)
     }
 
     /**
@@ -142,20 +149,9 @@ Item {
      * Used for timeout / swipe-away on the popup.
      */
     function hidePopup(id, expired) {
-        const key = String(id);
-        const live = getLive(key);
-        if (live) {
-            try {
-                if (expired)
-                    live.expire();
-                else
-                    live.dismiss();
-            } catch (e) {
-                try { live.tracked = false; } catch (e2) {}
-            }
-        }
-        _dropLive(key);
-        NotificationModel.removeById(key);
+        const key = String(id)
+        // Remove from popup stack only — keep live notification for control-center actions
+        NotificationModel.removeById(key)
     }
 
     /**

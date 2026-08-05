@@ -23,23 +23,35 @@ Item {
         const id = notification?.id
         return id !== undefined && id !== null ? (map[String(id)] || null) : null
     }
-    readonly property var liveActions: liveNotif?.actions ?? []
+    readonly property var liveActions: liveNotif?.actions ?? notification?.actions ?? []
     readonly property bool hasActions: liveActions.length > 0
 
     implicitWidth: Settings.notificationWidth
-    implicitHeight: contentColumn.implicitHeight + Settings.cardPadding * 2
+    implicitHeight: Math.max(
+        Settings.notificationMinHeight,
+        contentColumn.implicitHeight + Settings.cardPadding * 2
+    )
 
     ColumnLayout {
         id: contentColumn
-        anchors.fill: parent
-        anchors.margins: Settings.cardPadding
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+            margins: Settings.cardPadding
+        }
         spacing: 8
 
-        Row {
+        Item {
             Layout.fillWidth: true
-            spacing: 12
+            implicitHeight: contentRow.implicitHeight
 
-            Column {
+            Row {
+                id: contentRow
+                width: parent.width
+                spacing: 12
+
+                Column {
                 id: contentArea
                 width: parent.width - parent.spacing - (notificationImage.visible ? notificationImage.width + 12 : 0)
                 spacing: 4
@@ -62,19 +74,20 @@ Item {
                     font.weight: Font.Medium
                     width: parent.width
                     elide: Text.ElideRight
-                    maximumLineCount: 1
-                    wrapMode: Text.NoWrap
+                    maximumLineCount: 2
+                    wrapMode: Text.WordWrap
                 }
 
                 Text {
+                    width: parent.width
                     text: root.notification ? (root.notification.body || "") : ""
                     color: Theme.textSecondary
                     font.family: Settings.fontFamilyDefault
                     font.pixelSize: Settings.fontSizeSmall
-                    width: parent.width
-                    elide: Text.ElideRight
-                    maximumLineCount: 2
+                    textFormat: Text.StyledText
                     wrapMode: Text.WordWrap
+                    maximumLineCount: 3
+                    elide: Text.ElideRight
                     visible: text.length > 0
                 }
             }
@@ -98,18 +111,25 @@ Item {
                 cache: false
                 visible: source !== ""
             }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: false
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    NotificationService.activate(root.notification);
+                    root.actionInvoked();
+                }
+            }
         }
 
         RowLayout {
             id: actionRow
-            visible: root.hasActions && hoverArea.containsMouse
+            visible: root.hasActions
             Layout.fillWidth: true
             spacing: 6
-
-            opacity: visible ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation { duration: Settings.animationDurationShort }
-            }
+            z: 2
 
             Repeater {
                 model: root.liveActions
@@ -119,7 +139,7 @@ Item {
                     required property int index
 
                     Layout.fillWidth: true
-                    implicitHeight: actionText.implicitHeight + 16
+                    implicitHeight: actionText.implicitHeight + 12
                     radius: 8
                     color: actionMouse.containsMouse
                         ? (index === 0 ? Theme.accent : Theme.surfaceHighest)
@@ -141,25 +161,18 @@ Item {
                     Text {
                         id: actionText
                         anchors.centerIn: parent
+                        width: parent.width - 12
+                        horizontalAlignment: Text.AlignHCenter
                         text: modelData.text || ""
                         color: index === 0 ? Theme.accent : Theme.textPrimary
                         font.pixelSize: 12
                         font.weight: index === 0 ? Font.Medium : Font.Normal
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
                     }
                 }
             }
-        }
-    }
-
-    MouseArea {
-        id: hoverArea
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        z: -1
-        onClicked: {
-            NotificationService.activate(root.notification);
-            root.actionInvoked();
         }
     }
 }

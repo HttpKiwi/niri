@@ -16,12 +16,30 @@ QtObject {
         }
     }
 
+    function _serializeActions(notification) {
+        if (!notification?.actions?.length)
+            return []
+
+        const out = []
+        for (let i = 0; i < notification.actions.length; i++) {
+            const action = notification.actions[i]
+            if (!action)
+                continue
+            out.push({
+                text: action.text || "",
+                identifier: action.identifier || ""
+            })
+        }
+        return out
+    }
+
     function _add(notification) {
         if (!notification || !notification.summary)
             return
 
         const desktopEntry = notification.desktopEntry || ""
         const id = notification.id || 0
+        const actions = _serializeActions(notification)
 
         console.log(
             "Notification actions:", notification.actions?.length || 0,
@@ -43,7 +61,8 @@ QtObject {
                 appIcon: notification.appIcon || "",
                 image: notification.image || "",
                 id: id,
-                desktopEntry: desktopEntry
+                desktopEntry: desktopEntry,
+                actions: actions
             })
         } catch (e) {}
 
@@ -56,6 +75,7 @@ QtObject {
             image: notification.image || "",
             id: id,
             desktopEntry: desktopEntry,
+            actions: actions,
             timeout: notification.expireTimeout > 0
                 ? notification.expireTimeout * 1000
                 : Settings.notificationTimeout

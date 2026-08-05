@@ -18,6 +18,7 @@ Item {
 
     required property var notification
     required property string appName
+    property bool keyboardFocused: false
     property bool _isHovered: false
     property bool _isDismissing: false
     property bool _isDragging: false
@@ -30,7 +31,9 @@ Item {
         const map = NotificationService.liveById
         const id = notification?.id
         const live = id !== undefined && id !== null ? map[String(id)] : null
-        return live?.actions ?? []
+        if (live?.actions?.length)
+            return live.actions
+        return notification?.actions ?? []
     }
     property bool bodyExpanded: false
     property bool _copied: false
@@ -59,23 +62,19 @@ Item {
     Rectangle {
         id: contentItem
         width: parent.width
+        height: implicitHeight
         color: Theme.glass(Math.min(Settings.glassOpacity + 0.12, 0.7), Settings.glassTintStrength)
         radius: Settings.cardRadius
-        border.width: Settings.cardBorderWidth
-        border.color: root.isCritical
-            ? Theme.withAlpha(Theme.error, 0.35)
-            : Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
+        border.width: root.keyboardFocused ? 2 : Settings.cardBorderWidth
+        border.color: root.keyboardFocused
+            ? Theme.primary
+            : (root.isCritical
+                ? Theme.withAlpha(Theme.error, 0.35)
+                : Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength))
         antialiasing: true
 
         property real padding: 12
         implicitHeight: notificationContent.implicitHeight + padding * 2
-
-        Behavior on implicitHeight {
-            NumberAnimation {
-                duration: Settings.animationDurationMedium
-                easing.type: Easing.OutQuad
-            }
-        }
 
         ColumnLayout {
             id: notificationContent

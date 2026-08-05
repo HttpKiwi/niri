@@ -18,6 +18,7 @@ QtObject {
             "image": data.image || "",
             "id": data.id || 0,
             "desktopEntry": data.desktopEntry || "",
+            "actions": data.actions || [],
             "timeout": data.timeout || 5000,
             "timestamp": Date.now()
         })
