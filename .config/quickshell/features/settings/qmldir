@@ -1,0 +1,12 @@
+module qs.features.settings
+
+SettingsPanel 1.0 SettingsPanel.qml
+SettingsSection 1.0 SettingsSection.qml
+SettingsToggle 1.0 SettingsToggle.qml
+SettingsSlider 1.0 SettingsSlider.qml
+SettingsScrollPage 1.0 SettingsScrollPage.qml
+AppearancePage 1.0 AppearancePage.qml
+ChromePage 1.0 ChromePage.qml
+ShellPage 1.0 ShellPage.qml
+NiriPage 1.0 NiriPage.qml
+AboutPage 1.0 AboutPage.qml
