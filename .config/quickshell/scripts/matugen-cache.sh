@@ -73,20 +73,95 @@ get_cache_dir() {
     echo "$CACHE_ROOT/$SCHEME_TYPE/$COLOR_MODE/$filename"
 }
 
+# Outputs that must be present for a cache to be considered complete.
+# Optional targets (vesktop, vscode, …) are skipped when matugen didn't produce them.
+REQUIRED_CACHE_FILES=(
+    "Colors.json"
+    "equibop.css"
+)
+
 # Check if cache exists and is valid
 cache_exists() {
     local cache_dir="$1"
 
-    # Check if the main Colors.json exists in cache
-    [ -f "$cache_dir/Colors.json" ]
+    for required in "${REQUIRED_CACHE_FILES[@]}"; do
+        if [ ! -f "$cache_dir/$required" ]; then
+            log "Cache incomplete (missing $required), will regenerate"
+            return 1
+        fi
+    done
+
+    # Invalidate when matugen templates change (Discord/Equibop, etc.)
+    # Templates under ~/.config/matugen/templates are often symlinks into the
+    # stow repo — find -type f skips those, so we must follow links (-L).
+    local templates_dir="${CONFIG_HOME}/matugen/templates"
+    local fingerprint_file="$cache_dir/.templates.sha256"
+    local current_fp=""
+    if [ -d "$templates_dir" ]; then
+        current_fp=$(find -L "$templates_dir" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | awk '{print $1}')
+    fi
+    if [ -z "$current_fp" ]; then
+        log "Could not fingerprint matugen templates, will regenerate"
+        return 1
+    fi
+    local cached_fp=""
+    if [ -f "$fingerprint_file" ]; then
+        cached_fp=$(cat "$fingerprint_file")
+    else
+        log "Cache missing template fingerprint, will regenerate"
+        return 1
+    fi
+    if [ "$current_fp" != "$cached_fp" ]; then
+        log "Matugen templates changed, will regenerate"
+        return 1
+    fi
+
+    return 0
+}
+
+# Resolve matugen input — videos need a still frame (matugen only accepts images)
+resolve_matugen_source() {
+    local wallpaper_path="$1"
+    local lower
+    lower=$(printf '%s' "$wallpaper_path" | tr '[:upper:]' '[:lower:]')
+
+    case "$lower" in
+        *.mp4|*.webm|*.mkv|*.mov|*.avi|*.flv|*.m4v)
+            local poster_dir="$WALLPAPER_DIR/.posters"
+            local base
+            base=$(basename "$wallpaper_path")
+            local poster="$poster_dir/${base}.jpg"
+            mkdir -p "$poster_dir"
+            if [ ! -f "$poster" ] || [ "$wallpaper_path" -nt "$poster" ]; then
+                log "Extracting poster frame for video: $base"
+                if ! command -v ffmpeg >/dev/null 2>&1; then
+                    error "ffmpeg required for video wallpapers (not found in PATH)"
+                fi
+                ffmpeg -hide_banner -loglevel error -y -ss 0 -i "$wallpaper_path" \
+                    -frames:v 1 -q:v 2 "$poster" \
+                    || error "Failed to extract poster from: $wallpaper_path"
+            else
+                log "Using cached poster: $poster"
+            fi
+            printf '%s' "$poster"
+            ;;
+        *)
+            printf '%s' "$wallpaper_path"
+            ;;
+    esac
 }
 
 # Generate cache by running matugen and copying outputs
 generate_cache() {
     local wallpaper_path="$1"
     local cache_dir="$2"
+    local matugen_source
+    matugen_source=$(resolve_matugen_source "$wallpaper_path")
 
     log "Generating cache for: $(basename "$wallpaper_path")"
+    if [ "$matugen_source" != "$wallpaper_path" ]; then
+        log "  matugen source: $(basename "$matugen_source")"
+    fi
 
     # Create cache directory
     mkdir -p "$cache_dir"
@@ -94,7 +169,7 @@ generate_cache() {
     # Run matugen to generate all theme files
     log "Running matugen with scheme=$SCHEME_TYPE, mode=$COLOR_MODE, contrast=$CONTRAST"
     # Note: We allow matugen to fail on post-hooks (like kitty reload) as long as files are generated
-    matugen image "$wallpaper_path" -t "$SCHEME_TYPE" -m "$COLOR_MODE" --contrast "$CONTRAST" --prefer darkness 2>&1 | while read -r line; do
+    matugen image "$matugen_source" -t "$SCHEME_TYPE" -m "$COLOR_MODE" --contrast "$CONTRAST" --prefer darkness 2>&1 | while read -r line; do
         log "  matugen: $line"
     done || true
 
@@ -120,6 +195,13 @@ generate_cache() {
     done
 
     log "Cache generated successfully ($cached_count files cached)"
+
+    # Fingerprint templates so edits (e.g. discord.css) invalidate this cache later
+    # Follow symlinks — stow installs templates as links into the repo
+    local templates_dir="${CONFIG_HOME}/matugen/templates"
+    if [ -d "$templates_dir" ]; then
+        find -L "$templates_dir" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | awk '{print $1}' > "$cache_dir/.templates.sha256"
+    fi
 
     run_post_hooks
 }

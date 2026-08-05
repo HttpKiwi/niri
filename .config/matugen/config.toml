@@ -64,8 +64,9 @@ post_hook = "kitty @ load-config"
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/equibop/themes/HyprLuna.css"
 
+# Same Material+glass theme (Midnight acrylic removed — it lagged)
 [templates.equibop-acrylic]
-input_path = "~/.config/matugen/templates/discord-acrylic.css"
+input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/equibop/themes/HyprLuna-Acrylic.css"
 
 [templates.vesktop]

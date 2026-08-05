@@ -1,103 +1,262 @@
 /**
- * @name HttpKiwiCord (Custom theme)
- * @description A dark, minimaldiscord theme with Material You colors.
+ * @name HyprLuna
+ * @description Material Discord + matugen colors + light transparency (Equibop)
  * @author HttpKiwi
- * @version 2.0.0
-*/
+ * @version 2.1.0
+ *
+ * Transparency relies on Equibop Settings → transparent window,
+ * plus niri background-effect blur. No Midnight import (that lagged).
+ */
 
-@import url("https://refact0r.github.io/midnight-discord/build/midnight.css");
+@import url("https://capnkitten.github.io/BetterDiscord/Themes/Material-Discord/css/source.css");
+@import url("https://capnkitten.github.io/BetterDiscord/Themes/Material-Discord/css/addons/material-you/source.css");
 
-
-/* color options */
-:root {
-    --colors: on; /* turn off to use discord default colors */
-
-    /* text colors */
-    --text-0: {{colors.background.default.hex}}; /* text on colored elements */
-    --text-1: {{colors.on_background.default.hex}}; /* default text on colored elements */
-    --text-2: {{colors.on_surface.default.hex}}; /* headings and important text */
-    --text-3: {{colors.on_surface_variant.default.hex}}; /* normal text */
-    --text-4: {{colors.outline.default.hex}}; /* icon buttons and channels */
-    --text-5: {{colors.outline_variant.default.hex}}; /* muted channels/chats and timestamps */
-
-    /* background and dark colors */
-    --bg-1: {{colors.surface_container_lowest.default.hex}}; /* dark buttons when clicked */
-    --bg-2: {{colors.surface_container_low.default.hex}}; /* dark buttons */
-    --bg-3: {{colors.surface.default.hex}}; /* spacing, secondary elements */
-    --bg-4: {{colors.surface.default.hex}}; /* main background color */
-    --hover: {{colors.surface_container_high.default.hex}}; /* channels and buttons when hovered */
-    --active: {{colors.surface_container_highest.default.hex}}; /* channels and buttons when clicked or selected */
-    --active-2: {{colors.surface.default.hex}}; /* extra state for transparent buttons */
-    --message-hover: {{colors.surface_variant.default.hex}}; /* messages when hovered */
-
-    /* accent colors */
-    --accent-1: {{colors.primary.default.hex}}; /* links and other accent text */
-    --accent-2: {{colors.primary_container.default.hex}}; /* small accent elements */
-    --accent-3: {{colors.secondary.default.hex}}; /* accent buttons */
-    --accent-4: {{colors.secondary_container.default.hex}}; /* accent buttons when hovered */
-    --accent-5: {{colors.tertiary.default.hex}}; /* accent buttons when clicked */
-    --accent-new: {{colors.error.default.hex}}; /* stuff that's normally red like mute/deafen buttons */
-    --mention: linear-gradient(
-        to right,
-        color-mix(in hsl, {{colors.primary_container.default.hex}}, transparent 70%) 60%,
-        transparent
-    ); /* background of messages that mention you */
-    --mention-hover: linear-gradient(
-        to right,
-        color-mix(in hsl, {{colors.primary_container.default.hex}}, transparent 75%) 60%,
-        transparent
-    ); /* background of messages that mention you when hovered */
-    --reply: linear-gradient(
-        to right,
-        color-mix(in hsl, {{colors.tertiary_container.default.hex}}, transparent 70%) 60%,
-        transparent
-    ); /* background of messages that reply to you */
-    --reply-hover: linear-gradient(
-        to right,
-        color-mix(in hsl, {{colors.tertiary_container.default.hex}}, transparent 75%) 60%,
-        transparent
-    ); /* background of messages that reply to you when hovered */
-
-    /* status indicator colors */
-    --online: {{colors.primary.default.hex}}; /* change to #43a25a for default */
-    --dnd: {{colors.error.default.hex}}; /* change to #d83a42 for default */
-    --idle: {{colors.tertiary.default.hex}}; /* change to #ca9654 for default */
-    --streaming: {{colors.secondary.default.hex}}; /* change to #593695 for default */
-    --offline: {{colors.outline.default.hex}}; /* change to #83838b for default offline color */
-
-    /* border colors */
-    --border-light: {{colors.surface_container_high.default.hex}}; /* light border color */
-    --border: {{colors.surface_container_highest.default.hex}}; /* normal border color */
-    --button-border: {{colors.surface_container_high.default.hex}}; /* neutral border color of buttons */
-
-    /* base colors */
-    --red-1: {{colors.error.default.hex}};
-    --red-2: {{colors.error_container.default.hex}};
-    --red-3: {{colors.on_error.default.hex}};
-    --red-4: {{colors.on_error_container.default.hex}};
-    --red-5: {{colors.error.default.hex}};
-
-    --green-1: {{colors.primary.default.hex}};
-    --green-2: {{colors.primary_container.default.hex}};
-    --green-3: {{colors.on_primary.default.hex}};
-    --green-4: {{colors.on_primary_container.default.hex}};
-    --green-5: {{colors.primary.default.hex}};
-
-    --blue-1: {{colors.primary.default.hex}};
-    --blue-2: {{colors.primary_container.default.hex}};
-    --blue-3: {{colors.on_primary.default.hex}};
-    --blue-4: {{colors.on_primary_container.default.hex}};
-    --blue-5: {{colors.primary.default.hex}};
-
-    --yellow-1: {{colors.tertiary.default.hex}};
-    --yellow-2: {{colors.tertiary_container.default.hex}};
-    --yellow-3: {{colors.on_tertiary.default.hex}};
-    --yellow-4: {{colors.on_tertiary_container.default.hex}};
-    --yellow-5: {{colors.tertiary.default.hex}};
-
-    --purple-1: {{colors.secondary.default.hex}};
-    --purple-2: {{colors.secondary_container.default.hex}};
-    --purple-3: {{colors.on_secondary.default.hex}};
-    --purple-4: {{colors.on_secondary_container.default.hex}};
-    --purple-5: {{colors.secondary.default.hex}};
+/* Material You tonal modifiers */
+.theme-dark {
+    --saturation-modifier: 0.31;
+    --lightness-modifier: 0.225;
+    --text-lightness-modifier: 1.0;
+    --ui-darkness-modifier: 1.0;
 }
+
+.theme-light {
+    --saturation-modifier: 0.74;
+    --lightness-modifier: 2.125;
+    --text-lightness-modifier: 1.0;
+}
+
+:root {
+    /* Seed accent from matugen — Material You derives the rest */
+    --accent-hue: {{colors.primary.default.hue}};
+    --accent-saturation: {{colors.primary.default.saturation}}%;
+    --accent-lightness: {{colors.primary.default.lightness}}%;
+    --accent-text-color: {{colors.on_primary.default.hex}};
+    --accent-button-action: {{colors.on_primary.default.hex}};
+
+    --alert-hue: {{colors.error.default.hue}};
+    --alert-saturation: {{colors.error.default.saturation}}%;
+    --alert-lightness: {{colors.error.default.lightness}}%;
+    --alert-text-color: {{colors.on_error.default.hex}};
+
+    --warning-hue: {{colors.tertiary.default.hue}};
+    --warning-saturation: {{colors.tertiary.default.saturation}}%;
+    --warning-lightness: {{colors.tertiary.default.lightness}}%;
+    --warning-text-color: {{colors.on_tertiary.default.hex}};
+
+    --app-font: "Google Sans Flex";
+
+    /* Drop Material Discord titlebar watermark */
+    --app-watermark-one: "";
+    --app-watermark-two: "";
+}
+
+/*
+ * Matugen surfaces as frosted glass (color-mix, no CSS filters).
+ * Popouts/modals stay more opaque for readability.
+ */
+.theme-dark {
+    --main-color: color-mix(in srgb, {{colors.surface_container.default.hex}} 48%, transparent);
+    --main-alt: color-mix(in srgb, {{colors.surface_dim.default.hex}} 42%, transparent);
+    --app-bg: transparent;
+    --sidebar-panel-color: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 45%, transparent);
+    --chat-color: color-mix(in srgb, {{colors.surface_container.default.hex}} 22%, transparent);
+    /* Denser bubbles so text/timestamps stay readable on glass */
+    --message-color: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 72%, transparent);
+    --message-color-hover: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 82%, transparent);
+    --message-color-alt: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 68%, transparent);
+    --attachment-color: color-mix(in srgb, {{colors.surface_variant.default.hex}} 65%, transparent);
+    --popout-color: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 78%, transparent);
+    --popout-color-alt: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 78%, transparent);
+    --status-picker-color: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 70%, transparent);
+    --input-color: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 48%, transparent);
+    --input-color-alt: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 55%, transparent);
+    --input-border-color: color-mix(in srgb, {{colors.outline.default.hex}} 55%, transparent);
+    --input-text-color: {{colors.on_surface.default.hex}};
+    --input-placeholder-color: {{colors.on_surface_variant.default.hex}};
+    --card-color-filled: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 50%, transparent);
+    --card-color-hover: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 55%, transparent);
+    --card-color-active: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 60%, transparent);
+    --card-color-alt: color-mix(in srgb, {{colors.surface_bright.default.hex}} 50%, transparent);
+    --card-border-color: color-mix(in srgb, {{colors.outline_variant.default.hex}} 50%, transparent);
+    --separator-color: color-mix(in srgb, {{colors.outline_variant.default.hex}} 45%, transparent);
+    --menu-item-hover: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 45%, transparent);
+    --menu-item-select: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 55%, transparent);
+    --scrollbar-color: color-mix(in srgb, {{colors.outline.default.hex}} 55%, transparent);
+    --profile-body-background-color: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 55%, transparent);
+    --main-textarea-color: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 48%, transparent);
+    --main-textarea-inner-color: color-mix(in srgb, {{colors.surface_container.default.hex}} 40%, transparent);
+    --main-textarea-button-color: {{colors.on_surface_variant.default.hex}};
+    --server-folder-color: color-mix(in srgb, {{colors.outline_variant.default.hex}} 50%, transparent);
+    --tab-border-color: {{colors.on_surface.default.hex}};
+    --interactive-muted: {{colors.outline_variant.default.hex}};
+    --text-disabled: {{colors.outline.default.hex}};
+    --button-border-color: color-mix(in srgb, {{colors.outline.default.hex}} 55%, transparent);
+    --switch-slider-color: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 60%, transparent);
+    --switch-knob-color: {{colors.on_surface_variant.default.hex}};
+    --button-link-accent-color: {{colors.primary.default.hex}};
+    --button-link-accent-text-color: {{colors.on_primary.default.hex}};
+    --text-brand: {{colors.primary.default.hex}};
+    --text-link: {{colors.primary.default.hex}};
+    --app-button-active: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 50%, transparent);
+    --app-button-inactive: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 40%, transparent);
+
+    /* Discord native tokens — keep chat/chrome see-through */
+    --background-primary: transparent;
+    --background-secondary: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 40%, transparent);
+    --background-secondary-alt: color-mix(in srgb, {{colors.surface_container.default.hex}} 40%, transparent);
+    --background-tertiary: color-mix(in srgb, {{colors.surface_dim.default.hex}} 38%, transparent);
+    --background-accent: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 45%, transparent);
+    --background-floating: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 82%, transparent);
+    --background-modifier-hover: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 35%, transparent);
+    --background-modifier-active: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 45%, transparent);
+    --background-modifier-selected: color-mix(in srgb, {{colors.surface_container_highest.default.hex}} 50%, transparent);
+    --background-modifier-accent: color-mix(in srgb, {{colors.primary.default.hex}} 18%, transparent);
+    --channeltextarea-background: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 48%, transparent);
+    --input-background: color-mix(in srgb, {{colors.surface_container_high.default.hex}} 48%, transparent);
+    --modal-background: color-mix(in srgb, {{colors.surface_container.default.hex}} 88%, transparent);
+    --modal-footer-background: color-mix(in srgb, {{colors.surface_container_low.default.hex}} 88%, transparent);
+
+    /* Readable muted text (timestamps, placeholders) on glass */
+    --text-muted: color-mix(in srgb, {{colors.on_surface.default.hex}} 78%, {{colors.surface_dim.default.hex}});
+    --channels-default: color-mix(in srgb, {{colors.on_surface_variant.default.hex}} 88%, {{colors.surface_dim.default.hex}});
+    --interactive-muted: color-mix(in srgb, {{colors.on_surface_variant.default.hex}} 70%, transparent);
+
+    /* Soften Material elevation — heavy shadows look like dirty overlaps on glass */
+    --shadow-soft: 0 1px 3px hsl(0 0% 0% / 0.18);
+    --shadow-medium: 0 2px 6px hsl(0 0% 0% / 0.22);
+    --shadow-hard: 0 3px 10px hsl(0 0% 0% / 0.28);
+    --shadow-1dp: var(--shadow-soft);
+    --shadow-2dp: var(--shadow-soft);
+    --shadow-3dp: var(--shadow-medium);
+    --shadow-ledge: none;
+}
+
+/* ════════════════════════════════════════════
+   Shell punch-through — clear Electron chrome so niri blur shows.
+   Prefer variables + a small selector set (no Midnight, no filters).
+   ════════════════════════════════════════════ */
+
+html,
+body,
+#app-mount {
+    background: transparent !important;
+}
+
+/* Titlebar / app frame / layers Discord paints solid */
+[class*="app_"],
+[class*="bg_"],
+[class*="layer_"],
+[class*="layers_"],
+[class*="container_"][class*="titleBar"],
+[class*="typeWindows_"] {
+    background: transparent !important;
+}
+
+/* Guild rail + channel list chrome — channels stay glass */
+nav[aria-label="Servers sidebar"],
+[class*="guilds_"],
+[class*="wrapper_"][class*="guilds"],
+[class*="sidebar_"],
+[class*="sidebarList_"],
+[class*="privateChannels_"],
+[class*="panels_"],
+[class*="chat_"],
+[class*="chatContent_"],
+[class*="content_"] > [class*="page_"],
+[class*="members_"],
+[class*="membersWrap_"],
+[class*="messagesWrapper_"],
+[class*="scroller_"][class*="managedReactiveScroller"] {
+    background: transparent !important;
+}
+
+/* Server list only — opaque so icons stay readable over wallpaper / channels */
+nav[aria-label="Servers sidebar"],
+[class*="guilds_"],
+[class*="wrapper_"][class*="guilds"],
+[class*="guilds_"] [class*="scroller_"],
+[class*="tree_"] {
+    background: color-mix(in srgb, {{colors.surface_container.default.hex}} 92%, transparent) !important;
+}
+
+nav[aria-label="Servers sidebar"],
+[class*="guilds_"],
+[class*="wrapper_"][class*="guilds"] {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+}
+
+/* Floating collapsible rail — pill shape */
+nav[aria-label="Servers sidebar"] {
+    background: color-mix(in srgb, {{colors.surface_container.default.hex}} 92%, transparent) !important;
+    border-radius: 22px !important;
+    margin: 8px 6px !important;
+}
+
+/* Kill gradient washes / fake solid bars Material may leave */
+[class*="form_"]::before,
+[class*="children_"]::after,
+[class*="container_"][class*="themed"]::before {
+    display: none !important;
+    background: transparent !important;
+    content: none !important;
+}
+
+/* Chat bottom gradient stacks dark over transparent bubbles */
+[class*="chatGradient"],
+[class*="chatTypingGradient"] {
+    background: transparent !important;
+}
+
+/*
+ * Material connects same-author bubbles with negative margin + corner masks.
+ * On glass those layers stack into dark bands — separate the cards cleanly.
+ */
+[class*="wrapper_"][class*="cozy"]:not([class*="groupStart"]) {
+    margin-block-start: 4px !important;
+    border-radius: var(--message-radius, 18px) !important;
+}
+
+[class*="wrapper_"]:not([class*="groupStart"])::before,
+[class*="wrapper_"]:not([class*="groupStart"])::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Timestamps — Material uses --text-muted; force contrast + light shadow */
+[class*="timestamp_"],
+time[class*="timestamp"] {
+    color: color-mix(in srgb, {{colors.on_surface.default.hex}} 82%, {{colors.surface_dim.default.hex}}) !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 2px hsl(0 0% 0% / 0.55);
+    font-weight: 600 !important;
+}
+
+/* Flatten Material's floating chat / channel headers (ledge + solid strip) */
+[class*="container_"][class*="themed"],
+[class*="headerBar_"],
+[class*="chatHeaderBar_"] {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+[class*="children_"]::after {
+    display: none !important;
+    background: none !important;
+}
+
+/* Message username row — no separate dark header strip inside bubbles */
+[class*="wrapper_"][class*="cozy"] > [class*="contents_"] > [class*="header_"],
+[class*="wrapper_"][class*="cozy"] [class*="header_"][class*="c19"],
+[class*="cozy_"] [class*="header_"] {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Hide Material Discord watermark text in app titlebar only */
+[class*="bar_"] [class*="title_"]::before,
+[class*="bar_"] [class*="title_"]::after {
+    content: none !important;
+}
+
+
