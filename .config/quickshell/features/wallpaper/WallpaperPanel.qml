@@ -35,8 +35,7 @@ PocketBottomPanel {
     readonly property int panelHeight: thumbnailSize + 140
     readonly property int panelWidth: 1000
 
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.bottom: parent.bottom
+    // Positioned by the host Loader in UnifiedBar
     implicitWidth: panelWidth
     implicitHeight: panelHeight
     focus: true
@@ -45,6 +44,8 @@ PocketBottomPanel {
         originalWallpaper = Settings.backgroundImagePath;
         isPreviewing = false;
         _userHasManuallySelected = false;
+        if (wallpapers.length === 0 && !wallpaperScanner.running)
+            wallpaperScanner.running = true;
         Qt.callLater(function() {
             root.forceActiveFocus();
             scrollToSelected();
@@ -58,21 +59,17 @@ PocketBottomPanel {
                 MatugenRunner.run(originalWallpaper);
             isPreviewing = false;
         }
-    }
-
-    Component.onCompleted: {
-        wallpaperScanner.running = true;
+        // Images are freed when the Loader unloads this panel
     }
 
     Timer {
         id: wallpaperWatcher
         interval: 5000
-        running: root.visible
+        running: root.shouldBeActive
         repeat: true
         onTriggered: {
-            if (!wallpaperScanner.running) {
+            if (!wallpaperScanner.running)
                 wallpaperScanner.running = true;
-            }
         }
     }
 
@@ -219,11 +216,24 @@ PocketBottomPanel {
         if (wallpapers.length === 0 || selectedIndex < 0 || selectedIndex >= wallpapers.length) return;
 
         const selectedWallpaper = wallpapers[selectedIndex];
-        const jsonData = JSON.stringify({ path: selectedWallpaper.path });
+        const path = selectedWallpaper.path;
+        const lower = path.toLowerCase();
+        const isVideo = lower.endsWith(".mp4") || lower.endsWith(".webm")
+            || lower.endsWith(".mkv") || lower.endsWith(".mov");
+        const payload = { path: path };
+        if (isVideo) {
+            const base = path.split("/").pop();
+            payload.poster = `${wallpapersDir}/.posters/${base}.jpg`;
+        }
+        const jsonData = JSON.stringify(payload);
         wallpaperSaver.command = ["sh", "-c", `echo '${jsonData}' > '${currentWallpaperFile}'`];
         wallpaperSaver.running = true;
 
-        Settings.backgroundImagePath = selectedWallpaper.path;
+        Settings.backgroundImagePath = path;
+        if (payload.poster)
+            Settings.backgroundPosterPath = "file://" + payload.poster;
+        else
+            Settings.backgroundPosterPath = "";
         isPreviewing = false;
 
         panelState.wallpaper = false;
@@ -378,6 +388,12 @@ PocketBottomPanel {
                                 return path.endsWith('.mp4') || path.endsWith('.webm') ||
                                        path.endsWith('.mkv') || path.endsWith('.mov');
                             }
+                            property string posterPath: {
+                                if (!isVideo)
+                                    return "";
+                                const base = modelData.path.split("/").pop();
+                                return root.wallpapersDir + "/.posters/" + base + ".jpg";
+                            }
 
                             onIsSelectedChanged: {
                                 currentWidth = isSelected ? expandedWidth : thumbnailSize;
@@ -434,8 +450,17 @@ PocketBottomPanel {
                                 Image {
                                     id: thumbImage
                                     anchors.fill: parent
-                                    source: "file://" + modelData.path
+                                    source: {
+                                        if (isVideo && posterPath)
+                                            return "file://" + posterPath;
+                                        if (isVideo)
+                                            return "";
+                                        return "file://" + modelData.path;
+                                    }
                                     fillMode: Image.PreserveAspectCrop
+                                    // Decode at thumb resolution — not full wallpaper size
+                                    sourceSize.width: root.thumbnailSize * 2
+                                    sourceSize.height: root.thumbnailSize * 2
                                     smooth: true
                                     asynchronous: true
                                     cache: true
@@ -447,13 +472,13 @@ PocketBottomPanel {
                                     source: thumbImage
                                     maskEnabled: true
                                     maskSource: thumbMask
-                                    visible: !isVideo
+                                    visible: !isVideo || thumbImage.status === Image.Ready
                                 }
 
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: thumbFrame.radius
-                                    color: "#88000000"
+                                    color: thumbImage.status === Image.Ready ? "#44000000" : "#88000000"
                                     visible: isVideo
                                     clip: true
 

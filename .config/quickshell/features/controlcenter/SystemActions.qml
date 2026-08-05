@@ -17,8 +17,8 @@ Rectangle {
     implicitHeight: 56 + contentPadding * 2
     width: parent ? parent.width : 380
     radius: Settings.cardRadius
-    color: Theme.glass(Settings.glassOpacity, Settings.glassTintStrength)
-    border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
+    color: Theme.glass(Math.max(Settings.glassOpacity, 0.58), Settings.glassTintStrength)
+    border.color: Theme.glassBorder(Math.max(Settings.glassBorderOpacity, 0.22), Settings.glassTintStrength)
     border.width: Settings.cardBorderWidth
     antialiasing: true
 
@@ -42,7 +42,7 @@ Rectangle {
             iconName: "system-suspend"
             label: "Sleep"
             accentColor: Theme.accentSecondary
-            onClicked: Quickshell.execDetached(["sh", "-c", "quickshell ipc call lock lockSession && sleep 1 && systemctl suspend-then-hibernate -i"])
+            onClicked: Quickshell.execDetached(["sh", "-c", "quickshell ipc call lock lockSession && sleep 1 && systemctl suspend -i"])
         }
 
         SystemActionButton {

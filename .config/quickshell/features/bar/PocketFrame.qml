@@ -17,6 +17,7 @@ Item {
     property Item osdPanel: null
     property Item wallpaperPanel: null
     property Item controlCenterPanel: null
+    property Item settingsPanel: null
     readonly property real blobMargin: 50
     readonly property real borderTop: Settings.barHeight + blobMargin
     readonly property real borderSide: Settings.screenBorderWidth + blobMargin
@@ -139,10 +140,28 @@ Item {
             visible: controlCenterPanel ? controlCenterPanel.pocketActive : false
         }
 
+        // Settings — flush with the top frame so the pocket merges (launcher, but from top)
+        BlobRect {
+            group: blobGroup
+            x: settingsPanel ? settingsPanel.blobX + blobMargin : 0
+            // Reach into the top bar chrome so SDF merges with the frame
+            y: settingsPanel ? settingsPanel.blobY + blobMargin - Math.min(Settings.barHeight - 4, 20) : 0
+            width: settingsPanel && settingsPanel.blobH > 0 ? settingsPanel.blobW : 0
+            height: settingsPanel && settingsPanel.blobH > 0
+                ? settingsPanel.blobH + Math.min(Settings.barHeight - 4, 20)
+                : 0
+            radius: Settings.screenCornerRadius
+            deformScale: settingsPanel && settingsPanel.blobH > 4 && settingsPanel.hideProgress < 0.85 ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: settingsPanel ? settingsPanel.pocketActive : false
+        }
+
         Repeater {
             model: PopupRegistry.pockets
 
             delegate: BlobRect {
+                required property string pocketId
                 required property string pocketScreen
                 required property real pocketX
                 required property real pocketY

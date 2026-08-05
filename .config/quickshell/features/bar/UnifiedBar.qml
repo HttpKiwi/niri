@@ -13,6 +13,7 @@ import qs.features.notifications
 import qs.features.osd
 import qs.features.wallpaper
 import qs.features.controlcenter
+import qs.features.settings
 
 
 Scope {
@@ -41,7 +42,7 @@ Scope {
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
@@ -153,6 +154,11 @@ Scope {
                         VolumeIndicator {}
                     }
 
+                    // Screen recording pill
+                    Pill {
+                        RecordingIndicator {}
+                    }
+
                     // Headset battery pill
                     Pill {
                         HeadsetBatteryIndicator {}
@@ -184,6 +190,15 @@ Scope {
                 opacity: window.chromeReveal
             }
 
+            readonly property string screenName: Niri.niriNameFor(window.screen?.name ?? "")
+            readonly property var panelState: {
+                return screenName ? PanelStates.register(screenName) : null;
+            }
+            readonly property bool isFocusedScreen: {
+                const focused = Niri.focused_output_name;
+                return !!focused && focused === window.niriScreenName;
+            }
+
             Item {
                 id: notifWrapper
                 anchors.top: parent.top
@@ -191,8 +206,9 @@ Scope {
                 anchors.topMargin: Settings.barHeight
                 anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.controlCenter ? controlCenterShift : 0)
                 width: Settings.notificationWidth + Settings.screenBorderWidth + 50
-                height: notifList.count * Settings.notificationSpacing + (notifList.count > 0 ? Settings.notificationHeight - Settings.notificationSpacing : 0)
+                height: window.isFocusedScreen ? notifList.contentHeight : 0
                 clip: true
+                visible: window.isFocusedScreen
 
                 readonly property int controlCenterShift: Settings.controlCenterWidth
 
@@ -211,8 +227,8 @@ Scope {
                 ListView {
                     id: notifList
                     anchors.fill: parent
-                    model: NotificationModel.model
-                    spacing: Settings.notificationSpacing - Settings.notificationHeight
+                    model: window.isFocusedScreen ? NotificationModel.model : null
+                    spacing: Settings.notificationItemSpacing
                     orientation: ListView.Vertical
                     interactive: false
 
@@ -220,25 +236,30 @@ Scope {
                         required property var modelData
                         required property int index
 
+                        readonly property bool keyboardFocused: NotificationKeyboard.popupKeyboardActive
+                            && NotificationKeyboard.popupFocusIndex === index
+
                         width: notifList.width
-                        height: Settings.notificationHeight
-                        clip: true
+                        height: notifCard.implicitHeight
 
                         Timer {
                             interval: Math.max(modelData.timeout || Settings.notificationTimeout, 3000)
-                            running: true
+                            running: window.isFocusedScreen
                             repeat: false
                             onTriggered: NotificationService.hidePopup(modelData.id, true)
                         }
 
                         Rectangle {
-                            anchors.fill: parent
+                            width: parent.width
+                            height: parent.height
                             color: Settings.chromeShaderEnabled ? "transparent" : Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
                             radius: Settings.screenCornerRadius
+                            border.width: parent.keyboardFocused ? 2 : 0
+                            border.color: Theme.primary
 
                             NotificationCard {
-                                anchors.fill: parent
-                                anchors.margins: 0
+                                id: notifCard
+                                width: parent.width
                                 notification: modelData
                                 onActionInvoked: {
                                     // activate() already removed this id from the model
@@ -248,11 +269,6 @@ Scope {
                         }
                     }
                 }
-            }
-
-            readonly property string screenName: Niri.niriNameFor(window.screen?.name ?? "")
-            readonly property var panelState: {
-                return screenName ? PanelStates.register(screenName) : null;
             }
 
             LauncherPanel {
@@ -272,6 +288,8 @@ Scope {
             WallpaperPanel {
                 id: wallpaperPanel
                 panelState: window.panelState
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
             }
 
             ControlCenterPanel {
@@ -280,7 +298,25 @@ Scope {
                 screenName: window.screenName
                 screenWidth: window.screen?.width ?? 0
                 screenHeight: window.screen?.height ?? 0
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.topMargin: Settings.barHeight
+                anchors.bottomMargin: Settings.screenBorderWidth
+                anchors.rightMargin: Settings.screenBorderWidth
                 z: 1
+            }
+
+            SettingsPanel {
+                id: settingsPanel
+                panelState: window.panelState
+                screenName: window.screenName
+                screenWidth: window.screen?.width ?? 0
+                screenHeight: window.screen?.height ?? 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: Settings.barHeight
+                z: 2
             }
 
             Component.onCompleted: {
@@ -289,6 +325,7 @@ Scope {
                 pocketFrame.osdPanel = osdPanel;
                 pocketFrame.wallpaperPanel = wallpaperPanel;
                 pocketFrame.controlCenterPanel = controlCenterPanel;
+                pocketFrame.settingsPanel = settingsPanel;
                 const niriName = Niri.niriNameFor(window.screen?.name ?? "");
                 if (niriName) {
                     PopupRegistry.notifWrappers[niriName] = notifWrapper;
@@ -305,9 +342,14 @@ Scope {
                         + (window.panelState && window.panelState.controlCenter
                             ? Settings.controlCenterWidth
                             : 0)
-                    bottomMargin: window.panelState && window.panelState.launcher && launcherPanel.pocketActive
-                        ? Settings.screenBorderWidth + launcherPanel.blobH
-                        : Settings.screenBorderWidth
+                    bottomMargin: {
+                        let m = Settings.screenBorderWidth;
+                        if (window.panelState && window.panelState.launcher && launcherPanel.pocketActive)
+                            m += launcherPanel.blobH;
+                        else if (window.panelState && window.panelState.wallpaper && wallpaperPanel.pocketActive)
+                            m += wallpaperPanel.blobH;
+                        return m;
+                    }
                 }
                 visible: false
             }
@@ -329,6 +371,22 @@ Scope {
                 height: osdPanel.pocketActive ? osdPanel.visualH : 0
             }
 
+            Item {
+                id: settingsHitRegion
+                x: settingsPanel.visualX
+                y: settingsPanel.visualY
+                width: settingsPanel.pocketActive ? settingsPanel.visualW : 0
+                height: settingsPanel.pocketActive ? settingsPanel.visualH : 0
+            }
+
+            Item {
+                id: wallpaperHitRegion
+                x: wallpaperPanel.visualX
+                y: wallpaperPanel.visualY
+                width: wallpaperPanel.pocketActive ? wallpaperPanel.visualW : 0
+                height: wallpaperPanel.pocketActive ? wallpaperPanel.visualH : 0
+            }
+
             // Input on chrome (Xor hole), then add popup hit regions back
             mask: Region {
                 item: innerClickThrough
@@ -341,6 +399,16 @@ Scope {
 
                 Region {
                     item: osdHitRegion
+                    intersection: Intersection.Subtract
+                }
+
+                Region {
+                    item: settingsHitRegion
+                    intersection: Intersection.Subtract
+                }
+
+                Region {
+                    item: wallpaperHitRegion
                     intersection: Intersection.Subtract
                 }
             }

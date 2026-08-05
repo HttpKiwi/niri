@@ -30,22 +30,23 @@ PocketSlidePanel {
 
     property var groupedNotifications: []
     property int selectedGroupIndex: -1
-    property int selectedNotificationIndex: -1
+    property int selectedNotificationIndex: -1  // list/visual index within expanded group (0 = top)
     property bool isGroupSelected: true
+
+    property int expandedGroupIndex: -1
+    property string controlsTab: "audio" // audio | record | other
+
+    function setControlsTab(tabId) {
+        if (tabId === controlsTab)
+            return;
+        controlsTab = tabId;
+    }
 
     implicitWidth: panelWidth
     width: panelWidth
     opacity: 1
-    focus: shouldBeActive
 
-    anchors {
-        top: parent.top
-        bottom: parent.bottom
-        right: parent.right
-        topMargin: Settings.barHeight
-        bottomMargin: Settings.screenBorderWidth
-        rightMargin: Settings.screenBorderWidth
-    }
+    // Positioned by the host Loader in UnifiedBar (do not self-anchor to the window)
 
     function updateNotifications() {
         groupedNotifications = NotificationStore.getGroupedNotifications();
@@ -56,7 +57,14 @@ PocketSlidePanel {
         selectedGroupIndex = groupedNotifications.length > 0 ? 0 : -1;
         selectedNotificationIndex = -1;
         isGroupSelected = true;
-        Qt.callLater(() => root.forceActiveFocus());
+        expandedGroupIndex = -1;
+        Qt.callLater(() => keyboardScope.forceActiveFocus());
+    }
+
+    onClosed: {
+        selectedNotificationIndex = -1;
+        isGroupSelected = true;
+        expandedGroupIndex = -1;
     }
 
     Connections {
@@ -68,49 +76,19 @@ PocketSlidePanel {
 
     Component.onCompleted: updateNotifications();
 
-    Keys.onPressed: (event) => {
-        if (!shouldBeActive) return;
-        if (event.key === Qt.Key_Escape) {
-            if (panelState) panelState.controlCenter = false;
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Down) {
-            navigateDown();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Up) {
-            navigateUp();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-            toggleExpandSelected();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_D) {
-            deleteSelected();
-            event.accepted = true;
-        }
+    function groupComponentAt(index) {
+        return groupsRepeater.itemAt(index)
     }
 
     function navigateDown() {
         if (groupedNotifications.length === 0) return;
 
         if (isGroupSelected) {
-            let groupExpanded = false;
-            for (let i = 0; i < groupsColumn.children.length; i++) {
-                const child = groupsColumn.children[i];
-                if (child && child.objectName === "notificationGroup" + selectedGroupIndex) {
-                    groupExpanded = child.expanded || false;
-                    break;
-                }
-            }
-
-            const group = groupedNotifications[selectedGroupIndex];
-            if (group && group.notifications && group.notifications.length > 0 && groupExpanded) {
-                isGroupSelected = false;
-                selectedNotificationIndex = 0;
-            } else if (selectedGroupIndex < groupedNotifications.length - 1) {
+            if (selectedGroupIndex < groupedNotifications.length - 1)
                 selectedGroupIndex++;
-            }
         } else {
             const group = groupedNotifications[selectedGroupIndex];
-            if (group && group.notifications) {
+            if (group?.notifications) {
                 if (selectedNotificationIndex < group.notifications.length - 1) {
                     selectedNotificationIndex++;
                 } else if (selectedGroupIndex < groupedNotifications.length - 1) {
@@ -127,22 +105,8 @@ PocketSlidePanel {
         if (groupedNotifications.length === 0) return;
 
         if (isGroupSelected) {
-            if (selectedGroupIndex > 0) {
+            if (selectedGroupIndex > 0)
                 selectedGroupIndex--;
-                let prevGroupExpanded = false;
-                for (let i = 0; i < groupsColumn.children.length; i++) {
-                    const child = groupsColumn.children[i];
-                    if (child && child.objectName === "notificationGroup" + selectedGroupIndex) {
-                        prevGroupExpanded = child.expanded || false;
-                        break;
-                    }
-                }
-                const prevGroup = groupedNotifications[selectedGroupIndex];
-                if (prevGroup && prevGroup.notifications && prevGroup.notifications.length > 0 && prevGroupExpanded) {
-                    isGroupSelected = false;
-                    selectedNotificationIndex = prevGroup.notifications.length - 1;
-                }
-            }
         } else if (selectedNotificationIndex > 0) {
             selectedNotificationIndex--;
         } else {
@@ -156,48 +120,52 @@ PocketSlidePanel {
         if (groupedNotifications.length === 0) return;
 
         Qt.callLater(() => {
-            Qt.callLater(() => {
-                if (!scrollView) return;
-                const flickable = scrollView.contentItem;
-                if (!flickable) return;
+            if (!scrollView) return;
+            const flickable = scrollView.contentItem;
+            if (!flickable) return;
 
-                const viewportHeight = scrollView.height;
-                const currentY = flickable.contentY;
-                const contentHeight = flickable.contentHeight;
-                if (contentHeight <= viewportHeight) return;
+            const viewportHeight = scrollView.height;
+            const contentHeight = flickable.contentHeight;
+            if (contentHeight <= viewportHeight) return;
 
-                let targetGroup = null;
-                for (let i = 0; i < groupsColumn.children.length; i++) {
-                    const child = groupsColumn.children[i];
-                    if (child && child.objectName === "notificationGroup" + selectedGroupIndex) {
-                        targetGroup = child;
-                        break;
-                    }
-                }
-                if (!targetGroup) return;
+            const targetGroup = root.groupComponentAt(selectedGroupIndex);
+            if (!targetGroup) return;
 
-                const groupY = targetGroup.y;
-                const groupHeight = targetGroup.height;
-                if (groupY < currentY) {
-                    flickable.contentY = Math.max(0, groupY - 10);
-                } else if (groupY + groupHeight > currentY + viewportHeight) {
-                    flickable.contentY = Math.min(contentHeight - viewportHeight, groupY - viewportHeight + groupHeight + 10);
-                }
-            });
+            const groupY = targetGroup.y;
+            const groupHeight = targetGroup.height;
+            const currentY = flickable.contentY;
+            const margin = 10;
+
+            if (groupY < currentY + margin) {
+                flickable.contentY = Math.max(0, groupY - margin);
+            } else if (groupY + groupHeight > currentY + viewportHeight - margin) {
+                flickable.contentY = Math.min(
+                    contentHeight - viewportHeight,
+                    groupY + groupHeight - viewportHeight + margin
+                );
+            }
         });
     }
 
-    function toggleExpandSelected() {
-        if (selectedGroupIndex >= 0 && selectedGroupIndex < groupedNotifications.length) {
-            for (let i = 0; i < groupsColumn.children.length; i++) {
-                const child = groupsColumn.children[i];
-                if (child && child.objectName === "notificationGroup" + selectedGroupIndex) {
-                    if (typeof child.toggleExpand === "function")
-                        child.toggleExpand();
-                    break;
-                }
-            }
+    function expandSelectedGroup() {
+        if (!isGroupSelected || selectedGroupIndex < 0)
+            return;
+        expandedGroupIndex = selectedGroupIndex;
+    }
+
+    function activateSelected() {
+        if (isGroupSelected) {
+            expandSelectedGroup();
+            return;
         }
+        if (selectedNotificationIndex < 0)
+            return;
+        if (selectedGroupIndex < 0 || selectedGroupIndex >= groupedNotifications.length)
+            return;
+
+        const groupComponent = groupComponentAt(selectedGroupIndex);
+        if (groupComponent && typeof groupComponent.activateNotificationAt === "function")
+            groupComponent.activateNotificationAt(selectedNotificationIndex);
     }
 
     function deleteSelected() {
@@ -206,20 +174,16 @@ PocketSlidePanel {
         const group = groupedNotifications[selectedGroupIndex];
         if (!group) return;
 
-        let groupComponent = null;
-        for (let i = 0; i < groupsColumn.children.length; i++) {
-            const child = groupsColumn.children[i];
-            if (child && child.objectName === "notificationGroup" + selectedGroupIndex) {
-                groupComponent = child;
-                break;
-            }
-        }
+        const groupComponent = groupComponentAt(selectedGroupIndex);
 
         if (!isGroupSelected && selectedNotificationIndex >= 0 && group.notifications && selectedNotificationIndex < group.notifications.length) {
-            const notification = group.notifications[selectedNotificationIndex];
-            NotificationStore.dismissNotification(notification.id);
-            updateNotifications();
-            adjustSelectionAfterDelete();
+            if (groupComponent && typeof groupComponent.dismissNotificationAt === "function")
+                groupComponent.dismissNotificationAt(selectedNotificationIndex);
+            else {
+                NotificationStore.dismissNotification(group.notifications[selectedNotificationIndex].id);
+                updateNotifications();
+                adjustSelectionAfterDelete();
+            }
         } else if (isGroupSelected) {
             if (groupComponent && typeof groupComponent.startGroupDismiss === "function") {
                 groupComponent.startGroupDismiss();
@@ -244,6 +208,47 @@ PocketSlidePanel {
         if (selectedGroupIndex >= groupedNotifications.length)
             selectedGroupIndex = Math.max(0, groupedNotifications.length - 1);
     }
+
+    FocusScope {
+        id: keyboardScope
+        anchors.fill: parent
+        focus: root.shouldBeActive
+
+        Keys.onPressed: (event) => {
+            if (!root.shouldBeActive) return;
+            if (event.key === Qt.Key_Escape) {
+                if (panelState) panelState.controlCenter = false;
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Down) {
+                navigateDown();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Up) {
+                navigateUp();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                activateSelected();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Left) {
+                if (!isGroupSelected) {
+                    isGroupSelected = true;
+                    selectedNotificationIndex = -1;
+                }
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Right) {
+                if (isGroupSelected) {
+                    const group = groupedNotifications[selectedGroupIndex];
+                    if (group?.notifications?.length > 0) {
+                        expandedGroupIndex = selectedGroupIndex;
+                        isGroupSelected = false;
+                        selectedNotificationIndex = 0;
+                    }
+                }
+                event.accepted = true;
+            } else if (event.key === Qt.Key_D) {
+                deleteSelected();
+                event.accepted = true;
+            }
+        }
 
     // Floating card stack — inset so blob shows a margin around cards
     ColumnLayout {
@@ -294,6 +299,7 @@ PocketSlidePanel {
                     width: parent.width
                     height: parent.height - 40
                     clip: true
+                    focus: false
 
                     ScrollBar.vertical: ScrollBar {
                         policy: ScrollBar.AsNeeded
@@ -307,6 +313,7 @@ PocketSlidePanel {
                         spacing: 12
 
                         Repeater {
+                            id: groupsRepeater
                             model: root.groupedNotifications || []
 
                             delegate: NotificationHistoryGroup {
@@ -318,10 +325,24 @@ PocketSlidePanel {
                                 appName: modelData.appName || ""
                                 notifications: modelData.notifications || []
                                 hasCritical: modelData.hasCritical || false
+                                expanded: root.expandedGroupIndex === index
+                                groupKeyboardFocused: root.shouldBeActive
+                                    && root.isGroupSelected
+                                    && root.selectedGroupIndex === index
+                                focusedNotificationIndex: root.shouldBeActive
+                                    && !root.isGroupSelected
+                                    && root.selectedGroupIndex === index
+                                    ? root.selectedNotificationIndex
+                                    : -1
+
+                                onToggleExpandRequested: {
+                                    root.expandedGroupIndex = (root.expandedGroupIndex === index) ? -1 : index;
+                                }
 
                                 onNotificationDismissed: function(appName, notificationId) {
                                     NotificationService.dismissOnly(notificationId);
                                     root.updateNotifications();
+                                    root.adjustSelectionAfterDelete();
                                 }
 
                                 onGroupDismissed: function(appName) {
@@ -353,20 +374,172 @@ PocketSlidePanel {
         Column {
             id: controlsColumn
             Layout.fillWidth: true
-            Layout.maximumHeight: contentColumn.height * 0.4 - 10
+            Layout.maximumHeight: contentColumn.height * 0.45 - 10
             spacing: 8
+            clip: true
 
-            AudioSliders {
+            // Scrim so tab labels stay readable over the chrome blob
+            Rectangle {
+                id: tabBarScrim
                 width: parent.width
+                height: 36
+                radius: 18
+                color: Theme.withAlpha(Theme.surfaceBase, 0.78)
+                border.width: 1
+                border.color: Theme.withAlpha(Theme.textPrimary, 0.08)
+
+                Row {
+                    id: tabRow
+                    anchors.fill: parent
+                    anchors.margins: 4
+                    spacing: 4
+
+                    Repeater {
+                        model: [
+                            { id: "audio", label: "Audio" },
+                            { id: "record", label: "Record" },
+                            { id: "other", label: "Other" }
+                        ]
+
+                        delegate: Rectangle {
+                            required property var modelData
+                            readonly property bool selected: root.controlsTab === modelData.id
+
+                            width: (tabRow.width - tabRow.spacing * 2) / 3
+                            height: parent.height
+                            radius: height / 2
+                            color: selected
+                                ? Theme.withAlpha(Theme.accent, 0.42)
+                                : (tabMa.containsMouse ? Theme.withAlpha(Theme.textPrimary, 0.1) : "transparent")
+                            border.width: selected ? 1 : 0
+                            border.color: Theme.withAlpha(Theme.accent, 0.55)
+
+                            Behavior on color {
+                                ColorAnimation { duration: Settings.animationDurationShort }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.label
+                                color: selected ? Theme.textOnPrimary : Theme.textPrimary
+                                font.family: Settings.fontFamilyDefault
+                                font.pixelSize: Settings.fontSizeSmall
+                                font.weight: selected ? Font.DemiBold : Font.Medium
+                                // Soft outline so light aurora can't wash out glyphs
+                                style: Text.Outline
+                                styleColor: Theme.withAlpha(Theme.surfaceBase, selected ? 0.35 : 0.65)
+
+                                Behavior on color {
+                                    ColorAnimation { duration: Settings.animationDurationShort }
+                                }
+                            }
+
+                            MouseArea {
+                                id: tabMa
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.setControlsTab(modelData.id)
+                            }
+                        }
+                    }
+                }
             }
 
-            MediaCard {
+            // Fixed-height page host — max of all tabs so the selector never jumps
+            Item {
+                id: tabPages
                 width: parent.width
-            }
+                readonly property int pagesHeight: Math.max(
+                    audioPage.implicitHeight,
+                    recordPage.implicitHeight,
+                    otherPage.implicitHeight
+                )
+                height: pagesHeight
+                clip: true
 
-            SystemActions {
-                width: parent.width
-                confirmDialog: confirmDialog
+                readonly property int slidePx: 28
+
+                function pageX(tabId) {
+                    const order = ["audio", "record", "other"];
+                    const cur = order.indexOf(root.controlsTab);
+                    const idx = order.indexOf(tabId);
+                    if (idx === cur)
+                        return 0;
+                    return idx < cur ? -slidePx : slidePx;
+                }
+
+                Column {
+                    id: audioPage
+                    width: parent.width
+                    spacing: 8
+                    opacity: root.controlsTab === "audio" ? 1 : 0
+                    x: tabPages.pageX("audio")
+                    // Keep laid out for height measurement; disable hit-testing when hidden
+                    enabled: root.controlsTab === "audio"
+                    z: root.controlsTab === "audio" ? 1 : 0
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+                    Behavior on x {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+
+                    AudioSliders { width: parent.width }
+                    MediaCard { width: parent.width }
+                }
+
+                ScreenRecordCard {
+                    id: recordPage
+                    width: parent.width
+                    opacity: root.controlsTab === "record" ? 1 : 0
+                    x: tabPages.pageX("record")
+                    enabled: root.controlsTab === "record"
+                    z: root.controlsTab === "record" ? 1 : 0
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+                    Behavior on x {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+                }
+
+                SystemActions {
+                    id: otherPage
+                    width: parent.width
+                    opacity: root.controlsTab === "other" ? 1 : 0
+                    x: tabPages.pageX("other")
+                    enabled: root.controlsTab === "other"
+                    z: root.controlsTab === "other" ? 1 : 0
+                    confirmDialog: confirmDialog
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+                    Behavior on x {
+                        NumberAnimation {
+                            duration: Settings.animationDurationMedium
+                            easing.type: Settings.easingStandard
+                        }
+                    }
+                }
             }
         }
     }
@@ -374,5 +547,6 @@ PocketSlidePanel {
     ConfirmDialog {
         id: confirmDialog
         visible: false
+    }
     }
 }

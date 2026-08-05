@@ -18,8 +18,8 @@ Rectangle {
     implicitHeight: audioColumn.implicitHeight + pad * 2
     width: parent ? parent.width : 380
     radius: Settings.cardRadius
-    color: Theme.glass(Settings.glassOpacity, Settings.glassTintStrength)
-    border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
+    color: Theme.glass(Math.max(Settings.glassOpacity, 0.58), Settings.glassTintStrength)
+    border.color: Theme.glassBorder(Math.max(Settings.glassBorderOpacity, 0.22), Settings.glassTintStrength)
     border.width: Settings.cardBorderWidth
     antialiasing: true
 

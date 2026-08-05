@@ -22,8 +22,9 @@ PocketBottomPanel {
     property int selectedIndex: 0
 
     readonly property int maxVisibleItems: 10
-    readonly property int itemHeight: 40
+    readonly property int itemHeight: source && source.sourceName === "clipboard" ? 48 : 40
     readonly property int searchInputHeight: 36
+    readonly property int clipboardThumbSize: Settings.clipboardThumbSize
     readonly property int searchInputHorizontalPadding: 12
     readonly property int tabBarHeight: 28
     readonly property int topPadding: 12
@@ -134,6 +135,7 @@ PocketBottomPanel {
         filteredModel.clear()
         listContentHeight = 0
         selectedIndex = 0
+        currentSourceIndex = 0
         listArea._listOpacity = 1
         listArea._listOffsetX = 0
         gifFlickable.contentY = 0
@@ -142,17 +144,23 @@ PocketBottomPanel {
     Connections {
         target: panelState
         function onClipboardChanged() {
-            if (panelState.launcher) {
-                applySourceSwitch(panelState.clipboard ? 1 : 0)
-            }
+            if (!panelState.launcher)
+                return
+            // Only force Apps when leaving clipboard — don't yank away from GIFs
+            if (panelState.clipboard)
+                applySourceSwitch(1)
+            else if (currentSourceIndex === 1)
+                applySourceSwitch(0)
         }
     }
 
     function applySourceSwitch(index) {
         currentSourceIndex = index
         selectedIndex = 0
+        if (panelState)
+            panelState.clipboard = sources[index].sourceName === "clipboard"
         if (sources[index].sourceName === "clipboard")
-            clipboardLauncherSource.refreshItems()
+            clipboardLauncherSource.softRefresh()
         updateFilter()
     }
 
@@ -192,6 +200,11 @@ PocketBottomPanel {
             itemsToShow = source.items
         else
             itemsToShow = source.filterItems(searchText)
+
+        // Never dump unbounded history into the ListModel — freezes the UI thread
+        const maxRows = Settings.launcherMaxModelItems
+        if (itemsToShow && itemsToShow.length > maxRows)
+            itemsToShow = itemsToShow.slice(0, maxRows)
 
         filteredItems = itemsToShow
 
@@ -337,6 +350,10 @@ PocketBottomPanel {
     ClipboardLauncherSource {
         id: clipboardLauncherSource
         onItemsChanged: {
+            if (source === clipboardLauncherSource)
+                updateFilter()
+        }
+        onIsLoadingChanged: {
             if (source === clipboardLauncherSource)
                 updateFilter()
         }
@@ -612,16 +629,41 @@ PocketBottomPanel {
                         anchors.rightMargin: 12
                         spacing: 10
 
-                        Image {
-                            source: model.icon || ""
-                            Layout.preferredWidth: isStatus ? 0 : 24
-                            Layout.preferredHeight: isStatus ? 0 : 24
-                            Layout.alignment: Qt.AlignVCenter
-                            fillMode: Image.PreserveAspectFit
-                            smooth: true
-                            antialiasing: true
-                            asynchronous: true
+                        Item {
+                            id: thumbHost
                             visible: !isStatus && model.icon !== ""
+                            Layout.preferredWidth: visible
+                                ? (root.source && root.source.sourceName === "clipboard"
+                                    ? root.clipboardThumbSize
+                                    : 24)
+                                : 0
+                            Layout.preferredHeight: Layout.preferredWidth
+                            Layout.alignment: Qt.AlignVCenter
+                            clip: true
+
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: 6
+                                color: Theme.glass(0.25, Settings.glassTintStrength)
+                                visible: root.source && root.source.sourceName === "clipboard"
+                            }
+
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: root.source && root.source.sourceName === "clipboard" ? 0 : 0
+                                source: model.icon || ""
+                                fillMode: root.source && root.source.sourceName === "clipboard"
+                                    ? Image.PreserveAspectCrop
+                                    : Image.PreserveAspectFit
+                                smooth: true
+                                antialiasing: true
+                                asynchronous: true
+                                cache: true
+                                visible: parent.visible
+
+                                layer.enabled: root.source && root.source.sourceName === "clipboard"
+                                layer.smooth: true
+                            }
                         }
 
                         ColumnLayout {
