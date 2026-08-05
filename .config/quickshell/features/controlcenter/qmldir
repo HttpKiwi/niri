@@ -2,5 +2,6 @@ module qs.features.controlcenter
 ControlCenterPanel 1.0 ControlCenterPanel.qml
 AudioSliders 1.0 AudioSliders.qml
 MediaCard 1.0 MediaCard.qml
+ScreenRecordCard 1.0 ScreenRecordCard.qml
 SystemActions 1.0 SystemActions.qml
 ConfirmDialog 1.0 ConfirmDialog.qml
