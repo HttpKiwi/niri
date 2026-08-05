@@ -1,0 +1,4 @@
+# Keep in sync with Settings.clipboardMaxItems in quickshell
+max-items 200
+max-dedupe-search 100
+preview-width 100
