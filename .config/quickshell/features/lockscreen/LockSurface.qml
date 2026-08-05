@@ -32,6 +32,12 @@ WlSessionLockSurface {
     color: "transparent"
 
     Component.onCompleted: {
+        root._blurAmount = 0
+        root._overlayOpacity = 0
+        root._clockOpacity = 0
+        root._clockOffset = 28
+        root._toolbarScale = 0.92
+        root._toolbarOpacity = 0
         lockEnterAnim.start()
     }
 
@@ -52,14 +58,14 @@ WlSessionLockSurface {
                 target: root
                 property: "_blurAmount"
                 to: Settings.lockscreenBackdropBlur
-                duration: Settings.animationDurationLong
+                duration: Settings.lockscreenBackdropCrossfadeDuration
                 easing.type: Easing.OutCubic
             }
             NumberAnimation {
                 target: root
                 property: "_overlayOpacity"
                 to: 1
-                duration: Settings.animationDurationLong
+                duration: Settings.lockscreenBackdropCrossfadeDuration
                 easing.type: Easing.OutCubic
             }
         }
@@ -143,18 +149,21 @@ WlSessionLockSurface {
                 duration: Settings.animationDurationMedium
                 easing.type: Easing.InCubic
             }
-            NumberAnimation {
-                target: root
-                property: "_overlayOpacity"
-                to: 0
-                duration: Settings.animationDurationMedium
-                easing.type: Easing.InCubic
-            }
+        }
+
+        ParallelAnimation {
             NumberAnimation {
                 target: root
                 property: "_blurAmount"
                 to: 0
-                duration: Settings.animationDurationLong
+                duration: Settings.lockscreenBackdropCrossfadeDuration
+                easing.type: Easing.InCubic
+            }
+            NumberAnimation {
+                target: root
+                property: "_overlayOpacity"
+                to: 0
+                duration: Settings.lockscreenBackdropCrossfadeDuration
                 easing.type: Easing.InCubic
             }
         }
@@ -167,7 +176,7 @@ WlSessionLockSurface {
     Image {
         id: wallpaper
         anchors.fill: parent
-        source: Settings.backgroundImagePath
+        source: Settings.backgroundPosterPath || Settings.backgroundImagePath
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         cache: true
@@ -281,14 +290,32 @@ WlSessionLockSurface {
 
         Rectangle {
             id: passwordCard
-            color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.8)
             radius: height / 2
             height: 48
             implicitWidth: 280
-            border.color: passwordInput.activeFocus ? Theme.primary : "transparent"
-            border.width: passwordInput.activeFocus ? 2 : 0
+
+            readonly property bool isError: root.statusType === "error"
+
+            color: isError
+                ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.2)
+                : Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.8)
+            border.color: isError
+                ? Theme.error
+                : (passwordInput.activeFocus ? Theme.primary : "transparent")
+            border.width: isError || passwordInput.activeFocus ? 2 : 0
+
+            transform: Translate {
+                id: passwordCardShake
+            }
 
             Behavior on border.color {
+                ColorAnimation {
+                    duration: Settings.animationDurationShort
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            Behavior on color {
                 ColorAnimation {
                     duration: Settings.animationDurationShort
                     easing.type: Easing.OutCubic
@@ -306,6 +333,13 @@ WlSessionLockSurface {
                 font.pixelSize: Settings.fontSizeMedium
                 font.family: Settings.fontFamilyDefault
                 activeFocusOnPress: true
+
+                onTextChanged: {
+                    if (root.statusType === "error") {
+                        root.statusType = ""
+                        root.statusMessage = ""
+                    }
+                }
 
                 onAccepted: {
                     if (text.length > 0 && !root._isProcessing) {
@@ -337,8 +371,15 @@ WlSessionLockSurface {
                 width: 32
                 height: 32
                 radius: 16
-                color: Theme.primary
+                color: passwordCard.isError ? Theme.error : Theme.primary
                 visible: passwordInput.text.length > 0
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Settings.animationDurationShort
+                        easing.type: Easing.OutCubic
+                    }
+                }
 
                 Text {
                     anchors.centerIn: parent
@@ -432,10 +473,12 @@ WlSessionLockSurface {
 
     SequentialAnimation {
         id: shakeAnim
-        NumberAnimation { target: passwordCard; property: "x"; to: -8; duration: 80; easing.type: Easing.OutQuad }
-        NumberAnimation { target: passwordCard; property: "x"; to: 8; duration: 80; easing.type: Easing.OutQuad }
-        NumberAnimation { target: passwordCard; property: "x"; to: -4; duration: 80; easing.type: Easing.OutQuad }
-        NumberAnimation { target: passwordCard; property: "x"; to: 4; duration: 80; easing.type: Easing.OutQuad }
-        NumberAnimation { target: passwordCard; property: "x"; to: 0; duration: 80; easing.type: Easing.OutQuad }
+        NumberAnimation { target: passwordCardShake; property: "x"; to: -8; duration: 80; easing.type: Easing.OutQuad }
+        NumberAnimation { target: passwordCardShake; property: "x"; to: 8; duration: 80; easing.type: Easing.OutQuad }
+        NumberAnimation { target: passwordCardShake; property: "x"; to: -4; duration: 80; easing.type: Easing.OutQuad }
+        NumberAnimation { target: passwordCardShake; property: "x"; to: 4; duration: 80; easing.type: Easing.OutQuad }
+        NumberAnimation { target: passwordCardShake; property: "x"; to: 0; duration: 80; easing.type: Easing.OutQuad }
+
+        onStopped: passwordCardShake.x = 0
     }
 }

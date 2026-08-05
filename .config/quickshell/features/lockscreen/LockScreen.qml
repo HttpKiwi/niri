@@ -62,8 +62,6 @@ Scope {
         onTriggered: {
             if (lock.locked || LockState.engaging)
                 return
-            LockState.locked = false
-            LockState.engaging = false
             lockScope.revealChrome()
         }
     }
@@ -71,8 +69,12 @@ Scope {
     Connections {
         target: lock
         function onLockedChanged() {
-            if (!lock.locked)
+            if (!lock.locked) {
+                // Resume wallpapers immediately — don't wait on chrome reveal delay
+                LockState.engaging = false
+                LockState.locked = false
                 chromeRestoreTimer.restart()
+            }
         }
     }
 
