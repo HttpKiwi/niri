@@ -10,4 +10,4 @@ SETUVAR _fisher_jorgebucaran_2F_fisher_files:\x7e/\x2econfig/fish/functions/fish
 SETUVAR _fisher_plugins:jorgebucaran/fisher\x1efabioantunes/fish\x2dnvm\x1eedc/bass
 SETUVAR _fisher_upgraded_to_4_4:\x1d
 SETUVAR fish_greeting:\x1d
-SETUVAR fish_user_paths:/home/httpkiwi/android\x2dsdk/cmdline\x2dtools/latest/bin\x1e/home/httpkiwi/android\x2dsdk/platform\x2dtools\x1e/home/httpkiwi/android\x2dsdk/tools/bin\x1e/home/httpkiwi/android\x2dsdk/tools\x1e/home/httpkiwi/Android/Sdk/cmdline\x2dtools/latest/bin\x1e/home/httpkiwi/Android/Sdk/platform\x2dtools\x1e/opt/flutter/bin
+SETUVAR fish_user_paths:/usr/lib/jvm/java\x2d21\x2dopenjdk/bin\x1e/home/httpkiwi/development/flutter/bin\x1e/home/httpkiwi/android\x2dsdk/cmdline\x2dtools/latest/bin\x1e/home/httpkiwi/android\x2dsdk/platform\x2dtools\x1e/home/httpkiwi/android\x2dsdk/tools/bin\x1e/home/httpkiwi/android\x2dsdk/tools\x1e/home/httpkiwi/Android/Sdk/cmdline\x2dtools/latest/bin\x1e/home/httpkiwi/Android/Sdk/platform\x2dtools\x1e/opt/flutter/bin

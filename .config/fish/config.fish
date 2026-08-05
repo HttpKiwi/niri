@@ -30,7 +30,9 @@ fish_add_path $ANDROID_HOME/tools
 fish_add_path $ANDROID_HOME/tools/bin
 fish_add_path $ANDROID_HOME/platform-tools
 fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
-
+fish_add_path $HOME/development/flutter/bin
+set -gx JAVA_HOME /usr/lib/jvm/java-21-openjdk
+fish_add_path $JAVA_HOME/bin
 starship init fish | source
 export PATH="$HOME/.local/bin:$PATH"
 

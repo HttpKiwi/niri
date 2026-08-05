@@ -8,6 +8,8 @@
 // INPUT CONFIGURATION
 // ============================================================================
 
+prefer-no-csd
+
 input {
     keyboard {
         xkb {
@@ -75,7 +77,7 @@ blur {
 layout {
     // Basic layout settings
     gaps 12
-    center-focused-column "never"  // Options: "never", "always", "on-overflow"
+    center-focused-column "never"
     default-column-width { proportion 0.5; }
     background-color "transparent"
     // Preset column widths (toggled with Mod+R)
@@ -122,8 +124,6 @@ layout {
 // PREFER NO CLIENT-SIDE DECORATIONS
 // ============================================================================
 // Uncomment this to encourage clients to not use client-side decorations.
-prefer-no-csd
-
 // ============================================================================
 // CURSOR CONFIGURATION
 // ============================================================================
@@ -145,7 +145,7 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
- spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs"
+ spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs -n -d"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
@@ -160,6 +160,8 @@ environment {
     QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
     QT_QPA_PLATFORM "wayland;xcb"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
+    // Prefer VAAPI for Qt Multimedia / FFmpeg video wallpapers
+    QT_FFMPEG_DECODING_HW_DEVICE_TYPES "vaapi"
 }
 
 // ============================================================================
@@ -169,7 +171,7 @@ environment {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
 overview {
-    zoom 0.4
+    zoom 0.25
     backdrop-color "#000000"
     
     workspace-shadow {
@@ -214,16 +216,14 @@ layer-rule {
     place-within-backdrop true
 }
 
-animations {
-   
-    workspace-switch {
+animations {workspace-switch {
         spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
     }
 
     overview-open-close {
         spring damping-ratio=0.8 stiffness=800 epsilon=0.0001
     }
-
+    slowdown 1.0
 }
 // ============================================================================
 // KEYBINDINGS
@@ -249,6 +249,8 @@ binds {
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Super+B {spawn "zen-browser"; }
     Super+Shift+W { spawn "qs" "ipc" "call" "wallpaperSelector" "toggleSelector";  }
+    Super+I hotkey-overlay-title="Open Settings" { spawn "qs" "ipc" "call" "settings" "toggle"; }
+    Super+Shift+D hotkey-overlay-title="Dismiss notification" { spawn "qs" "ipc" "call" "notifications" "dismissFocused"; }
     Mod+Q { close-window; }
 
     // Screenshots
