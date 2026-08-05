@@ -10,6 +10,7 @@ singleton Storage 1.0 Storage.qml
 singleton FuzzyMatcher 1.0 FuzzyMatcher.qml
 singleton PopupRegistry 1.0 PopupRegistry.qml
 singleton NotificationModel 1.0 NotificationModel.qml
+singleton NotificationKeyboard 1.0 NotificationKeyboard.qml
 PanelState 1.0 PanelState.qml
 singleton PanelStates 1.0 PanelStates.qml
 singleton Players 1.0 Players.qml
@@ -17,3 +18,5 @@ singleton ChromeClock 1.0 ChromeClock.qml
 singleton MatugenRunner 1.0 MatugenRunner.qml
 singleton LockState 1.0 LockState.qml
 singleton HttpClient 1.0 HttpClient.qml
+singleton ScreenRecord 1.0 ScreenRecord.qml
+singleton NiriConfig 1.0 NiriConfig.qml

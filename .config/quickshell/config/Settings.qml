@@ -19,8 +19,16 @@ QtObject {
     readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
     readonly property string defaultWallpaper: wallpapersDir + "/cozycabininthewoods.webp"
     readonly property string matugenCacheScript: Quickshell.shellDir + "/scripts/matugen-cache.sh"
+    readonly property string recordingsDir: homeDir + "/Videos/Recordings"
+    property int screenRecordFps: 60
 
     property string backgroundImagePath: ""
+    // First-frame JPEG for video wallpapers (matugen + lockscreen + inactive monitors)
+    property string backgroundPosterPath: ""
+    // Decode/animate video & GIF wallpapers
+    property bool animatedWallpapersEnabled: true
+    // Legacy pref — playback always runs on all outputs now (avoids focus-switch distraction)
+    property bool animatedWallpaperFocusedOnly: false
 
     property var wallpaperLoader: Process {
         running: true
@@ -40,6 +48,12 @@ QtObject {
                         const data = JSON.parse(output)
                         if (data.path) {
                             root.backgroundImagePath = data.path
+                            if (data.poster)
+                                root.backgroundPosterPath = data.poster.startsWith("file://")
+                                    ? data.poster
+                                    : ("file://" + data.poster)
+                            else
+                                root.backgroundPosterPath = ""
                         } else {
                             root.backgroundImagePath = root.defaultWallpaper
                             defaultWallpaperSaver.running = true
@@ -68,13 +82,16 @@ QtObject {
     // ========================================
     // Notification Settings
     // ========================================
-    readonly property int notificationTimeout: 5000
+    property int notificationTimeout: 5000
     readonly property int notificationMaxStack: 4
     readonly property int notificationWidth: 380
-    readonly property int notificationHeight: 100
+    readonly property int notificationMinHeight: 72
+    readonly property int notificationItemSpacing: 10
+    readonly property int notificationGroupMaxListHeight: 300
+    readonly property int notificationHeight: notificationMinHeight // legacy alias
     readonly property int notificationTopMargin: 50
     readonly property int notificationRightMargin: 16
-    readonly property int notificationSpacing: 105
+    readonly property int notificationSpacing: notificationItemSpacing // legacy alias
     readonly property int notificationDismissThreshold: 100
     // Notification history limits
     readonly property int notificationHistoryMaxPerApp: 100
@@ -90,7 +107,7 @@ QtObject {
     // ========================================
     // Bar Settings
     // ========================================
-    readonly property int barHeight: 30
+    property int barHeight: 30
     readonly property int barExclusiveZone: 35
     readonly property int barPillHeight: 20 // Reduced from 24 to add more padding inside bar
     readonly property int barPillRadius: 12
@@ -114,9 +131,9 @@ QtObject {
     // ========================================
     // Animation Settings
     // ========================================
-    readonly property int animationDurationShort: 150
-    readonly property int animationDurationMedium: 250
-    readonly property int animationDurationLong: 400
+    property int animationDurationShort: 150
+    property int animationDurationMedium: 250
+    property int animationDurationLong: 400
     // Easing curves
     readonly property int easingStandard: Easing.OutCubic
     readonly property int easingEmphasized: Easing.BezierSpline
@@ -125,18 +142,19 @@ QtObject {
     // ========================================
     // Layout Settings
     // ========================================
-    readonly property int screenBorderWidth: 6
-    readonly property int screenCornerRadius: 20
-    readonly property int screenSmoothing: 20
-    readonly property int cardRadius: 12
+    property int screenBorderWidth: 6
+    property int screenCornerRadius: 24
+    property int screenSmoothing: 20
+    property int cardRadius: 12
     readonly property int cardBorderWidth: 1
     readonly property int cardMargin: 4
     readonly property int cardPadding: 16
     // Tinted frosted glass (over niri layer blur)
-    readonly property real glassOpacity: 0.45
-    readonly property real glassBorderOpacity: 0.16
+    property real glassOpacity: 0.45
+    property real glassBorderOpacity: 0.16
     // How much matugen primary tints the glass (0 = neutral, 0.2 = clear wash)
-    readonly property real glassTintStrength: 0.14
+    property real glassTintStrength: 0.14
+
     // ========================================
     // Typography Settings
     // ========================================
@@ -154,6 +172,12 @@ QtObject {
     // ========================================
     readonly property int launcherSearchDebounceMs: 350
     readonly property int launcherTabTransitionMs: 150
+    // Cap rows pushed into the launcher ListModel (avoids UI freezes on huge lists)
+    readonly property int launcherMaxModelItems: 50
+    // Keep cliphist DB / clipboard tab in sync — see .config/cliphist/config
+    readonly property int clipboardMaxItems: 200
+    readonly property string clipboardThumbDir: "/tmp/quickshell-clip-thumbs"
+    readonly property int clipboardThumbSize: 40
     readonly property int httpConnectTimeoutMs: 5000
     readonly property int httpMaxTimeMs: 10000
     readonly property bool httpLowPriority: true
@@ -197,11 +221,15 @@ QtObject {
     // Delay after lock release before bar/blob chrome fades back in
     readonly property int lockscreenChromeRestoreDelay: 180
     readonly property int lockscreenBackdropBlur: 48
+    readonly property int lockscreenBackdropCrossfadeDuration: animationDurationLong
     // ========================================
     // Idle/Sleep Settings
     // ========================================
-    readonly property int idleLockTimeout: 300
-    readonly property int idleSleepTimeout: 600
+    property int idleLockTimeout: 300
+    property int idleSleepTimeout: 600
+    property bool inhibitIdleWhenAudio: true
+    property bool enableAutoLock: true
+    property bool enableAutoSleep: true
     // ========================================
     // Control Center Settings
     // ========================================
@@ -215,29 +243,130 @@ QtObject {
     // ========================================
     // Blur Settings
     // ========================================
-    readonly property bool blurEnabled: true
-    readonly property real blurBorderOpacity: 0.35
+    property bool blurEnabled: true
+    property real blurBorderOpacity: 0.35
     // ========================================
     // Surface Transparency
     // ========================================
-    readonly property real surfaceTransparency: 0.6
+    property real surfaceTransparency: 0.6
     // ========================================
     // Background Settings
     // ========================================
-    readonly property string backgroundType: "image"
     readonly property string backgroundColor: "#091518"
     property int wallpaperChangeDirection: 1 // 1 = right, -1 = left
     // ========================================
     // Chrome Shader (prototype)
     // ========================================
-    readonly property bool chromeShaderEnabled: true
+    property bool chromeShaderEnabled: true
+    // Aurora clock — 15fps (1000/15 ≈ 67ms)
+    property int chromeClockIntervalMs: 67
     // Dot-matrix mesh (Flex Volume–style grain)
-    readonly property real chromeCellSize: 5
-    readonly property real chromeDotSize: 0.35
+    property real chromeCellSize: 5
+    property real chromeDotSize: 0.35
     // Aurora drift speed
-    readonly property real chromeAnimSpeed: 0.2
+    property real chromeAnimSpeed: 0.2
     // Ribbon color strength (1 = full matugen color on ribbons)
-    readonly property real chromeIntensity: 1
+    property real chromeIntensity: 1
+
+    // ========================================
+    // Settings window + prefs persistence
+    // ========================================
+    readonly property string shellPrefsFile: Quickshell.shellDir + "/common/shell-prefs.json"
+    property bool _prefsLoaded: false
+    property bool _prefsLoading: false
+    property string prefsStatusMessage: ""
+
+    readonly property var _prefsKeys: [
+        "animationDurationShort", "animationDurationMedium", "animationDurationLong",
+        "screenBorderWidth", "screenCornerRadius", "screenSmoothing", "cardRadius",
+        "glassOpacity", "glassBorderOpacity", "glassTintStrength",
+        "idleLockTimeout", "idleSleepTimeout", "inhibitIdleWhenAudio",
+        "enableAutoLock", "enableAutoSleep",
+        "blurEnabled", "blurBorderOpacity", "surfaceTransparency",
+        "notificationTimeout", "screenRecordFps", "barHeight",
+        "chromeShaderEnabled", "chromeClockIntervalMs",
+        "chromeCellSize", "chromeDotSize", "chromeAnimSpeed", "chromeIntensity",
+        "animatedWallpapersEnabled", "animatedWallpaperFocusedOnly"
+    ]
+
+    function setPref(key, value) {
+        if (!(key in root) || root._prefsKeys.indexOf(key) < 0)
+            return;
+        root._prefsLoading = true;
+        root[key] = value;
+        root._prefsLoading = false;
+        prefsSaveTimer.restart();
+    }
+
+    function savePrefs() {
+        const prefs = {};
+        for (let i = 0; i < root._prefsKeys.length; i++) {
+            const k = root._prefsKeys[i];
+            prefs[k] = root[k];
+        }
+        const json = JSON.stringify(prefs, null, 2);
+        prefsSaver.command = [
+            "sh", "-c",
+            `mkdir -p "$(dirname '${root.shellPrefsFile}')" && cat > '${root.shellPrefsFile}' << 'EOF'\n${json}\nEOF`
+        ];
+        prefsSaver.running = true;
+    }
+
+    function _applyPrefsObject(obj) {
+        if (!obj || typeof obj !== "object")
+            return;
+        root._prefsLoading = true;
+        for (let i = 0; i < root._prefsKeys.length; i++) {
+            const k = root._prefsKeys[i];
+            if (obj[k] === undefined)
+                continue;
+            try {
+                root[k] = obj[k];
+            } catch (e) {
+                console.warn("Settings: skip pref", k, e);
+            }
+        }
+        root._prefsLoading = false;
+        root._prefsLoaded = true;
+    }
+
+    property var prefsSaveTimer: Timer {
+        interval: 400
+        repeat: false
+        onTriggered: root.savePrefs()
+    }
+
+    property var prefsLoader: Process {
+        running: true
+        command: ["sh", "-c", `test -f '${root.shellPrefsFile}' && cat '${root.shellPrefsFile}' || true`]
+        stdout: StdioCollector {
+            id: prefsOut
+        }
+        onExited: {
+            const text = prefsOut.text.trim();
+            if (!text)
+                return;
+            try {
+                root._applyPrefsObject(JSON.parse(text));
+            } catch (e) {
+                root.prefsStatusMessage = "Failed to load shell prefs";
+                console.warn("Settings: failed to load shell prefs", e);
+            }
+        }
+    }
+
+    property var prefsSaver: Process {
+        running: false
+        onExited: code => {
+            if (code === 0) {
+                if (root.prefsStatusMessage.indexOf("Failed to save") === 0)
+                    root.prefsStatusMessage = "";
+            } else {
+                root.prefsStatusMessage = `Failed to save shell prefs (exit ${code})`;
+                console.warn("Settings: prefs save failed", code);
+            }
+        }
+    }
 
     signal secretsLoaded()
 

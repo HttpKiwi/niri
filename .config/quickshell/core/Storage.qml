@@ -13,9 +13,9 @@ import qs.config
  * Data structure:
  * {
  *   "notifications": [{id, appName, summary, body, appIcon, image, desktopEntry, timestamp, dismissed}],
- *   "settings": {key: value},
  *   "appUsage": {appName: count}
  * }
+ * Shell prefs live in Settings.qml → common/shell-prefs.json (not here).
  */
 QtObject {
     id: root
@@ -23,7 +23,7 @@ QtObject {
     readonly property string dataPath: `${Quickshell.shellDir}/shell_data.json`
 
     // Internal storage
-    property var _data: ({ notifications: [], settings: {}, appUsage: {} })
+    property var _data: ({ notifications: [], appUsage: {} })
 
     signal notificationsChanged()
 
@@ -35,7 +35,6 @@ QtObject {
         JsonAdapter {
             id: adapter
             property var notifications
-            property var settings
             property var appUsage
         }
 
@@ -43,7 +42,6 @@ QtObject {
             if (adapter.notifications !== undefined || adapter.appUsage !== undefined) {
                 root._data = {
                     notifications: adapter.notifications || [],
-                    settings: adapter.settings || {},
                     appUsage: adapter.appUsage || {}
                 }
                 root.notificationsChanged()
@@ -53,7 +51,6 @@ QtObject {
         Component.onCompleted: {
             root._data = {
                 notifications: adapter.notifications || [],
-                settings: adapter.settings || {},
                 appUsage: adapter.appUsage || {}
             }
             root.notificationsChanged()
@@ -104,7 +101,7 @@ QtObject {
             fileView.reload()
         } catch (e) {
             console.warn("Storage: Error loading data:", e)
-            root._data = { notifications: [], settings: {}, appUsage: {} }
+            root._data = { notifications: [], appUsage: {} }
         }
     }
 
@@ -141,6 +138,7 @@ python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); d
             appIcon: notification.appIcon || "",
             image: notification.image || "",
             desktopEntry: notification.desktopEntry || "",
+            actions: notification.actions || [],
             timestamp: notification.timestamp || new Date().toISOString(),
             dismissed: false
         }
@@ -259,17 +257,6 @@ python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); d
         if (root._data.notifications.length > maxTotal) {
             root._data.notifications = root._data.notifications.slice(0, maxTotal)
         }
-    }
-
-    // Settings operations
-    function getSetting(key, callback) {
-        var value = root._data.settings[key] || null
-        callback(value)
-    }
-
-    function setSetting(key, value) {
-        root._data.settings[key] = value
-        saveData()
     }
 
     // App launcher usage (merged from legacy app_usage.json)

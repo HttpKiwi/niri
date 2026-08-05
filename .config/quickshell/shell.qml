@@ -25,15 +25,45 @@ ShellRoot {
     AutoLock {}
 
     IpcHandler {
+        target: "settings"
+
+        function toggle() {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            if (!state) return;
+            state.settings = !state.settings;
+        }
+
+        function open() {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            if (!state) return;
+            state.settings = true;
+        }
+
+        function close() {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            if (!state) return;
+            state.settings = false;
+        }
+
+        function isOpen(): bool {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            return !!(state && state.settings);
+        }
+    }
+
+    IpcHandler {
         target: "appLauncher"
 
         function toggleLauncher() {
             const state = PanelStates.forName(Niri.focused_output_name);
             if (!state) return;
-            // PanelState mutex closes wallpaper when launcher opens
-            state.launcher = !state.launcher;
-            if (!state.launcher)
+            if (state.launcher) {
+                state.launcher = false;
+            } else {
+                // Always open on Apps — clear stale clipboard flag from Super+V / tab switch
                 state.clipboard = false;
+                state.launcher = true;
+            }
         }
 
         function toggleClipboard() {
@@ -41,11 +71,10 @@ ShellRoot {
             if (!state) return;
             if (state.launcher && state.clipboard) {
                 state.launcher = false;
-                state.clipboard = false;
             } else {
                 // Opening clipboard implies launcher; mutex closes wallpaper
-                state.launcher = true;
                 state.clipboard = true;
+                state.launcher = true;
             }
         }
     }
@@ -91,6 +120,30 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "screenrecord"
+
+        function toggle() {
+            ScreenRecord.toggle();
+        }
+
+        function start() {
+            ScreenRecord.start();
+        }
+
+        function stop() {
+            ScreenRecord.stop();
+        }
+
+        function pause() {
+            ScreenRecord.togglePause();
+        }
+
+        function isRecording(): bool {
+            return ScreenRecord.recording;
+        }
+    }
+
     NotificationManager {
         id: notificationManager
     }
@@ -102,6 +155,37 @@ ShellRoot {
 
         function clearAll() {
             Storage.clearAll()
+        }
+    }
+
+    IpcHandler {
+        target: "notifications"
+
+        function dismissFocused() {
+            NotificationKeyboard.dismissFocusedPopup()
+        }
+
+        function focusPopup() {
+            NotificationKeyboard.focusPopup()
+        }
+
+        function navigateUp() {
+            NotificationKeyboard.navigatePopup(-1)
+        }
+
+        function navigateDown() {
+            NotificationKeyboard.navigatePopup(1)
+        }
+
+        function activateFocused() {
+            NotificationKeyboard.activateFocusedPopup()
+        }
+    }
+
+    Connections {
+        target: NotificationModel.model
+        function onCountChanged() {
+            NotificationKeyboard.onPopupCountChanged()
         }
     }
 }
