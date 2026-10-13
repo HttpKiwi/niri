@@ -16,7 +16,7 @@ PocketTopPanel {
     id: root
 
     panelFlag: "settings"
-    topInset: 8
+    edgeInset: 8
     animationDuration: Settings.animationDurationMedium
     easingType: Settings.easingStandard
 

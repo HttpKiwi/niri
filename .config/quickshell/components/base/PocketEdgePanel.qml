@@ -15,9 +15,6 @@ Item {
     // "top" | "bottom"
     property string edge: "bottom"
     property int edgeInset: 5
-    // Compat aliases used by existing panels
-    property alias topInset: root.edgeInset
-    property alias bottomInset: root.edgeInset
 
     property int animationDuration: Settings.animationDurationShort
     property int easingType: Easing.OutCubic

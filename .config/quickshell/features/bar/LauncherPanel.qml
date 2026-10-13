@@ -13,7 +13,7 @@ PocketBottomPanel {
     id: root
 
     panelFlag: "launcher"
-    bottomInset: 5
+    edgeInset: 5
 
     property var sources: [appLauncherSource, clipboardLauncherSource, gifLauncherSource]
     property int currentSourceIndex: 0

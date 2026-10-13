@@ -23,6 +23,7 @@ Item {
     readonly property real borderTop: Settings.barHeight + blobMargin
     readonly property real borderSide: Settings.screenBorderWidth + blobMargin
     readonly property real borderBottom: Settings.screenBorderWidth + blobMargin
+    readonly property real topReach: Math.min(Settings.barHeight - 4, 20)
 
     width: screenWidth
     height: screenHeight
@@ -99,31 +100,8 @@ Item {
             visible: osdPanel ? osdPanel.pocketActive : false
         }
 
-        BlobRect {
-            group: blobGroup
-            x: launcherPanel ? launcherPanel.blobX + blobMargin : 0
-            y: launcherPanel ? launcherPanel.blobY + blobMargin : 0
-            width: launcherPanel && launcherPanel.blobH > 0 ? launcherPanel.blobW : 0
-            height: launcherPanel ? launcherPanel.blobH : 0
-            radius: Settings.screenCornerRadius
-            deformScale: launcherPanel && launcherPanel.blobH > 4 && launcherPanel.hideProgress < 0.85 ? 0.00001 : 0
-            stiffness: 200
-            damping: 60
-            visible: launcherPanel ? launcherPanel.blobH > 0 : false
-        }
-
-        BlobRect {
-            group: blobGroup
-            x: wallpaperPanel ? wallpaperPanel.blobX + blobMargin : 0
-            y: wallpaperPanel ? wallpaperPanel.blobY + blobMargin : 0
-            width: wallpaperPanel && wallpaperPanel.blobH > 0 ? wallpaperPanel.blobW : 0
-            height: wallpaperPanel ? wallpaperPanel.blobH : 0
-            radius: Settings.screenCornerRadius
-            deformScale: wallpaperPanel && wallpaperPanel.blobH > 4 && wallpaperPanel.hideProgress < 0.85 ? 0.00001 : 0
-            stiffness: 200
-            damping: 60
-            visible: wallpaperPanel ? wallpaperPanel.blobH > 0 : false
-        }
+        EdgeBlob { group: blobGroup; margin: frameRoot.blobMargin; panel: frameRoot.launcherPanel }
+        EdgeBlob { group: blobGroup; margin: frameRoot.blobMargin; panel: frameRoot.wallpaperPanel }
 
         // Control center — flush with the right frame so the pocket merges (no gap)
         BlobRect {
@@ -141,37 +119,20 @@ Item {
             visible: controlCenterPanel ? controlCenterPanel.pocketActive : false
         }
 
-        // Settings — flush with the top frame so the pocket merges (launcher, but from top)
-        BlobRect {
+        // Settings / calendar drop from the top: reach into the bar chrome so the SDF merges
+        EdgeBlob {
             group: blobGroup
-            x: settingsPanel ? settingsPanel.blobX + blobMargin : 0
-            // Reach into the top bar chrome so SDF merges with the frame
-            y: settingsPanel ? settingsPanel.blobY + blobMargin - Math.min(Settings.barHeight - 4, 20) : 0
-            width: settingsPanel && settingsPanel.blobH > 0 ? settingsPanel.blobW : 0
-            height: settingsPanel && settingsPanel.blobH > 0
-                ? settingsPanel.blobH + Math.min(Settings.barHeight - 4, 20)
-                : 0
-            radius: Settings.screenCornerRadius
-            deformScale: settingsPanel && settingsPanel.blobH > 4 && settingsPanel.hideProgress < 0.85 ? 0.00001 : 0
-            stiffness: 200
-            damping: 60
-            visible: settingsPanel ? settingsPanel.pocketActive : false
+            margin: frameRoot.blobMargin
+            reach: frameRoot.topReach
+            panel: frameRoot.settingsPanel
+            visible: frameRoot.settingsPanel ? frameRoot.settingsPanel.pocketActive : false
         }
-
-        // Calendar — top-right drop-down from date/time
-        BlobRect {
+        EdgeBlob {
             group: blobGroup
-            x: calendarPanel ? calendarPanel.blobX + blobMargin : 0
-            y: calendarPanel ? calendarPanel.blobY + blobMargin - Math.min(Settings.barHeight - 4, 20) : 0
-            width: calendarPanel && calendarPanel.blobH > 0 ? calendarPanel.blobW : 0
-            height: calendarPanel && calendarPanel.blobH > 0
-                ? calendarPanel.blobH + Math.min(Settings.barHeight - 4, 20)
-                : 0
-            radius: Settings.screenCornerRadius
-            deformScale: calendarPanel && calendarPanel.blobH > 4 && calendarPanel.hideProgress < 0.85 ? 0.00001 : 0
-            stiffness: 200
-            damping: 60
-            visible: calendarPanel ? calendarPanel.pocketActive : false
+            margin: frameRoot.blobMargin
+            reach: frameRoot.topReach
+            panel: frameRoot.calendarPanel
+            visible: frameRoot.calendarPanel ? frameRoot.calendarPanel.pocketActive : false
         }
     }
 }

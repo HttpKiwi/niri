@@ -15,7 +15,7 @@ PocketBottomPanel {
     id: root
 
     panelFlag: "wallpaper"
-    bottomInset: 50
+    edgeInset: 50
     animationDuration: Settings.animationDurationMedium
     easingType: Settings.easingStandard
 
