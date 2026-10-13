@@ -91,7 +91,7 @@ bool BlobMaterialShader::updateUniformData(RenderState& state, QSGMaterial* newM
 
     memcpy(buf->data() + 144, mat->m_invertedInner, 16);
 
-    const int count = qMin(mat->m_rectCount, 16);
+    const int count = qMin(mat->m_rectCount, kMaxBlobRects);
     for (int i = 0; i < count; ++i) {
         const auto& r = mat->m_rects[i];
         const int base = 160 + i * 80;

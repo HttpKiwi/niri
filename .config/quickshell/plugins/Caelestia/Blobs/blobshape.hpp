@@ -53,6 +53,9 @@ protected:
 
     virtual void updatePhysics() {}
 
+    // Copies cached polish data and group chrome settings into the node's material
+    void fillMaterial(BlobMaterial* material) const;
+
     virtual void registerWithGroup();
     virtual void unregisterFromGroup();
     void updateCenteredDeformMatrix();

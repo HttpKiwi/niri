@@ -52,8 +52,14 @@ QSGNode* BlobInvertedRect::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData
     const float holeRight = static_cast<float>(width() - m_borderRight) - inset;
     const float holeBot = static_cast<float>(height() - m_borderBottom) - inset;
 
-    if (holeLeft >= holeRight || holeTop >= holeBot)
+    if (holeLeft >= holeRight || holeTop >= holeBot) {
+        // The base writes a 4-vertex strip; never hand it our 8-vertex frame node
+        if (oldNode && static_cast<QSGGeometryNode*>(oldNode)->geometry()->vertexCount() != 4) {
+            delete oldNode;
+            oldNode = nullptr;
+        }
         return BlobShape::updatePaintNode(oldNode, nullptr);
+    }
 
     auto* node = static_cast<QSGGeometryNode*>(oldNode);
 
@@ -97,37 +103,7 @@ QSGNode* BlobInvertedRect::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData
 
     node->markDirty(QSGNode::DirtyGeometry);
 
-    auto* material = static_cast<BlobMaterial*>(node->material());
-    material->m_paddedX = m_cachedPaddedX;
-    material->m_paddedY = m_cachedPaddedY;
-    material->m_paddedW = m_cachedPaddedW;
-    material->m_paddedH = m_cachedPaddedH;
-    material->m_smoothFactor = pad;
-    material->m_myIndex = m_cachedMyIndex;
-    material->m_color = m_group->color();
-    material->m_hasInverted = m_cachedHasInverted ? 1 : 0;
-    material->m_invertedRadius = m_cachedInvertedRadius;
-    material->m_chromeEnabled = m_group->proceduralEnabled() ? 1 : 0;
-    material->m_chromeTime = static_cast<float>(m_group->chromeTime());
-    material->m_chromeCellSize = static_cast<float>(m_group->cellSize());
-    material->m_chromeDotSize = static_cast<float>(m_group->dotSize());
-    material->m_chromeAnimSpeed = static_cast<float>(m_group->animSpeed());
-    material->m_chromeIntensity = static_cast<float>(m_group->intensity());
-    material->m_chromeScreenW = static_cast<float>(m_group->chromeScreenWidth());
-    material->m_chromeScreenH = static_cast<float>(m_group->chromeScreenHeight());
-    material->m_chromeOriginX = static_cast<float>(m_group->chromeOriginX());
-    material->m_chromeOriginY = static_cast<float>(m_group->chromeOriginY());
-    material->m_chromeColor1 = m_group->color1();
-    material->m_chromeColor2 = m_group->color2();
-    material->m_chromeColor3 = m_group->color3();
-    material->m_chromeBaseColor = m_group->baseColor();
-    memcpy(material->m_invertedOuter, m_cachedInvertedOuter, sizeof(m_cachedInvertedOuter));
-    memcpy(material->m_invertedInner, m_cachedInvertedInner, sizeof(m_cachedInvertedInner));
-
-    const int count = static_cast<int>(qMin(m_cachedRects.size(), qsizetype(16)));
-    material->m_rectCount = count;
-    for (int i = 0; i < count; ++i)
-        material->m_rects[i] = m_cachedRects[i];
+    fillMaterial(static_cast<BlobMaterial*>(node->material()));
 
     node->markDirty(QSGNode::DirtyMaterial);
 

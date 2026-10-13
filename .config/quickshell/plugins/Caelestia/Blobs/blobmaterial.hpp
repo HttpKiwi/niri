@@ -4,6 +4,9 @@
 #include <qsgmaterial.h>
 #include <qsgmaterialshader.h>
 
+// Must match shaders/blob.frag: rectData[80] = kMaxBlobRects * 5 vec4
+inline constexpr int kMaxBlobRects = 16;
+
 struct BlobRectData {
     float cx = 0, cy = 0, hw = 0, hh = 0;
     float offsetX = 0, offsetY = 0;
@@ -32,7 +35,7 @@ public:
     float m_invertedRadius = 0;
     float m_invertedOuter[4] = {};
     float m_invertedInner[4] = {};
-    BlobRectData m_rects[16] = {};
+    BlobRectData m_rects[kMaxBlobRects] = {};
 
     float m_chromeTime = 0;
     float m_chromeCellSize = 7;
