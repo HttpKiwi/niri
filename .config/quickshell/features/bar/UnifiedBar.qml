@@ -130,10 +130,16 @@ Scope {
                         }
                     }
 
-                    WorkspaceMinimap {
+                    Pill {
                         anchors.verticalCenter: parent.verticalCenter
-                        outputName: window.niriScreenName
-                        visible: Settings.showBarMinimap && columns.length > 0
+                        horizontalPadding: 12
+                        visible: Settings.showBarMinimap && minimap.columns.length > 0
+
+                        WorkspaceMinimap {
+                            id: minimap
+                            outputName: window.niriScreenName
+                            mapHeight: Settings.barPillHeight - 8
+                        }
                     }
                 }
 

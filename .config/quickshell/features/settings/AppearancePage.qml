@@ -12,7 +12,7 @@ SettingsScrollPage {
 
         SettingsSection {
             title: "Glass"
-            subtitle: "Frosted panel fill used by cards, settings, and calendar"
+            subtitle: "Frosted fill used by cards, settings, calendar, and bar pills"
 
             SettingsSlider {
                 label: "Opacity"

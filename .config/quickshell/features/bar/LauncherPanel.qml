@@ -485,6 +485,7 @@ PocketBottomPanel {
                 Repeater {
                     model: sources
                     delegate: Pill {
+                        glass: false
                         width: tabPillWidth
                         height: parent.height
                         color: index === currentSourceIndex ? Theme.accentContainer : Theme.pillBackground
