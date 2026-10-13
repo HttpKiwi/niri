@@ -18,11 +18,14 @@ QtObject {
     property var items: []
     property bool itemsLoaded: false
 
-    Component.onCompleted: {
-        DesktopEntries.applicationsChanged.connect(function() {
+    // Connections (not .connect()) so the handler dies with this source;
+    // DesktopEntries outlives reloads and kept calling into destroyed copies
+    property Connections _desktopEntries: Connections {
+        target: DesktopEntries
+        function onApplicationsChanged() {
             root.items = []
             root.itemsLoaded = false
-        })
+        }
     }
 
     function recordUsage(appItem) {

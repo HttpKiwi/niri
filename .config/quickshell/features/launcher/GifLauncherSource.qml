@@ -45,8 +45,11 @@ QtObject {
             retryPendingSearch()
     }
 
-    Component.onCompleted: {
-        Settings.secretsLoaded.connect(retryPendingSearch)
+    property Connections _secrets: Connections {
+        target: Settings
+        function onSecretsLoaded() {
+            root.retryPendingSearch()
+        }
     }
 
     function retryPendingSearch() {
