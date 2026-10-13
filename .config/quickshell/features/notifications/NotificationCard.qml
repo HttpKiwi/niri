@@ -18,13 +18,6 @@ Item {
     signal closeRequested()
     signal actionInvoked()
 
-    readonly property var liveNotif: {
-        const map = NotificationService.liveById
-        const id = notification?.id
-        return id !== undefined && id !== null ? (map[String(id)] || null) : null
-    }
-    readonly property var liveActions: liveNotif?.actions ?? notification?.actions ?? []
-    readonly property bool hasActions: (liveActions?.length ?? 0) > 0
 
     implicitWidth: Settings.notificationWidth
     implicitHeight: Math.max(
@@ -124,55 +117,10 @@ Item {
             }
         }
 
-        RowLayout {
-            id: actionRow
-            visible: root.hasActions
-            Layout.fillWidth: true
-            spacing: 6
+        NotificationActions {
+            notification: root.notification
             z: 2
-
-            Repeater {
-                model: root.liveActions
-
-                delegate: Rectangle {
-                    required property var modelData
-                    required property int index
-
-                    Layout.fillWidth: true
-                    implicitHeight: actionText.implicitHeight + 12
-                    radius: 8
-                    color: actionMouse.containsMouse
-                        ? (index === 0 ? Theme.accent : Theme.surfaceHighest)
-                        : (index === 0 ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent")
-                    border.width: index === 0 ? 0 : 1
-                    border.color: Theme.cardBorder
-
-                    MouseArea {
-                        id: actionMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            NotificationService.activateAction(root.notification, index);
-                            root.actionInvoked();
-                        }
-                    }
-
-                    Text {
-                        id: actionText
-                        anchors.centerIn: parent
-                        width: parent.width - 12
-                        horizontalAlignment: Text.AlignHCenter
-                        text: modelData.text || ""
-                        color: index === 0 ? Theme.accent : Theme.textPrimary
-                        font.pixelSize: 12
-                        font.weight: index === 0 ? Font.Medium : Font.Normal
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                    }
-                }
-            }
+            onInvoked: root.actionInvoked()
         }
     }
 }

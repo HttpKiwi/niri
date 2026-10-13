@@ -27,14 +27,6 @@ Item {
 
     readonly property bool isCritical: notification?.urgency === 2
     readonly property bool hasImage: notification?.image !== ""
-    readonly property var liveActions: {
-        const map = NotificationService.liveById
-        const id = notification?.id
-        const live = id !== undefined && id !== null ? map[String(id)] : null
-        if (live?.actions?.length)
-            return live.actions
-        return notification?.actions ?? []
-    }
     property bool bodyExpanded: false
     property bool _copied: false
 
@@ -289,47 +281,11 @@ Item {
             }
 
             // Action buttons (live NotificationAction from NotificationService)
-            RowLayout {
-                visible: root.liveActions.length > 0
-                Layout.fillWidth: true
-                spacing: 6
-
-                Repeater {
-                    model: root.liveActions
-
-                    delegate: Rectangle {
-                        required property var modelData
-                        required property int index
-
-                        Layout.fillWidth: true
-                        implicitHeight: actionText.implicitHeight + 16
-                        radius: 8
-                        color: mouseArea.containsMouse ? (index === 0 ? Theme.accent : Theme.surfaceHighest) : (index === 0 ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent")
-                        border.width: index === 0 ? 0 : 1
-                        border.color: Theme.cardBorder
-
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                NotificationService.activateAction(root.notification, index)
-                                root.startDismiss()
-                            }
-                        }
-
-                        Text {
-                            id: actionText
-                            anchors.centerIn: parent
-                            text: modelData.text || ""
-                            color: index === 0 ? Theme.accent : Theme.textPrimary
-                            font.family: Settings.fontFamilyDefault
-                            font.pixelSize: Settings.fontSizeMedium
-                            font.weight: index === 0 ? Font.Medium : Font.Normal
-                        }
-                    }
-                }
+            NotificationActions {
+                notification: root.notification
+                buttonPadding: 16
+                fontSize: Settings.fontSizeMedium
+                onInvoked: root.startDismiss()
             }
         }
     }

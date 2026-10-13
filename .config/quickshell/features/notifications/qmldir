@@ -4,3 +4,4 @@ NotificationManager 1.0 NotificationManager.qml
 NotificationCard 1.0 NotificationCard.qml
 NotificationHistoryItem 1.0 NotificationHistoryItem.qml
 NotificationHistoryGroup 1.0 NotificationHistoryGroup.qml
+NotificationActions 1.0 NotificationActions.qml

@@ -47,6 +47,26 @@ Item {
         }
     }
 
+    // Live actions when the sender still tracks the notification, else the stored copy
+    // Popup entries live in a ListModel, where a stored array becomes a nested ListModel
+    function actionsFor(n) {
+        if (!n)
+            return [];
+        const live = getLive(n.id);
+        const liveActions = live ? live.actions : null;
+        if (liveActions && liveActions.length)
+            return liveActions;
+        const stored = n.actions;
+        if (!stored)
+            return [];
+        if (stored.length !== undefined)
+            return stored;
+        const out = [];
+        for (let i = 0; i < (stored.count ?? 0); i++)
+            out.push(stored.get(i));
+        return out;
+    }
+
     function getLive(id) {
         if (id === undefined || id === null)
             return null;
