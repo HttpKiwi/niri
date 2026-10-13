@@ -73,6 +73,16 @@ QtObject {
         return Qt.rgba(color.r, color.g, color.b, alpha)
     }
 
+    // Opacity floor for glass that carries text. The pocket chrome under cards
+    // (dot-matrix shader in primary/tertiary) can be bright: light on_surface
+    // text needs ~0.69 alpha for 3:1 and ~0.83 for 4.5:1 over luminance ~0.7.
+    readonly property real cardGlassFloor: 0.78
+
+    // Glass for text-bearing cards; boost raises it for highlights/selection
+    function cardGlass(boost) {
+        return glass(Math.min(0.95, Math.max(Settings.glassOpacity, cardGlassFloor) + (boost || 0)), Settings.glassTintStrength)
+    }
+
     // Semi-transparent tinted glass over an internally blurred backdrop
     function glass(opacity, tintStrength) {
         const t = tintStrength

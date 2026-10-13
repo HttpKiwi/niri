@@ -323,7 +323,7 @@ PocketTopPanel {
     }
 
     component SectionCard: Rectangle {
-        color: Theme.glass(Math.max(Settings.glassOpacity, 0.62), Settings.glassTintStrength)
+        color: Theme.cardGlass()
         border.color: Theme.glassBorder(Math.max(Settings.glassBorderOpacity, 0.22), Settings.glassTintStrength)
         border.width: Settings.cardBorderWidth
         radius: root.sectionRadius

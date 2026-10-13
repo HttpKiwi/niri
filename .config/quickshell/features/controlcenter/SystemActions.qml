@@ -22,7 +22,7 @@ Rectangle {
     height: implicitHeight
     width: parent ? parent.width : 380
     radius: Settings.cardRadius
-    color: Theme.glass(Math.max(Settings.glassOpacity, 0.58), Settings.glassTintStrength)
+    color: Theme.cardGlass()
     border.color: Theme.glassBorder(Math.max(Settings.glassBorderOpacity, 0.22), Settings.glassTintStrength)
     border.width: Settings.cardBorderWidth
     antialiasing: true

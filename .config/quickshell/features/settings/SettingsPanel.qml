@@ -70,7 +70,7 @@ PocketTopPanel {
                 Layout.preferredWidth: 200
                 Layout.fillHeight: true
                 radius: Settings.cardRadius
-                color: Theme.glass(Math.max(Settings.glassOpacity, 0.6), Settings.glassTintStrength)
+                color: Theme.cardGlass()
                 border.width: 1
                 border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
 
@@ -161,7 +161,7 @@ PocketTopPanel {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: Settings.cardRadius
-                color: Theme.glass(Math.min(0.78, Settings.glassOpacity + 0.28), Settings.glassTintStrength)
+                color: Theme.cardGlass(0.08)
                 border.width: 1
                 border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
                 clip: true

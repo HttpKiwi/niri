@@ -21,7 +21,7 @@ Rectangle {
     implicitHeight: audioColumn.implicitHeight + pad * 2
     width: parent ? parent.width : 380
     radius: Settings.cardRadius
-    color: Theme.glass(Math.max(Settings.glassOpacity, 0.58), Settings.glassTintStrength)
+    color: Theme.cardGlass()
     border.color: keyboardActive
         ? Theme.withAlpha(Theme.accent, 0.55)
         : Theme.glassBorder(Math.max(Settings.glassBorderOpacity, 0.22), Settings.glassTintStrength)

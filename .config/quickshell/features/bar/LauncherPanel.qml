@@ -643,7 +643,7 @@ PocketBottomPanel {
                         && listView.currentIndex >= 0
                         && listView.currentIndex < filteredModel.count
                         && !filteredModel.get(listView.currentIndex).status
-                    color: Theme.glass(Math.min(Settings.glassOpacity + 0.08, 0.65), Settings.glassTintStrength)
+                    color: Theme.cardGlass(0.08)
                     border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
                     border.width: Settings.cardBorderWidth
                     radius: 8

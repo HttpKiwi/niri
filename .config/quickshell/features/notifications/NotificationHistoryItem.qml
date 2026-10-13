@@ -55,7 +55,7 @@ Item {
         id: contentItem
         width: parent.width
         height: implicitHeight
-        color: Theme.glass(Math.min(Settings.glassOpacity + 0.12, 0.7), Settings.glassTintStrength)
+        color: Theme.cardGlass(0.06)
         radius: Settings.cardRadius
         border.width: root.keyboardFocused ? 2 : Settings.cardBorderWidth
         border.color: root.keyboardFocused

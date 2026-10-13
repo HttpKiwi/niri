@@ -191,7 +191,7 @@ Item {
         id: contentItem
         width: parent.width
         height: contentColumn.height
-        color: Theme.glass(Settings.glassOpacity, Settings.glassTintStrength)
+        color: Theme.cardGlass()
         radius: Settings.cardRadius
         border.width: root.groupKeyboardFocused ? 2 : Settings.cardBorderWidth
         border.color: root.groupKeyboardFocused
