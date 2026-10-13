@@ -10,6 +10,7 @@ import Quickshell.Widgets
 import qs.config
 import qs.core
 import qs.components.base
+import qs.features.background
 
 PocketBottomPanel {
     id: root
@@ -23,6 +24,11 @@ PocketBottomPanel {
     property string _lastScan: ""
     property int selectedIndex: 0
     readonly property string wallpapersDir: Settings.wallpapersDir
+
+    // Single source for video detection and poster paths (shared with Background)
+    BackgroundUtil {
+        id: bgUtil
+    }
     readonly property string currentWallpaperFile: Settings.currentWallpaperFile
 
     property string originalWallpaper: ""
@@ -211,14 +217,10 @@ PocketBottomPanel {
 
         const selectedWallpaper = wallpapers[selectedIndex];
         const path = selectedWallpaper.path;
-        const lower = path.toLowerCase();
-        const isVideo = lower.endsWith(".mp4") || lower.endsWith(".webm")
-            || lower.endsWith(".mkv") || lower.endsWith(".mov");
         const payload = { path: path };
-        if (isVideo) {
-            const base = path.split("/").pop();
-            payload.poster = `${wallpapersDir}/.posters/${base}.jpg`;
-        }
+        const poster = bgUtil.posterPathFor(path);
+        if (poster)
+            payload.poster = poster;
         const jsonData = JSON.stringify(payload);
         wallpaperSaver.command = ["sh", "-c", 'printf "%s\\n" "$1" > "$2"', "sh", jsonData, currentWallpaperFile];
         wallpaperSaver.running = true;
@@ -377,17 +379,8 @@ PocketBottomPanel {
 
                             property bool isSelected: index === root.selectedIndex
                             property int currentWidth: thumbnailSize
-                            property bool isVideo: {
-                                const path = modelData.path.toLowerCase();
-                                return path.endsWith('.mp4') || path.endsWith('.webm') ||
-                                       path.endsWith('.mkv') || path.endsWith('.mov');
-                            }
-                            property string posterPath: {
-                                if (!isVideo)
-                                    return "";
-                                const base = modelData.path.split("/").pop();
-                                return root.wallpapersDir + "/.posters/" + base + ".jpg";
-                            }
+                            readonly property bool isVideo: bgUtil.isVideo(modelData.path)
+                            readonly property string posterPath: bgUtil.posterPathFor(modelData.path)
 
                             onIsSelectedChanged: {
                                 currentWidth = isSelected ? expandedWidth : thumbnailSize;

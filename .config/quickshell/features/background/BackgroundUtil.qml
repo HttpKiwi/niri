@@ -62,14 +62,6 @@ QtObject {
         return getBackgroundType(filePath) === "video";
     }
 
-    function isAnimated(filePath) {
-        return getBackgroundType(filePath) === "animated";
-    }
-
-    function isStaticImage(filePath) {
-        return getBackgroundType(filePath) === "image";
-    }
-
     function posterPathFor(filePath) {
         const path = normalizePath(filePath);
         if (!path || !isVideo(path))
