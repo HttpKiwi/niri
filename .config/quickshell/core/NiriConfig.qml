@@ -63,6 +63,9 @@ QtObject {
     }
 
     function _flushApply() {
+        // Busy: keep the patch; setProc.onExited flushes it
+        if (setProc.running)
+            return;
         const patch = root._pendingPatch;
         root._pendingPatch = ({});
         if (!patch || Object.keys(patch).length === 0)
@@ -173,6 +176,7 @@ QtObject {
             } catch (e) {
                 root.statusMessage = code === 0 ? "Applied" : "Apply failed";
             }
+            root._flushApply();
         }
     }
 

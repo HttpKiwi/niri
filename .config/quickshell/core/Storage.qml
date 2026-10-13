@@ -8,7 +8,7 @@ import qs.config
 
 /**
  * Storage - JSON-based persistence for shell state
- * Uses FileView for reading and Python heredoc for safe writing
+ * FileView reads and writes (atomic) shell_data.json
  *
  * Data structure:
  * {
@@ -24,42 +24,41 @@ QtObject {
 
     // Internal storage
     property var _data: ({ notifications: [], appUsage: {} })
+    // Never write before the file has been read: on reload, re-delivered
+    // notifications call saveData() immediately and would clobber history
+    property bool _loaded: false
 
     signal notificationsChanged()
 
-    // FileView for reading
+    // Parse text ourselves: JsonAdapter `var` props don't round-trip the
+    // appUsage object (it came back as {} and usage counts were lost)
     property var fileView: FileView {
         path: root.dataPath
-        watchChanges: true
+        // Read synchronously so _data is populated before any caller can save
+        blockLoading: true
 
-        JsonAdapter {
-            id: adapter
-            property var notifications
-            property var appUsage
-        }
-
-        onAdapterUpdated: {
-            if (adapter.notifications !== undefined || adapter.appUsage !== undefined) {
+        onLoaded: {
+            try {
+                const obj = JSON.parse(text() || "{}")
                 root._data = {
-                    notifications: adapter.notifications || [],
-                    appUsage: adapter.appUsage || {}
+                    notifications: Array.isArray(obj.notifications) ? obj.notifications : [],
+                    appUsage: (obj.appUsage && typeof obj.appUsage === "object") ? obj.appUsage : {}
                 }
-                root.notificationsChanged()
+            } catch (e) {
+                // Corrupt file: keep it on disk, refuse to overwrite
+                console.error("Storage: cannot parse", root.dataPath, e)
+                return
             }
-        }
-
-        Component.onCompleted: {
-            root._data = {
-                notifications: adapter.notifications || [],
-                appUsage: adapter.appUsage || {}
-            }
+            root._loaded = true
             root.notificationsChanged()
         }
-    }
-
-    // Reusable Process for saving
-    property var saveProcess: Process {
-        running: false
+        onLoadFailed: err => {
+            // Missing file is a fresh start; anything else must not be overwritten
+            if (err === FileViewError.FileNotFound)
+                root._loaded = true
+            else
+                console.error("Storage: cannot read", root.dataPath, FileViewError.toString(err))
+        }
     }
 
     property Timer usageSaveTimer: Timer {
@@ -82,24 +81,12 @@ QtObject {
     }
 
     function saveData() {
-        try {
-            const jsonStr = JSON.stringify(root._data, null, 2)
-            const filePath = root.dataPath
-            const dirPath = Quickshell.shellDir
-            const tempInputPath = `${filePath}.input.tmp`
-            const tempOutputPath = `${filePath}.tmp`
-
-            const writeCommand = `cat > '${tempInputPath}' << 'JSONEOF'
-${jsonStr}
-JSONEOF
-python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); data = json.load(open('${tempInputPath}')); f = open('${tempOutputPath}', 'w'); json.dump(data, f, indent=2); f.close(); shutil.move('${tempOutputPath}', '${filePath}'); os.remove('${tempInputPath}')"`
-
-            saveProcess.command = ["sh", "-c", writeCommand]
-            saveProcess.running = true
-            root.notificationsChanged()
-        } catch (e) {
-            console.error("Storage: Error saving data:", e)
+        if (!root._loaded) {
+            console.warn("Storage: save skipped, data not loaded yet")
+            return
         }
+        fileView.setText(JSON.stringify(root._data, null, 2))
+        root.notificationsChanged()
     }
 
     // Notification operations

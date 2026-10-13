@@ -86,14 +86,7 @@ QtObject {
 
         const json = JSON.stringify(prefs, null, 2)
 
-        try {
-            // Use Process to write file since Quickshell.writeFile doesn't exist
-            preferenceSaver.command = ["sh", "-c", `echo '${json}' > '${prefsFile}'`]
-            preferenceSaver.running = true
-            console.log(`MatugenPreferences: Saved - scheme=${schemeType}, mode=${colorMode}, contrast=${contrastLevel}`)
-        } catch (e) {
-            console.error("MatugenPreferences: Failed to save preferences:", e)
-        }
+        prefsFileView.setText(json)
     }
 
     // Cycle to next scheme type
@@ -114,10 +107,5 @@ QtObject {
     function setContrast(value) {
         contrastLevel = Math.max(-1.0, Math.min(1.0, value))
         savePreferences()
-    }
-
-    // Process for saving preferences
-    property var preferenceSaver: Process {
-        running: false
     }
 }

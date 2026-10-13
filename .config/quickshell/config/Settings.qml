@@ -289,8 +289,6 @@ QtObject {
     // Settings window + prefs persistence
     // ========================================
     readonly property string shellPrefsFile: Quickshell.shellDir + "/common/shell-prefs.json"
-    property bool _prefsLoaded: false
-    property bool _prefsLoading: false
     property string prefsStatusMessage: ""
 
     readonly property var _prefsKeys: [
@@ -314,9 +312,7 @@ QtObject {
     function setPref(key, value) {
         if (!(key in root) || root._prefsKeys.indexOf(key) < 0)
             return;
-        root._prefsLoading = true;
         root[key] = value;
-        root._prefsLoading = false;
         prefsSaveTimer.restart();
     }
 
@@ -326,18 +322,12 @@ QtObject {
             const k = root._prefsKeys[i];
             prefs[k] = root[k];
         }
-        const json = JSON.stringify(prefs, null, 2);
-        prefsSaver.command = [
-            "sh", "-c",
-            `mkdir -p "$(dirname '${root.shellPrefsFile}')" && cat > '${root.shellPrefsFile}' << 'EOF'\n${json}\nEOF`
-        ];
-        prefsSaver.running = true;
+        prefsFile.setText(JSON.stringify(prefs, null, 2) + "\n");
     }
 
     function _applyPrefsObject(obj) {
         if (!obj || typeof obj !== "object")
             return;
-        root._prefsLoading = true;
         for (let i = 0; i < root._prefsKeys.length; i++) {
             const k = root._prefsKeys[i];
             if (obj[k] === undefined)
@@ -348,8 +338,6 @@ QtObject {
                 console.warn("Settings: skip pref", k, e);
             }
         }
-        root._prefsLoading = false;
-        root._prefsLoaded = true;
     }
 
     property var prefsSaveTimer: Timer {
@@ -358,35 +346,27 @@ QtObject {
         onTriggered: root.savePrefs()
     }
 
-    property var prefsLoader: Process {
-        running: true
-        command: ["sh", "-c", `test -f '${root.shellPrefsFile}' && cat '${root.shellPrefsFile}' || true`]
-        stdout: StdioCollector {
-            id: prefsOut
-        }
-        onExited: {
-            const text = prefsOut.text.trim();
-            if (!text)
-                return;
+    property var prefsFile: FileView {
+        path: root.shellPrefsFile
+        onLoaded: {
             try {
-                root._applyPrefsObject(JSON.parse(text));
+                root._applyPrefsObject(JSON.parse(text()));
             } catch (e) {
                 root.prefsStatusMessage = "Failed to load shell prefs";
                 console.warn("Settings: failed to load shell prefs", e);
             }
         }
-    }
-
-    property var prefsSaver: Process {
-        running: false
-        onExited: code => {
-            if (code === 0) {
-                if (root.prefsStatusMessage.indexOf("Failed to save") === 0)
-                    root.prefsStatusMessage = "";
-            } else {
-                root.prefsStatusMessage = `Failed to save shell prefs (exit ${code})`;
-                console.warn("Settings: prefs save failed", code);
-            }
+        onLoadFailed: err => {
+            if (err !== FileViewError.FileNotFound)
+                console.warn("Settings: failed to read shell prefs", FileViewError.toString(err));
+        }
+        onSaved: {
+            if (root.prefsStatusMessage.indexOf("Failed to save") === 0)
+                root.prefsStatusMessage = "";
+        }
+        onSaveFailed: err => {
+            root.prefsStatusMessage = "Failed to save shell prefs";
+            console.warn("Settings: prefs save failed", FileViewError.toString(err));
         }
     }
 
