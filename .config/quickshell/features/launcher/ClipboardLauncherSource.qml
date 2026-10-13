@@ -9,7 +9,7 @@ QtObject {
     readonly property string sourceName: "clipboard"
     readonly property string displayName: "Clipboard"
     readonly property string searchPlaceholder: "Search clipboard"
-    readonly property string thumbDir: Settings.clipboardThumbDir || "/tmp/quickshell-clip-thumbs"
+    readonly property string thumbDir: Settings.clipboardThumbDir
 
     property var items: []
     property bool itemsLoaded: false
@@ -155,7 +155,7 @@ QtObject {
     }
 
     property var ensureThumbDir: Process {
-        command: ["mkdir", "-p", root.thumbDir]
+        command: ["mkdir", "-p", "-m", "700", root.thumbDir]
         running: false
     }
 
@@ -193,11 +193,11 @@ QtObject {
         _decoding = true
 
         // Skip re-decode when thumb already exists; otherwise write via cliphist
+        // $1 = cliphist id, $2 = thumb path (thumb dir created once in ensureThumbDir)
         decodeProc.command = [
             "sh", "-c",
-            "mkdir -p '" + thumbDir + "' && "
-                + "if [ -s '" + next.path + "' ]; then exit 0; fi; "
-                + "cliphist decode '" + next.id + "' > '" + next.path + "'"
+            'if [ -s "$2" ]; then exit 0; fi; cliphist decode "$1" > "$2"',
+            "sh", String(next.id), next.path
         ]
         decodeProc.running = true
     }
@@ -281,7 +281,6 @@ QtObject {
         return [
             "sh", "-c",
             "set -e; "
-                + "mkdir -p " + tmpDir + "; "
                 + "tmp=$(mktemp -p " + tmpDir + " clip.XXXXXX); "
                 + "trap 'rm -f \"$tmp\"' EXIT; "
                 + "cliphist decode " + id + " > \"$tmp\"; "

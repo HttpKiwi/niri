@@ -282,7 +282,8 @@ Item {
                         maximumLineCount: root.bodyExpanded ? 100 : 2
                         elide: Text.ElideRight
                         textFormat: Text.StyledText
-                        onLinkActivated: (link) => Qt.openUrlExternally(link)
+                        // Body markup comes from any app; only open web links
+                        onLinkActivated: (link) => { if (/^https?:\/\//i.test(link)) Qt.openUrlExternally(link) }
                     }
                 }
             }

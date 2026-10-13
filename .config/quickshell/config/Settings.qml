@@ -76,7 +76,7 @@ QtObject {
     // ========================================
     property var defaultWallpaperSaver: Process {
         running: false
-        command: ["sh", "-c", `echo '{"path": "${root.defaultWallpaper}"}' > '${root.currentWallpaperFile}'`]
+        command: ["sh", "-c", 'printf "%s\\n" "$1" > "$2"', "sh", JSON.stringify({ path: root.defaultWallpaper }), root.currentWallpaperFile]
     }
 
     // ========================================
@@ -188,7 +188,8 @@ QtObject {
     readonly property int launcherMaxModelItems: 50
     // Keep cliphist DB / clipboard tab in sync — see .config/cliphist/config
     readonly property int clipboardMaxItems: 200
-    readonly property string clipboardThumbDir: "/tmp/quickshell-clip-thumbs"
+    // Per-user 0700 tmpfs; clipboard contents must not land in world-readable /tmp
+    readonly property string clipboardThumbDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/quickshell-clip-thumbs"
     readonly property int clipboardThumbSize: 40
     readonly property int httpConnectTimeoutMs: 5000
     readonly property int httpMaxTimeMs: 10000

@@ -103,10 +103,6 @@ Scope {
             lockScope.lockNow()
         }
 
-        function unlockSession() {
-            lock.unlockRequested()
-        }
-
         function isLocked() {
             return lock.locked || LockState.engaging
         }

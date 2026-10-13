@@ -255,7 +255,7 @@ Mutex rules: launcher ↔ wallpaper; settings/calendar close each other and majo
 | `caffeine` | `toggle`, `enable`, `disable`, `isEnabled` | Idle inhibit |
 | `notifications` | `dismissFocused`, `focusPopup`, `navigateUp/Down`, `activateFocused` | Keyboard notif nav |
 | `storage` | `clearAll` | — |
-| `lock` | `lockSession`, `unlockSession`, `isLocked` | `Mod+Escape` (in lockscreen module) |
+| `lock` | `lockSession`, `isLocked` (no IPC unlock — PAM only) | `Mod+Escape` (in lockscreen module) |
 | `mpris` | play/pause/next/… | (in `Players.qml`) |
 
 ---

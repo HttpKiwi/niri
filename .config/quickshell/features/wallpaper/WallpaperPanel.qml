@@ -226,7 +226,7 @@ PocketBottomPanel {
             payload.poster = `${wallpapersDir}/.posters/${base}.jpg`;
         }
         const jsonData = JSON.stringify(payload);
-        wallpaperSaver.command = ["sh", "-c", `echo '${jsonData}' > '${currentWallpaperFile}'`];
+        wallpaperSaver.command = ["sh", "-c", 'printf "%s\\n" "$1" > "$2"', "sh", jsonData, currentWallpaperFile];
         wallpaperSaver.running = true;
 
         Settings.backgroundImagePath = path;

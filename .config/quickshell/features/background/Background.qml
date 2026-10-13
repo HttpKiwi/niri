@@ -37,13 +37,14 @@ Scope {
             if (!poster)
                 return;
             pendingPath = path;
+            // $1 = source video, $2 = poster jpg (positional args, no quoting issues)
             command = [
                 "sh", "-c",
-                `mkdir -p "$(dirname '${poster}')" && `
-                + `if [ ! -f '${poster}' ] || [ '${bgUtil.normalizePath(path)}' -nt '${poster}' ]; then `
-                + `ffmpeg -hide_banner -loglevel error -y -ss 0 -i '${bgUtil.normalizePath(path)}' `
-                + `-frames:v 1 -q:v 2 '${poster}' && echo ok; `
-                + `else echo cached; fi`
+                'mkdir -p "$(dirname "$2")" && '
+                + 'if [ ! -f "$2" ] || [ "$1" -nt "$2" ]; then '
+                + 'ffmpeg -hide_banner -loglevel error -y -ss 0 -i "$1" -frames:v 1 -q:v 2 "$2" && echo ok; '
+                + 'else echo cached; fi',
+                "sh", bgUtil.normalizePath(path), poster
             ];
             running = false;
             running = true;
