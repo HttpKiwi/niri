@@ -256,7 +256,7 @@ QtObject {
                 return;
             }
             if (root.captureMode === "region") {
-                slurpProc.command = ["/usr/bin/slurp", "-f", "%wx%h+%x+%y"];
+                slurpProc.command = ["slurp", "-f", "%wx%h+%x+%y"];
                 slurpProc.running = true;
                 return;
             }

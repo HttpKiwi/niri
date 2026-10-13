@@ -164,30 +164,34 @@ QtObject {
         var url = buildRequestUrl(endpoint, query)
 
         HttpClient.get(url, function(err, body) {
-            isLoading = false
+            // A newer query superseded this one
+            if (query !== root._lastQuery)
+                return
+
+            root.isLoading = false
 
             if (err) {
-                items = []
-                statusMessage = "GIF search failed"
+                root.items = []
+                root.statusMessage = "GIF search failed"
                 console.warn("GifLauncher:", err)
-                itemsLoaded = true
-                itemsUpdated()
+                root.itemsLoaded = true
+                root.itemsUpdated()
                 return
             }
 
             try {
                 var data = JSON.parse(body)
                 var rows = (data && data.data && data.data.data) ? data.data.data : []
-                items = parseResults(rows)
-                statusMessage = items.length ? "" : "No GIFs found"
-                itemsLoaded = true
-                itemsUpdated()
+                root.items = root.parseResults(rows)
+                root.statusMessage = root.items.length ? "" : "No GIFs found"
+                root.itemsLoaded = true
+                root.itemsUpdated()
             } catch (e) {
-                items = []
-                statusMessage = "Invalid GIF response"
+                root.items = []
+                root.statusMessage = "Invalid GIF response"
                 console.warn("GifLauncher: parse error", e)
-                itemsLoaded = true
-                itemsUpdated()
+                root.itemsLoaded = true
+                root.itemsUpdated()
             }
         })
     }

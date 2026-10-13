@@ -505,18 +505,16 @@ PocketBottomPanel {
                             }
                         }
 
+                        clickable: true
+                        onClicked: switchToSource(index, true)
+
+                        // No anchors: Pill centers its content; anchoring to the
+                        // childrenRect-sized host is a binding loop
                         Text {
-                            anchors.centerIn: parent
                             text: modelData.displayName
                             font.pixelSize: 12
                             font.weight: index === currentSourceIndex ? Font.Bold : Font.Normal
                             color: index === currentSourceIndex ? Theme.textOnPrimaryContainer : Theme.textSecondary
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: switchToSource(index, true)
-                            cursorShape: Qt.PointingHandCursor
                         }
                     }
                 }
@@ -773,7 +771,8 @@ PocketBottomPanel {
                     rowSpacing: root.gifGridSpacing
 
                     Repeater {
-                        model: filteredModel
+                        // Only build GIF cells in GIF mode; app icons aren't animated images
+                        model: root.isGifGrid ? filteredModel : null
 
                         delegate: Item {
                             required property int index

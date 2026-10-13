@@ -53,6 +53,8 @@ Item {
     function niriNameFor(screenName) {
         if (!screenName) return ""
         var names = getMonitorNames()
+        // Exact first: substring alone maps "DP-1" to "DP-10"
+        if (names.indexOf(screenName) >= 0) return screenName
         for (var i = 0; i < names.length; i++) {
             if (screenName.includes(names[i]) || names[i].includes(screenName)) return names[i]
         }

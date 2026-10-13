@@ -20,8 +20,8 @@ QtObject {
 
     Component.onCompleted: {
         DesktopEntries.applicationsChanged.connect(function() {
-            items = []
-            itemsLoaded = false
+            root.items = []
+            root.itemsLoaded = false
         })
     }
 

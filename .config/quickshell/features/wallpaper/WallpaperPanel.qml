@@ -53,12 +53,9 @@ PocketBottomPanel {
     }
 
     onClosed: {
-        if (isPreviewing) {
-            Settings.backgroundImagePath = originalWallpaper;
-            if (originalWallpaper && originalWallpaper !== "")
-                MatugenRunner.run(originalWallpaper);
-            isPreviewing = false;
-        }
+        wallpaperDebounce.stop();
+        if (isPreviewing)
+            cancelPreview();
         // Images are freed when the Loader unloads this panel
     }
 
@@ -206,6 +203,8 @@ PocketBottomPanel {
     }
 
     function cancelPreview() {
+        // A pending debounce would re-apply the preview after we restore
+        wallpaperDebounce.stop();
         Settings.backgroundImagePath = originalWallpaper;
         if (originalWallpaper && originalWallpaper !== "")
             MatugenRunner.run(originalWallpaper);

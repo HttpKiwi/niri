@@ -26,7 +26,7 @@ Singleton {
         if (player.trackArtUrl)
             return player.trackArtUrl;
 
-        const url = player.metadata["xesam:url"] ?? "";
+        const url = player.metadata?.["xesam:url"] ?? "";
         if (url && url.includes("youtube.com/watch")) {
             const match = url.match(/[?&]v=([\w-]{11})/);
             const id = match ? match[1] : null;

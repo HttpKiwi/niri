@@ -24,7 +24,7 @@ Item {
         return id !== undefined && id !== null ? (map[String(id)] || null) : null
     }
     readonly property var liveActions: liveNotif?.actions ?? notification?.actions ?? []
-    readonly property bool hasActions: liveActions.length > 0
+    readonly property bool hasActions: (liveActions?.length ?? 0) > 0
 
     implicitWidth: Settings.notificationWidth
     implicitHeight: Math.max(

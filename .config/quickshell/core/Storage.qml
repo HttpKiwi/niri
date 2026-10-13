@@ -62,29 +62,6 @@ QtObject {
         running: false
     }
 
-    property var legacyUsageMigrator: Process {
-        running: false
-        command: ["sh", "-c", `test -f '${Quickshell.shellDir}/app_usage.json' && cat '${Quickshell.shellDir}/app_usage.json' || true`]
-
-        stdout: SplitParser {
-            onRead: data => {
-                const trimmed = data.trim()
-                if (!trimmed)
-                    return
-                try {
-                    const legacy = JSON.parse(trimmed)
-                    if (legacy && typeof legacy === "object") {
-                        const merged = Object.assign({}, root._data.appUsage || {}, legacy)
-                        root._data.appUsage = merged
-                        root.saveData()
-                    }
-                } catch (e) {
-                    console.warn("Storage: Failed to migrate app_usage.json:", e)
-                }
-            }
-        }
-    }
-
     property Timer usageSaveTimer: Timer {
         interval: 500
         repeat: false
@@ -93,7 +70,6 @@ QtObject {
 
     Component.onCompleted: {
         loadData()
-        legacyUsageMigrator.running = true
     }
 
     function loadData() {
@@ -139,6 +115,7 @@ python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); d
             image: notification.image || "",
             desktopEntry: notification.desktopEntry || "",
             actions: notification.actions || [],
+            urgency: notification.urgency ?? 1,
             timestamp: notification.timestamp || new Date().toISOString(),
             dismissed: false
         }

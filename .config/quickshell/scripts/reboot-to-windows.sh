@@ -4,7 +4,8 @@ set -euo pipefail
 
 entry="${WINDOWS_EFI_BOOT:-}"
 if [[ -z "${entry}" ]]; then
-    entry="$(efibootmgr 2>/dev/null | sed -n 's/^Boot\([0-9A-Fa-f]*\)[* ]*Windows Boot Manager.*/\1/p' | head -n1)"
+    # `|| true`: under set -e a failing efibootmgr would exit before the error below
+    entry="$( { efibootmgr 2>/dev/null || true; } | sed -n 's/^Boot\([0-9A-Fa-f]*\)[* ]*Windows Boot Manager.*/\1/p' | head -n1)"
 fi
 
 if [[ -z "${entry}" ]]; then

@@ -73,10 +73,11 @@ QtObject {
         )
 
         if (NotificationModel.count() >= maxNotifications) {
-            const oldest = NotificationModel.model.get(NotificationModel.count() - 1)
+            // Model appends, so index 0 is the oldest popup
+            const oldest = NotificationModel.model.get(0)
             if (oldest)
                 NotificationService.release(oldest.id)
-            NotificationModel.model.remove(NotificationModel.count() - 1)
+            NotificationModel.model.remove(0)
         }
 
         try {
@@ -88,7 +89,8 @@ QtObject {
                 image: notification.image || "",
                 id: id,
                 desktopEntry: desktopEntry,
-                actions: actions
+                actions: actions,
+                urgency: notification.urgency
             })
         } catch (e) {}
 

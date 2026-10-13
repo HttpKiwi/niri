@@ -103,7 +103,6 @@ Rectangle {
                     padding: 0
                     from: 0
                     to: 100
-                    value: rowRoot.volumePct
                     enabled: rowRoot.enabled
                     opacity: enabled ? 1 : 0.4
 
@@ -135,6 +134,12 @@ Rectangle {
                     }
 
                     onMoved: rowRoot.volumeMoved(value)
+
+                    // Plain `value:` binding is broken by the first drag; keep tracking external changes
+                    Binding on value {
+                        value: rowRoot.volumePct
+                        when: !slider.pressed
+                    }
                 }
             }
         }

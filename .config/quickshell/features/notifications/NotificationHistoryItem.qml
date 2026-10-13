@@ -365,7 +365,7 @@ Item {
         onEntered: root._isHovered = true
         onExited: {
             root._isHovered = false
-            if (!contentItem.Drag.active) {
+            if (!drag.active) {
                 contentItem.x = 0
             }
         }

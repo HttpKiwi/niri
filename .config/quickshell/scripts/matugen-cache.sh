@@ -70,10 +70,12 @@ error() {
 # Get cache directory for a specific wallpaper with scheme and mode
 get_cache_dir() {
     local wallpaper_path="$1"
-    local filename
+    local filename hash
     filename=$(basename "$wallpaper_path")
-    # Nested cache: .matugen_cache/scheme-type/mode/wallpaper.jpg/
-    echo "$CACHE_ROOT/$SCHEME_TYPE/$COLOR_MODE/$filename"
+    # Path hash so same-named files in different folders don't share a palette
+    hash=$(printf '%s' "$wallpaper_path" | md5sum | cut -c1-8)
+    # Nested cache: .matugen_cache/scheme-type/mode/wallpaper.jpg-<hash>/
+    echo "$CACHE_ROOT/$SCHEME_TYPE/$COLOR_MODE/$filename-$hash"
 }
 
 # Outputs that must be present for a cache to be considered complete.
@@ -290,8 +292,11 @@ run_post_hooks() {
             log "  Removed stale ui.systemUsesDarkTheme from prefs.js"
         fi
 
-        : > "$zen_user_js"  # Empty user.js
-        log "  Zen user.js cleared (portal handles theme)"
+        # Drop only the theme pref; don't wipe user-authored prefs
+        if grep -q 'ui.systemUsesDarkTheme' "$zen_user_js" 2>/dev/null; then
+            sed -i '/ui.systemUsesDarkTheme/d' "$zen_user_js" 2>/dev/null || true
+            log "  Removed ui.systemUsesDarkTheme from user.js (portal handles theme)"
+        fi
     fi
 
     # Kitty reload - use socket-based remote control

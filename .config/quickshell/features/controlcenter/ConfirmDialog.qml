@@ -110,8 +110,8 @@ Item {
                     background: Rectangle {
                         radius: Settings.cardRadius
                         color: root.isDestructive
-                            ? (controlButton.btnHovered ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.2) : "transparent")
-                            : (controlButton.btnHovered ? Theme.accentContainer : "transparent")
+                            ? (controlButton.containsMouse ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.2) : "transparent")
+                            : (controlButton.containsMouse ? Theme.accentContainer : "transparent")
 
                         Behavior on color {
                             ColorAnimation { duration: Settings.animationDurationShort }
@@ -121,8 +121,8 @@ Item {
                     contentItem: Text {
                         text: parent.text
                         color: root.isDestructive
-                            ? (controlButton.btnHovered ? Theme.error : Theme.textSecondary)
-                            : (controlButton.btnHovered ? Theme.textOnPrimaryContainer : Theme.textSecondary)
+                            ? (controlButton.containsMouse ? Theme.error : Theme.textSecondary)
+                            : (controlButton.containsMouse ? Theme.textOnPrimaryContainer : Theme.textSecondary)
                         font.family: Settings.fontFamilyDefault
                         font.pixelSize: Settings.fontSizeMedium
                         font.weight: Font.Medium
@@ -155,7 +155,7 @@ Item {
 
                     background: Rectangle {
                         radius: Settings.cardRadius
-                        color: cancelButton.btnHovered ? Theme.surfaceHighest : "transparent"
+                        color: cancelButton.containsMouse ? Theme.surfaceHighest : "transparent"
 
                         Behavior on color {
                             ColorAnimation { duration: Settings.animationDurationShort }
@@ -164,7 +164,7 @@ Item {
 
                     contentItem: Text {
                         text: parent.text
-                        color: cancelButton.btnHovered ? Theme.textPrimary : Theme.textSecondary
+                        color: cancelButton.containsMouse ? Theme.textPrimary : Theme.textSecondary
                         font.family: Settings.fontFamilyDefault
                         font.pixelSize: Settings.fontSizeMedium
                         font.weight: Font.Medium

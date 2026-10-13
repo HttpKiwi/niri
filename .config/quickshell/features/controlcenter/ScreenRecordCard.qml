@@ -47,6 +47,7 @@ Rectangle {
             spacing: 10
 
             Rectangle {
+                id: recordBadge
                 Layout.preferredWidth: 36
                 Layout.preferredHeight: 36
                 radius: 18
@@ -67,6 +68,8 @@ Rectangle {
                 SequentialAnimation on opacity {
                     running: (ScreenRecord.recording && !ScreenRecord.paused) || ScreenRecord.pending
                     loops: Animation.Infinite
+                    // Stopping mid-pulse would leave the badge dimmed
+                    onRunningChanged: if (!running) recordBadge.opacity = 1
                     NumberAnimation { from: 1; to: 0.35; duration: 700; easing.type: Easing.InOutQuad }
                     NumberAnimation { from: 0.35; to: 1; duration: 700; easing.type: Easing.InOutQuad }
                 }

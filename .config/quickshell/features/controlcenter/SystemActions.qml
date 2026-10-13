@@ -50,7 +50,7 @@ Rectangle {
                 label: "Lock"
                 accentColor: Theme.tertiary
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 0
-                onClicked: Quickshell.execDetached(["qs", "ipc", "call", "lock", "lockSession"])
+                onClicked: root.activate(0)
             }
 
             SystemActionButton {
@@ -60,10 +60,7 @@ Rectangle {
                 label: "Sleep"
                 accentColor: Theme.accentSecondary
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 1
-                onClicked: Quickshell.execDetached([
-                    "sh", "-c",
-                    "qs ipc call lock lockSession && sleep 1 && systemctl suspend -i"
-                ])
+                onClicked: root.activate(1)
             }
 
             SystemActionButton {
@@ -75,7 +72,7 @@ Rectangle {
                 accentColor: Theme.accent
                 active: Caffeine.enabled
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 2
-                onClicked: Caffeine.toggle()
+                onClicked: root.activate(2)
             }
         }
 
@@ -94,20 +91,7 @@ Rectangle {
                 accentColor: Theme.tertiary
                 isDestructive: true
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 3
-                onClicked: {
-                    if (confirmDialog) {
-                        confirmDialog.title = "Reboot";
-                        confirmDialog.message = "Are you sure you want to reboot?";
-                        confirmDialog.confirmLabel = "Reboot";
-                        confirmDialog.isDestructive = true;
-                        confirmDialog.isOpen = true;
-                        confirmDialog.confirmed.connect(rebootAction);
-                        confirmDialog.cancelled.connect(() => {
-                            confirmDialog.isOpen = false;
-                            confirmDialog.confirmed.disconnect(rebootAction);
-                        });
-                    }
-                }
+                onClicked: root.activate(3)
             }
 
             SystemActionButton {
@@ -119,22 +103,7 @@ Rectangle {
                 accentColor: Theme.accentSecondary
                 isDestructive: true
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 4
-                onClicked: {
-                    if (confirmDialog) {
-                        confirmDialog.title = "Reboot to Windows";
-                        confirmDialog.message = "Reboot directly into Windows?";
-                        confirmDialog.confirmLabel = "Windows";
-                        confirmDialog.isDestructive = true;
-                        confirmDialog.isOpen = true;
-                        confirmDialog.confirmed.connect(rebootToWindowsAction);
-                        confirmDialog.cancelled.connect(() => {
-                            confirmDialog.isOpen = false;
-                            confirmDialog.confirmed.disconnect(rebootToWindowsAction);
-                        });
-                    } else {
-                        rebootToWindowsAction();
-                    }
-                }
+                onClicked: root.activate(4)
             }
 
             SystemActionButton {
@@ -145,20 +114,7 @@ Rectangle {
                 accentColor: Theme.error
                 isDestructive: true
                 keyboardFocused: root.keyboardActive && root.focusedIndex === 5
-                onClicked: {
-                    if (confirmDialog) {
-                        confirmDialog.title = "Shutdown";
-                        confirmDialog.message = "Are you sure you want to shut down?";
-                        confirmDialog.confirmLabel = "Shutdown";
-                        confirmDialog.isDestructive = true;
-                        confirmDialog.isOpen = true;
-                        confirmDialog.confirmed.connect(shutdownAction);
-                        confirmDialog.cancelled.connect(() => {
-                            confirmDialog.isOpen = false;
-                            confirmDialog.confirmed.disconnect(shutdownAction);
-                        });
-                    }
-                }
+                onClicked: root.activate(5)
             }
         }
     }
@@ -175,8 +131,38 @@ Rectangle {
         Quickshell.execDetached(["systemctl", "poweroff"]);
     }
 
-    function activateFocused() {
-        switch (focusedIndex) {
+    // Single pending action: re-opening the dialog replaces it, so a stale
+    // action can never fire alongside a new one
+    property var _pendingAction: null
+
+    function requestConfirm(title, message, label, action) {
+        if (!confirmDialog)
+            return;
+        _pendingAction = action;
+        confirmDialog.title = title;
+        confirmDialog.message = message;
+        confirmDialog.confirmLabel = label;
+        confirmDialog.isDestructive = true;
+        confirmDialog.isOpen = true;
+    }
+
+    Connections {
+        target: root.confirmDialog
+        function onConfirmed() {
+            const action = root._pendingAction;
+            root._pendingAction = null;
+            root.confirmDialog.isOpen = false;
+            if (action)
+                action();
+        }
+        function onCancelled() {
+            root._pendingAction = null;
+            root.confirmDialog.isOpen = false;
+        }
+    }
+
+    function activate(index) {
+        switch (index) {
         case 0:
             Quickshell.execDetached(["qs", "ipc", "call", "lock", "lockSession"]);
             break;
@@ -190,50 +176,19 @@ Rectangle {
             Caffeine.toggle();
             break;
         case 3:
-            if (confirmDialog) {
-                confirmDialog.title = "Reboot";
-                confirmDialog.message = "Are you sure you want to reboot?";
-                confirmDialog.confirmLabel = "Reboot";
-                confirmDialog.isDestructive = true;
-                confirmDialog.isOpen = true;
-                confirmDialog.confirmed.connect(rebootAction);
-                confirmDialog.cancelled.connect(() => {
-                    confirmDialog.isOpen = false;
-                    confirmDialog.confirmed.disconnect(rebootAction);
-                });
-            }
+            requestConfirm("Reboot", "Are you sure you want to reboot?", "Reboot", rebootAction);
             break;
         case 4:
-            if (confirmDialog) {
-                confirmDialog.title = "Reboot to Windows";
-                confirmDialog.message = "Reboot directly into Windows?";
-                confirmDialog.confirmLabel = "Windows";
-                confirmDialog.isDestructive = true;
-                confirmDialog.isOpen = true;
-                confirmDialog.confirmed.connect(rebootToWindowsAction);
-                confirmDialog.cancelled.connect(() => {
-                    confirmDialog.isOpen = false;
-                    confirmDialog.confirmed.disconnect(rebootToWindowsAction);
-                });
-            } else {
-                rebootToWindowsAction();
-            }
+            requestConfirm("Reboot to Windows", "Reboot directly into Windows?", "Windows", rebootToWindowsAction);
             break;
         case 5:
-            if (confirmDialog) {
-                confirmDialog.title = "Shutdown";
-                confirmDialog.message = "Are you sure you want to shut down?";
-                confirmDialog.confirmLabel = "Shutdown";
-                confirmDialog.isDestructive = true;
-                confirmDialog.isOpen = true;
-                confirmDialog.confirmed.connect(shutdownAction);
-                confirmDialog.cancelled.connect(() => {
-                    confirmDialog.isOpen = false;
-                    confirmDialog.confirmed.disconnect(shutdownAction);
-                });
-            }
+            requestConfirm("Shutdown", "Are you sure you want to shut down?", "Shutdown", shutdownAction);
             break;
         }
+    }
+
+    function activateFocused() {
+        activate(focusedIndex);
     }
 
     component SystemActionButton: Item {
