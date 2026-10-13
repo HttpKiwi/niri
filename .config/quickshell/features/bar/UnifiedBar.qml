@@ -368,10 +368,6 @@ Scope {
                 pocketFrame.controlCenterPanel = controlCenterPanel;
                 pocketFrame.settingsPanel = settingsPanel;
                 pocketFrame.calendarPanel = calendarPanel;
-                const niriName = Niri.niriNameFor(window.screen?.name ?? "");
-                if (niriName) {
-                    PopupRegistry.notifWrappers[niriName] = notifWrapper;
-                }
             }
 
             Rectangle {

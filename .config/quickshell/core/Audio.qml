@@ -10,7 +10,6 @@ Singleton {
 
     readonly property PwNode sink: Pipewire.defaultAudioSink
     readonly property PwNode source: Pipewire.defaultAudioSource
-    readonly property var streams: Pipewire.audioStreams
 
     readonly property bool muted: sink?.audio?.muted ?? false
     readonly property real volume: sink?.audio?.volume ?? 0
@@ -74,34 +73,6 @@ Singleton {
 
     function getMicVolume(): int {
         return Math.round((source?.audio?.volume ?? 0) * 100);
-    }
-
-    function setStreamVolume(stream, vol: real): void {
-        if (stream?.audio) {
-            stream.audio.muted = false;
-            stream.audio.volume = Math.max(0, Math.min(1, vol));
-        }
-    }
-
-    function getStreamVolume(stream): real {
-        return stream?.audio?.volume ?? 0;
-    }
-
-    function setStreamMuted(stream, muted: bool): void {
-        if (stream?.audio) {
-            stream.audio.muted = muted;
-        }
-    }
-
-    function getStreamMuted(stream): bool {
-        return stream?.audio?.muted ?? false;
-    }
-
-    function getStreamName(stream): string {
-        if (!stream) return "Unknown";
-        if (stream.description) return stream.description;
-        if (stream.name) return stream.name;
-        return "Unknown";
     }
 
     PwObjectTracker {

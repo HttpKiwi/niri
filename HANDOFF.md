@@ -25,26 +25,12 @@ Custom desktop: **Niri** (compositor) + **Quickshell** (QML shell) + **Matugen**
 - Glass on cards (not whole panel); blob parity with other pockets
 
 ### Settings → Modules
-- `features/settings/ModulesPage.qml` — bar module toggles (incl. keyboard battery, L/R swap)
+- `features/settings/ModulesPage.qml` — bar module toggles
 - Settings nav / section card polish elsewhere under `features/settings/`
 
 ### Lock / idle
 - Fixes across `AutoLock.qml`, `LockState.qml`, `LockScreen.qml` (idle lock/sleep path)
 - `core/Caffeine.qml` (new) — idle inhibit helper
-
-### ZMK keyboard battery (bar)
-- `components/indicators/KeyboardBatteryIndicator.qml` (new)
-- Host reader: `/home/httpkiwi/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py`
-  - `--json`, `--timeout`, `--retries`, `--swap`
-- Prefs:
-  - `showBarKeyboardBattery` (default true)
-  - `keyboardBatterySwapLR` (default **true** — user’s pairing order is reversed vs physical)
-  - `keyboardBatteryLowThreshold` (default **20**; property + `_prefsKeys` — verify live)
-- **UX (implemented in indicator; needs live verify):**
-  - Calm by default: **icon only** (no constant L/R %)
-  - Hover: full `L xx%  R yy%`
-  - Low (≤ threshold): icon **blinks** (`Theme.error`), show only the low side(s)
-- Battery life context: profiler ~1–2 months; **150 mAh** → expect ~**1 month** daily, up to ~2 if light use. Uneven L/R % is slot/noise, not sudden death.
 
 ### Other uncommitted notables
 - `RoundedScreen` ↔ `Settings.screenCornerRadius`
@@ -57,17 +43,7 @@ Custom desktop: **Niri** (compositor) + **Quickshell** (QML shell) + **Matugen**
 
 ## Incomplete / next actions
 
-### 1. Finish low-battery calm indicator (in progress)
-Code in `KeyboardBatteryIndicator.qml` already implements calm + blink. Verify after reload:
-1. Icon-only when both sides > 20%
-2. Hover shows L/R
-3. Force a low reading (or temporarily set `keyboardBatteryLowThreshold` high, e.g. 90) → blink + low side label
-4. Confirm `Settings.keyboardBatteryLowThreshold` is defined **and** listed in `_prefsKeys` (both required)
-5. Optional: Modules UI control for threshold; write default into `common/shell-prefs.json`
-
-If L/R still feel “wrong” when charging: toggle **Settings → Modules → Swap keyboard L/R**.
-
-### 2. Glass chrome theme (planned, not built)
+### 1. Glass chrome theme (planned, not built)
 User asked for transparent/glass shell frame. Plan from prior turn:
 1. Multiply `blob.frag` output by `color.a`; rebuild blobs (`scripts/build-blobs-plugin.sh`)
 2. Add `chromeOpacity` pref + Appearance slider
@@ -77,7 +53,7 @@ User asked for transparent/glass shell frame. Plan from prior turn:
 
 Do **not** assume blob alpha works today — material path largely ignored `color.a`.
 
-### 3. Hygiene / debt (older analysis still valid)
+### 2. Hygiene / debt (older analysis still valid)
 - Legacy unused QML (WallpaperSelector, VolumeOSD, old lock pieces, etc.)
 - Rename leftover `historyPanel` mental model if any remains → control center
 - Volume: prefer `qs ipc` over raw `wpctl` in niri binds if OSD should always show
@@ -103,9 +79,6 @@ Do **not** assume blob alpha works today — material path largely ignored `colo
 # Shell errors after QML change
 qs log
 
-# ZMK battery (swap = physical L/R for this user)
-python3 ~/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py --json --timeout 1.0 --retries 4 --swap
-
 # Niri config
 niri validate
 
@@ -127,13 +100,11 @@ qs ipc call lock lockSession
 
 ## Suggested resume order
 
-1. Confirm keyboard battery calm/blink UX live (`qs log` clean).
-2. If user still wants always-visible %, dial back calm mode — don’t reintroduce anxiety by default.
-3. Implement glass chrome plan (shader alpha → pref → PocketFrame → blur).
-4. Only then: legacy cleanup / AGENTS.md sync.
+1. Finish the audit plan (`~/.claude/plans/go-ahead-and-plan-smooth-forest.md`): stage 6 refactors.
+2. Implement glass chrome plan (shader alpha → pref → PocketFrame → blur).
 
 ---
 
 ## Commit status
 
-**Nothing from this work is committed.** Large dirty tree on `main`. Ask before any commit; exclude built `.so` / `.qmltypes` under `qml/` unless intentional.
+Baseline committed (`chore: snapshot before audit fixes`), audit fixes committed per stage. The keyboard battery bar indicator was removed (never wired; host tooling stays in `~/Projects/Kiwiboard`).

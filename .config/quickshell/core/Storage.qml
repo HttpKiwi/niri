@@ -126,53 +126,8 @@ QtObject {
         saveData()
     }
 
-    function removeNotification(notificationId) {
-        const id = String(notificationId)
-        root._data.notifications = root._data.notifications.filter(function(n) {
-            return n.id !== id
-        })
-        saveData()
-    }
-
-    function getActiveNotifications(callback) {
-        var active = root._data.notifications.filter(function(n) {
-            return !n.dismissed
-        })
-        callback(active)
-    }
-
     function getAllNotifications(callback) {
         callback(root._data.notifications.slice())
-    }
-
-    function getGroupedNotifications(callback) {
-        var groups = {}
-        for (var i = 0; i < root._data.notifications.length; i++) {
-            var n = root._data.notifications[i]
-            if (!n.dismissed) {
-                if (!groups[n.appName]) {
-                    groups[n.appName] = {
-                        appName: n.appName,
-                        notifications: [],
-                        count: 0
-                    }
-                }
-                groups[n.appName].notifications.push(n)
-                groups[n.appName].count++
-            }
-        }
-        var result = []
-        for (var key in groups) {
-            result.push(groups[key])
-        }
-        callback(result)
-    }
-
-    function getNotificationsByApp(appName, callback) {
-        var result = root._data.notifications.filter(function(n) {
-            return n.appName === appName
-        })
-        callback(result)
     }
 
     function clearApp(appName) {

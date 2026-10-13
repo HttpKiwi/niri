@@ -43,12 +43,6 @@ Item {
         targetWindow.BackgroundEffect.blurRegion = null
     }
 
-    function kick() {
-        clear()
-        if (_active)
-            targetWindow.BackgroundEffect.blurRegion = _effectiveRegion
-    }
-
     on_ActiveChanged: _apply()
     onTargetWindowChanged: _apply()
     onRegionChanged: _apply()

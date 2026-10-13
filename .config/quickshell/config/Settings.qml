@@ -28,7 +28,6 @@ QtObject {
     // Decode/animate video & GIF wallpapers
     property bool animatedWallpapersEnabled: true
     // Legacy pref — playback always runs on all outputs now (avoids focus-switch distraction)
-    property bool animatedWallpaperFocusedOnly: false
 
     property var wallpaperLoader: Process {
         running: true
@@ -88,11 +87,6 @@ QtObject {
     readonly property int notificationMinHeight: 72
     readonly property int notificationItemSpacing: 10
     readonly property int notificationGroupMaxListHeight: 300
-    readonly property int notificationHeight: notificationMinHeight // legacy alias
-    readonly property int notificationTopMargin: 50
-    readonly property int notificationRightMargin: 16
-    readonly property int notificationSpacing: notificationItemSpacing // legacy alias
-    readonly property int notificationDismissThreshold: 100
     // Notification history limits
     readonly property int notificationHistoryMaxPerApp: 100
     readonly property int notificationHistoryMaxTotal: 1000
@@ -108,7 +102,6 @@ QtObject {
     // Bar Settings
     // ========================================
     property int barHeight: 30
-    readonly property int barExclusiveZone: 35
     readonly property int barPillHeight: 20 // Reduced from 24 to add more padding inside bar
     readonly property int barPillRadius: 12
     readonly property int barPillPadding: 16
@@ -148,8 +141,6 @@ QtObject {
     property int animationDurationLong: 400
     // Easing curves
     readonly property int easingStandard: Easing.OutCubic
-    readonly property int easingEmphasized: Easing.BezierSpline
-    readonly property int easingDecelerate: Easing.OutCubic
     readonly property int easingAccelerate: Easing.InCubic
     // ========================================
     // Layout Settings
@@ -159,7 +150,6 @@ QtObject {
     property int screenSmoothing: 20
     property int cardRadius: 12
     readonly property int cardBorderWidth: 1
-    readonly property int cardMargin: 4
     readonly property int cardPadding: 16
     // Tinted frosted glass (over niri layer blur)
     property real glassOpacity: 0.45
@@ -191,9 +181,6 @@ QtObject {
     // Per-user 0700 tmpfs; clipboard contents must not land in world-readable /tmp
     readonly property string clipboardThumbDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/quickshell-clip-thumbs"
     readonly property int clipboardThumbSize: 40
-    readonly property int httpConnectTimeoutMs: 5000
-    readonly property int httpMaxTimeMs: 10000
-    readonly property bool httpLowPriority: true
     readonly property string klipyApiBase: "https://api.klipy.com/api/v1"
     readonly property string secretsFile: Quickshell.shellDir + "/secrets.env"
     property string _klipyApiKeyFromFile: ""
@@ -214,21 +201,13 @@ QtObject {
     // ========================================
     // Flickable Settings
     // ========================================
-    readonly property int flickMaxVelocity: 2500
-    readonly property int flickDeceleration: 1500
-    readonly property int flickSlideDistance: 400
     // ========================================
     // Lockscreen Settings
     // ========================================
-    readonly property int lockscreenBlurRadius: 30
     readonly property string lockscreenTimeFormat: "HH:mm"
     readonly property string lockscreenDateFormat: "dddd, MMMM d"
-    readonly property int lockscreenCardWidth: 380
-    readonly property int lockscreenCardPadding: 28
     readonly property int lockscreenClockSize: 64
     readonly property int lockscreenDateSize: 16
-    readonly property int lockscreenInputHeight: 48
-    readonly property int lockscreenInputRadius: 24
     // Delay after bar hides before session lock surface appears
     readonly property int lockscreenEngageDelay: 280
     // Delay after lock release before bar/blob chrome fades back in
@@ -253,7 +232,6 @@ QtObject {
     readonly property int controlCenterWidth: 420
     // Inset from screen frame — keep equal to pocketPadding for symmetric blob margins
     readonly property int controlCenterPadding: 14
-    readonly property int controlCenterBottomMargin: 6
     readonly property int confirmDialogWidth: 320
     readonly property int confirmDialogPadding: 24
     readonly property int systemActionsSpacing: 12
@@ -270,7 +248,6 @@ QtObject {
     // Background Settings
     // ========================================
     readonly property string backgroundColor: "#091518"
-    property int wallpaperChangeDirection: 1 // 1 = right, -1 = left
     // ========================================
     // Chrome Shader (prototype)
     // ========================================
@@ -306,7 +283,7 @@ QtObject {
         "barTimeFormat", "barDateFormat",
         "chromeShaderEnabled", "chromeClockIntervalMs",
         "chromeCellSize", "chromeDotSize", "chromeAnimSpeed", "chromeIntensity",
-        "animatedWallpapersEnabled", "animatedWallpaperFocusedOnly"
+        "animatedWallpapersEnabled"
     ]
 
     function setPref(key, value) {

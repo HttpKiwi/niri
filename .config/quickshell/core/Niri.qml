@@ -30,20 +30,10 @@ Item {
     }
 
     readonly property var workspaceModel: niriInstance.workspaces
-    readonly property var windowModel: niriInstance.windows
     readonly property var focusedWindow: niriInstance.focusedWindow
     readonly property string title: niriInstance.focusedWindow?.title ?? ""
-    readonly property bool is_overview: false
 
-    readonly property var workspaces_by_monitor: root._wsByMonitor
     readonly property string focused_output_name: root._focusedOutput
-
-    function getWorkspacesForMonitor(monitorName) {
-        var v = root._version
-        var m = root._wsByMonitor
-        if (!m || !m[monitorName]) return []
-        return m[monitorName]
-    }
 
     function getMonitorNames() {
         var m = root._wsByMonitor
@@ -126,10 +116,4 @@ Item {
     }
 
     function focusWorkspace(index) { return niriInstance.focusWorkspace(index) }
-    function focusWorkspaceById(id) { return niriInstance.focusWorkspaceById(id) }
-    function focusWorkspaceByName(name) { return niriInstance.focusWorkspaceByName(name) }
-    function closeWindow(id) { return niriInstance.closeWindow(id) }
-    function closeWindowOrFocused() { return niriInstance.closeWindowOrFocused() }
-    function toggleOverview() { return niriInstance.toggleOverview() }
-    function sendRawAction(action) { return niriInstance.sendRawAction(action) }
 }

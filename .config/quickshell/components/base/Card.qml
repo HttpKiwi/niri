@@ -8,8 +8,6 @@ import qs.config
 Rectangle {
     id: root
     
-    // Elevation level (0-4)
-    property int elevation: 3
     
     // Border visibility
     property bool showBorder: false
@@ -17,7 +15,6 @@ Rectangle {
     // Content padding
     property int contentPadding: Settings.cardPadding
     
-    // Apply theme colors based on elevation
     color: Theme.withAlpha(Theme.surfaceBase, Settings.surfaceTransparency)
     radius: Settings.cardRadius
     antialiasing: true  // Smooth rounded corners

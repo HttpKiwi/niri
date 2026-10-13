@@ -15,28 +15,11 @@ QtObject {
     property var colors: Services.Color
     
     // ========================================
-    // Surface Colors (by elevation)
-    // ========================================
-    function surface(elevation) {
-        switch(elevation) {
-            case 0: return colors.surface
-            case 1: return colors.surface_container_low
-            case 2: return colors.surface_container
-            case 3: return colors.surface_container_high
-            case 4: return colors.surface_container_highest
-            default: return colors.surface
-        }
-    }
-    
-    // ========================================
     // Semantic Surface Colors
     // ========================================
     readonly property color surface: colors.surface
     readonly property color surfaceBase: colors.surface
-    readonly property color surfaceVariant: colors.surface_variant
-    readonly property color surfaceElevated: colors.surface_container_high
     readonly property color surfaceHighest: colors.surface_container_highest
-    readonly property color surfaceDisabled: Qt.rgba(colors.surface.r, colors.surface.g, colors.surface.b, 0.38)
     
     // Cards and floating elements
     readonly property color cardBackground: colors.surface_container_high
@@ -61,9 +44,7 @@ QtObject {
     readonly property color accent: colors.primary
     readonly property color accentContainer: colors.primary_container
     readonly property color accentSecondary: colors.secondary
-    readonly property color accentSecondaryContainer: colors.secondary_container
     readonly property color tertiary: colors.tertiary
-    readonly property color tertiaryContainer: colors.tertiary_container
     
     // ========================================
     // State Colors
@@ -78,13 +59,11 @@ QtObject {
     // ========================================
     readonly property color outline: colors.outline
     readonly property color borderDefault: colors.outline_variant
-    readonly property color borderStrong: colors.outline
     
     // ========================================
     // Special Colors
     // ========================================
     readonly property color error: colors.error
-    readonly property color errorContainer: colors.error_container
     readonly property color onError: colors.on_error
     
     // ========================================
@@ -119,35 +98,8 @@ QtObject {
         )
     }
 
-    // Opaque elevated card (no blur behind)
-    function elevatedCard(tintStrength) {
-        const t = tintStrength
-        const s = root.surfaceElevated
-        const p = root.primary
-        return Qt.rgba(
-            s.r * (1 - t) + p.r * t,
-            s.g * (1 - t) + p.g * t,
-            s.b * (1 - t) + p.b * t,
-            1
-        )
-    }
-
-    function elevatedCardBorder(tintStrength) {
-        const t = Math.min(tintStrength * 1.5, 1)
-        const o = root.outline
-        const p = root.primary
-        return Qt.rgba(
-            o.r * (1 - t) + p.r * t,
-            o.g * (1 - t) + p.g * t,
-            o.b * (1 - t) + p.b * t,
-            0.45
-        )
-    }
-
     // ========================================
     // Dimensions (from Settings, exposed here for convenience)
     // ========================================
-    readonly property int cardRadius: 12
     readonly property int pillRadius: 12
-    readonly property int borderWidth: 0
 }

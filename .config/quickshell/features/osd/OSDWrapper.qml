@@ -38,10 +38,6 @@ PocketSlidePanel {
         timer.restart();
     }
 
-    function hide() {
-        closePanel();
-    }
-
     Component.onCompleted: {
         volume = Audio.volume;
         muted = Audio.muted;

@@ -42,22 +42,6 @@ QtObject {
         Storage.dismissNotification(notificationId)
     }
 
-    function removeNotification(notificationId) {
-        Storage.removeNotification(notificationId)
-    }
-
-    function getNotificationsByApp(appName) {
-        return root._notifications.filter(n => n.appName === appName) || []
-    }
-
-    function getAppNames() {
-        const names = new Set()
-        for (const n of root._notifications) {
-            names.add(n.appName)
-        }
-        return Array.from(names)
-    }
-
     function getGroupedNotifications() {
         const groups = {}
         for (const n of root._notifications) {

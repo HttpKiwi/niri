@@ -28,7 +28,6 @@ When modifying Quickshell QML files, the shell auto-reloads when files change. D
 qs log
 qs ipc call lock isLocked
 qs ipc call caffeine isEnabled
-python3 ~/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py --json --timeout 1.0 --retries 4 --swap
 ```
 
 ---
@@ -282,43 +281,11 @@ Calendar and settings follow the same blob-mounted pocket patterns in `UnifiedBa
 
 ## Settings Modules
 
-- **`features/settings/ModulesPage.qml`** — toggles for bar modules (workspaces, title, volume, recording, headset, **keyboard battery**, resources, date/time)
+- **`features/settings/ModulesPage.qml`** — toggles for bar modules (workspaces, title, volume, recording, headset, resources, date/time)
 - Prefs persist via `Settings.setPref` → `common/shell-prefs.json`
 - Other pages: Appearance, Shell, Chrome, Niri, About
 
-Bar visibility prefs (examples): `showBarWorkspaces`, `showBarKeyboardBattery`, `showBarDate`, `showBarTime`, …
-
----
-
-## Keyboard Battery (ZMK / Kiwiboard)
-
-Bar indicator: `components/indicators/KeyboardBatteryIndicator.qml`.
-
-### Data path
-1. Dongle exposes HID battery (firmware in `zmk-config`; central fetch + proxy)
-2. Host script polls:  
-   `/home/httpkiwi/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py`  
-   Flags: `--json`, `--timeout`, `--retries`, **`--swap`**
-3. QML `Process` + timer (~6s); keep last reading on `WAITING`
-
-### Important: L/R are pairing slots
-ZMK peripheral **slot 0/1 = BLE pairing order**, not physical left/right. If charging the right half moves the left %, enable swap.
-
-| Pref | Default | Meaning |
-|------|---------|---------|
-| `showBarKeyboardBattery` | `true` | Show pill |
-| `keyboardBatterySwapLR` | `true` | Pass `--swap` (correct for current pairing) |
-| `keyboardBatteryLowThreshold` | `20` | Low warning threshold |
-
-### UX intent
-- **Calm default:** keyboard icon only (no constant dual %)
-- **Hover:** full `L xx%  R yy%`
-- **Low (≤ threshold):** icon blinks (`Theme.error`), show only the low side(s)
-- Do not reflash firmware for UI/slot bugs; fix with `--swap` / prefs
-- Cells are **~150 mAh**; ZMK profiler ~1–2 months is optimistic → ~**1 month** daily use is realistic. Jumpy % is SoC noise + slot mapping, not sudden failure
-
-### Toggle location
-**Settings → Modules →** Keyboard battery / Swap keyboard L/R
+Bar visibility prefs (examples): `showBarWorkspaces`, `showBarHeadset`, `showBarDate`, `showBarTime`, …
 
 ---
 
@@ -361,8 +328,7 @@ Key modules to study:
 
 ## Planned / known debt (short)
 
-1. Verify keyboard-battery calm + low blink live (`qs log`)
-2. Glass chrome: `blob.frag` × `color.a` → rebuild plugin → `chromeOpacity` → `PocketFrame` / blur
-3. Prefer volume keys → `qs ipc call audio …` if OSD should always track
-4. Legacy unused QML still present in places; prefer `UnifiedBar` / pocket paths as canonical
-5. See `HANDOFF.md` for current dirty-tree resume order
+1. Glass chrome: `blob.frag` × `color.a` → rebuild plugin → `chromeOpacity` → `PocketFrame` / blur
+2. Prefer volume keys → `qs ipc call audio …` if OSD should always track
+3. Legacy unused QML still present in places; prefer `UnifiedBar` / pocket paths as canonical
+4. See `HANDOFF.md` for current dirty-tree resume order

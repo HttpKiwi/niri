@@ -11,7 +11,6 @@ Rectangle {
 
     // Total horizontal padding (split evenly left/right via centerIn)
     property int horizontalPadding: Settings.barPillPadding
-    property int verticalPadding: 0
     property bool clickable: false
     signal clicked()
 

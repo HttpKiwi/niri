@@ -31,11 +31,6 @@ QtObject {
         Storage.recordAppUsage(appItem.name)
     }
 
-    function refreshItems() {
-        itemsLoaded = false
-        loadItems()
-    }
-
     function getUsageCountByItem(appItem) {
         if (!appItem || !appItem.name)
             return 0
@@ -115,7 +110,4 @@ QtObject {
         }
     }
 
-    function getPrefix() {
-        return ""
-    }
 }

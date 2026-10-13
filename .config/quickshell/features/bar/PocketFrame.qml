@@ -173,37 +173,5 @@ Item {
             damping: 60
             visible: calendarPanel ? calendarPanel.pocketActive : false
         }
-
-        Repeater {
-            model: PopupRegistry.pockets
-
-            delegate: BlobRect {
-                required property string pocketId
-                required property string pocketScreen
-                required property real pocketX
-                required property real pocketY
-                required property real pocketW
-                required property real pocketH
-                required property real pocketRadius
-                required property bool pocketVisible
-
-                readonly property bool onThisScreen: {
-                    if (pocketScreen !== frameRoot.screenName) return false
-                    if (pocketW <= 0 || pocketH <= 0) return false
-                    return true
-                }
-
-                x: pocketX + blobMargin
-                y: pocketY + blobMargin
-                width: onThisScreen ? pocketW : 0
-                height: onThisScreen ? pocketH : 0
-                radius: pocketRadius
-                group: blobGroup
-                visible: pocketVisible && onThisScreen
-                stiffness: 200
-                damping: 60
-                deformScale: pocketVisible && onThisScreen ? 0.00001 : 0
-            }
-        }
     }
 }

@@ -7,4 +7,3 @@ ResourceIndicator 1.0 ResourceIndicator.qml
 WorkspaceIndicator 1.0 WorkspaceIndicator.qml
 DateIndicator 1.0 DateIndicator.qml
 HeadsetBatteryIndicator 1.0 HeadsetBatteryIndicator.qml
-KeyboardBatteryIndicator 1.0 KeyboardBatteryIndicator.qml

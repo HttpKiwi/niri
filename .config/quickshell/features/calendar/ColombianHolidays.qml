@@ -12,10 +12,6 @@ QtObject {
 
     property var _cache: ({})
 
-    function clearCache() {
-        root._cache = {};
-    }
-
     function pad2(n) {
         return n < 10 ? ("0" + n) : ("" + n);
     }

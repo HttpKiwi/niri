@@ -212,10 +212,6 @@ QtObject {
         cliphistProc.running = true
     }
 
-    function refreshItems() {
-        softRefresh()
-    }
-
     function loadItems() {
         if (itemsLoaded || isLoading)
             return
@@ -305,7 +301,4 @@ QtObject {
         copyProcess.running = true
     }
 
-    function getPrefix() {
-        return ":"
-    }
 }

@@ -8,7 +8,6 @@ singleton NotificationService 1.0 NotificationService.qml
 singleton NotificationStore 1.0 NotificationStore.qml
 singleton Storage 1.0 Storage.qml
 singleton FuzzyMatcher 1.0 FuzzyMatcher.qml
-singleton PopupRegistry 1.0 PopupRegistry.qml
 singleton NotificationModel 1.0 NotificationModel.qml
 singleton NotificationKeyboard 1.0 NotificationKeyboard.qml
 PanelState 1.0 PanelState.qml

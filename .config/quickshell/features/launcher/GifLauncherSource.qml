@@ -64,15 +64,6 @@ QtObject {
             scheduleSearch(_pendingQuery)
     }
 
-    function shellQuote(value) {
-        return "'" + String(value).replace(/'/g, "'\\''") + "'"
-    }
-
-    function refreshItems() {
-        itemsLoaded = false
-        loadItems()
-    }
-
     function loadItems() {
         if (itemsLoaded || isLoading)
             return
@@ -261,7 +252,4 @@ QtObject {
         copyProcess.running = true
     }
 
-    function getPrefix() {
-        return ";"
-    }
 }

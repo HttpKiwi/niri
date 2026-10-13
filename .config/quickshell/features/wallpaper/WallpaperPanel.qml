@@ -27,7 +27,6 @@ PocketBottomPanel {
 
     property string originalWallpaper: ""
     property bool isPreviewing: false
-    property int previousSelectedIndex: 0
     property bool _userHasManuallySelected: false
 
     readonly property int thumbnailSize: 130
@@ -154,13 +153,6 @@ PocketBottomPanel {
     onSelectedIndexChanged: {
         if (wallpapers.length > 0 && selectedIndex >= 0 && selectedIndex < wallpapers.length) {
             const selectedWallpaper = wallpapers[selectedIndex];
-
-            if (selectedIndex > previousSelectedIndex) {
-                Settings.wallpaperChangeDirection = 1;
-            } else if (selectedIndex < previousSelectedIndex) {
-                Settings.wallpaperChangeDirection = -1;
-            }
-            previousSelectedIndex = selectedIndex;
 
             _userHasManuallySelected = true;
             isPreviewing = true;
