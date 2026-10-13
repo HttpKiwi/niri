@@ -48,6 +48,9 @@ declare -A CACHE_FILES=(
 
     # Apps
     ["${CONFIG_HOME}/equibop/themes/HyprLuna.css"]="equibop.css"
+    ["${CONFIG_HOME}/equibop/themes/HyprLuna-Acrylic.css"]="equibop-acrylic.css"
+    ["${CONFIG_HOME}/Equicord/themes/HyprLuna.css"]="equicord.css"
+    ["${CONFIG_HOME}/Equicord/themes/HyprLuna-Acrylic.css"]="equicord-acrylic.css"
     ["${CONFIG_HOME}/vesktop/themes/HyprLuna.css"]="vesktop.css"
     ["${HOME}/.cache/wal/colors.json"]="pywalfox-colors.json"
     ["${CONFIG_HOME}/fuzzel/colors.ini"]="fuzzel.ini"

@@ -7,53 +7,92 @@ import Quickshell.Wayland
 import qs.config
 import qs.core
 
+/**
+ * AutoLock - Idle-driven lock and suspend via ext-idle-notify-v1.
+ *
+ * Lock uses IdleMonitor. Sleep is a post-lock timer so engaging the lock
+ * surface (which can clear compositor idle) does not cancel suspend.
+ */
 Scope {
     id: root
 
-    property bool enableAutoLock: Settings.enableAutoLock
-    property bool enableAutoSleep: Settings.enableAutoSleep
+    readonly property bool audioPlaying: {
+        const players = Players.list;
+        for (let i = 0; i < players.length; i++) {
+            if (players[i] && players[i].isPlaying)
+                return true;
+        }
+        return false;
+    }
 
-    property bool _lockReceived: false
-
-    readonly property bool audioPlaying: Players.list.some(p => p.isPlaying)
     readonly property bool idleAllowed: !Settings.inhibitIdleWhenAudio || !audioPlaying
+    readonly property bool alreadyLocked: LockState.locked || LockState.engaging
 
-    // Drop pending lock/sleep if music starts after idle fired
+    // Drop pending sleep if media starts before suspend fires
     onAudioPlayingChanged: {
-        if (audioPlaying && _lockReceived) {
-            _lockReceived = false
-            sleepTimer.stop()
+        if (audioPlaying)
+            sleepTimer.stop();
+    }
+
+    Connections {
+        target: LockState
+        function onLockedChanged() {
+            if (!LockState.locked && !LockState.engaging)
+                sleepTimer.stop();
+        }
+        function onEngagingChanged() {
+            if (!LockState.locked && !LockState.engaging)
+                sleepTimer.stop();
+        }
+    }
+
+    function triggerLock() {
+        if (root.alreadyLocked)
+            return;
+        if (!root.idleAllowed)
+            return;
+
+        console.log("AutoLock: idle timeout reached, locking");
+        LockState.requestLock();
+
+        if (Settings.enableAutoSleep) {
+            sleepTimer.interval = Math.max(1, Settings.idleSleepTimeout) * 1000;
+            sleepTimer.restart();
+            console.log("AutoLock: suspend in", Settings.idleSleepTimeout, "s");
         }
     }
 
     IdleMonitor {
-        enabled: root.enableAutoLock && root.idleAllowed
-        timeout: Settings.idleLockTimeout
-        respectInhibitors: true
+        id: lockMonitor
+        // Stay armed while unlocked; inhibitors optional via pref
+        enabled: Settings.enableAutoLock && root.idleAllowed && !root.alreadyLocked
+        timeout: Math.max(1, Settings.idleLockTimeout)
+        respectInhibitors: Settings.respectIdleInhibitors !== false
 
         onIsIdleChanged: {
-            if (isIdle && !root._lockReceived) {
-                if (!root.idleAllowed)
-                    return
-                root._lockReceived = true
-                Quickshell.execDetached(["quickshell", "ipc", "call", "lock", "lockSession"])
-                if (root.enableAutoSleep)
-                    sleepTimer.restart()
-            } else if (!isIdle && root._lockReceived) {
-                root._lockReceived = false
-                sleepTimer.stop()
-            }
+            if (isIdle)
+                root.triggerLock();
+            else if (!root.alreadyLocked)
+                sleepTimer.stop();
         }
     }
 
     Timer {
         id: sleepTimer
-        interval: Settings.idleSleepTimeout * 1000
+        repeat: false
         onTriggered: {
-            // Skip suspend while audio is playing; don't force past inhibitors
-            if (!root.idleAllowed)
-                return
-            Quickshell.execDetached(["systemctl", "suspend"])
+            if (!Settings.enableAutoSleep)
+                return;
+            if (!root.idleAllowed) {
+                console.log("AutoLock: skip suspend (audio playing)");
+                return;
+            }
+            if (Settings.respectIdleInhibitors && Caffeine.enabled) {
+                console.log("AutoLock: skip suspend (caffeine)");
+                return;
+            }
+            console.log("AutoLock: suspending");
+            Quickshell.execDetached(["systemctl", "suspend"]);
         }
     }
 }

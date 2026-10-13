@@ -3,6 +3,7 @@
 SETUVAR --export ANDROID_HOME:/home/httpkiwi/android\x2dsdk
 SETUVAR --export JAVA_HOME:/usr/lib/jvm/java\x2d11\x2dopenjdk
 SETUVAR --export --path PATH:/usr/local/sbin\x1e/usr/local/bin\x1e/usr/bin\x1e/usr/lib/jvm/default/bin\x1e/usr/bin/site_perl\x1e/usr/bin/vendor_perl\x1e/usr/bin/core_perl\x1e/usr/lib/qt6/bin/\x1e/home/httpkiwi/android\x2dsdk//platform\x2dtools\x1e/usr/lib/qt6/bin/\x1e/home/httpkiwi/android\x2dsdk//platform\x2dtools\x1e/usr/lib/qt6/bin/\x1e/home/httpkiwi/android\x2dsdk//platform\x2dtools
+SETUVAR --export STEAM_API_KEY:DA702A0FAB7231DFBC262EDB965F82D5
 SETUVAR __fish_initialized:4300
 SETUVAR _fisher_edc_2F_bass_files:\x7e/\x2econfig/fish/functions/__bass\x2epy\x1e\x7e/\x2econfig/fish/functions/bass\x2efish
 SETUVAR _fisher_fabioantunes_2F_fish_2D_nvm_files:\x7e/\x2econfig/fish/functions/__nvm_run\x2efish\x1e\x7e/\x2econfig/fish/functions/node\x2efish\x1e\x7e/\x2econfig/fish/functions/npm\x2efish\x1e\x7e/\x2econfig/fish/functions/npx\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm_alias_command\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm_alias_function\x2efish\x1e\x7e/\x2econfig/fish/functions/yarn\x2efish\x1e\x7e/\x2econfig/fish/completions/nvm\x2efish

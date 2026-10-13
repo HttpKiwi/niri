@@ -12,6 +12,7 @@
   "idleLockTimeout": 300,
   "idleSleepTimeout": 600,
   "inhibitIdleWhenAudio": true,
+  "controlCenterTab": "audio",
   "enableAutoLock": true,
   "enableAutoSleep": true,
   "blurEnabled": true,

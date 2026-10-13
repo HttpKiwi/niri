@@ -144,6 +144,26 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "caffeine"
+
+        function toggle() {
+            Caffeine.toggle();
+        }
+
+        function enable() {
+            Caffeine.enable();
+        }
+
+        function disable() {
+            Caffeine.disable();
+        }
+
+        function isEnabled(): bool {
+            return Caffeine.enabled;
+        }
+    }
+
     NotificationManager {
         id: notificationManager
     }

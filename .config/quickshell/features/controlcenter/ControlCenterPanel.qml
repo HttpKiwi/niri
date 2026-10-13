@@ -34,12 +34,37 @@ PocketSlidePanel {
     property bool isGroupSelected: true
 
     property int expandedGroupIndex: -1
-    property string controlsTab: "audio" // audio | record | other
+    // "notifications" | "controls"
+    property string focusArea: "notifications"
+    property int actionFocusIndex: 0
+    property int audioFocusRow: 0 // 0 = sink, 1 = mic
+
+    readonly property var tabOrder: ["audio", "record", "other"]
+
+    readonly property string hintPrimary: "Super+N · Esc · Tab"
+    readonly property string hintSecondary: {
+        if (confirmDialog.isOpen)
+            return "Enter confirm · Esc cancel";
+        if (focusArea === "notifications")
+            return "↑↓ · ←→ · Enter · D dismiss";
+        if (controlsTab === "audio")
+            return "1–3 tabs · ←→ volume · M mute";
+        if (controlsTab === "record")
+            return "1–3 tabs · Enter record · P pause";
+        return "1–3 tabs · ←→↑↓ · Enter";
+    }
+
+    readonly property string controlsTab: {
+        const t = Settings.controlCenterTab;
+        return (t === "audio" || t === "record" || t === "other") ? t : "audio";
+    }
 
     function setControlsTab(tabId) {
+        if (tabId !== "audio" && tabId !== "record" && tabId !== "other")
+            return;
         if (tabId === controlsTab)
             return;
-        controlsTab = tabId;
+        Settings.setPref("controlCenterTab", tabId);
     }
 
     implicitWidth: panelWidth
@@ -58,6 +83,9 @@ PocketSlidePanel {
         selectedNotificationIndex = -1;
         isGroupSelected = true;
         expandedGroupIndex = -1;
+        focusArea = "notifications";
+        actionFocusIndex = 0;
+        audioFocusRow = 0;
         Qt.callLater(() => keyboardScope.forceActiveFocus());
     }
 
@@ -65,6 +93,11 @@ PocketSlidePanel {
         selectedNotificationIndex = -1;
         isGroupSelected = true;
         expandedGroupIndex = -1;
+        focusArea = "notifications";
+        if (confirmDialog.isOpen) {
+            confirmDialog.isOpen = false;
+            confirmDialog.cancelled();
+        }
     }
 
     Connections {
@@ -209,6 +242,97 @@ PocketSlidePanel {
             selectedGroupIndex = Math.max(0, groupedNotifications.length - 1);
     }
 
+    function cycleFocusArea() {
+        focusArea = focusArea === "notifications" ? "controls" : "notifications";
+    }
+
+    function shiftTab(delta) {
+        const order = root.tabOrder;
+        const cur = order.indexOf(controlsTab);
+        const next = (cur + delta + order.length) % order.length;
+        setControlsTab(order[next]);
+    }
+
+    function handleControlsKeys(event) {
+        // Tab switch via 1/2/3
+        if (event.key === Qt.Key_1) {
+            setControlsTab("audio");
+            event.accepted = true;
+            return;
+        }
+        if (event.key === Qt.Key_2) {
+            setControlsTab("record");
+            event.accepted = true;
+            return;
+        }
+        if (event.key === Qt.Key_3) {
+            setControlsTab("other");
+            event.accepted = true;
+            return;
+        }
+
+        if (controlsTab === "audio") {
+            if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
+                audioFocusRow = event.key === Qt.Key_Up ? 0 : 1;
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
+                const step = (event.modifiers & Qt.ShiftModifier) ? 0.05 : 0.02;
+                const dir = event.key === Qt.Key_Right ? step : -step;
+                if (audioFocusRow === 0)
+                    Audio.setVolume(Audio.volume + dir);
+                else
+                    Audio.setMicVolume(Audio.micVolume + dir);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_M) {
+                if (audioFocusRow === 0)
+                    Audio.toggleMute();
+                else
+                    Audio.toggleMicMute();
+                event.accepted = true;
+            }
+            return;
+        }
+
+        if (controlsTab === "record") {
+            if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
+                if (ScreenRecord.recording || ScreenRecord.pending)
+                    ScreenRecord.stop();
+                else
+                    ScreenRecord.start();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_P) {
+                if (ScreenRecord.recording)
+                    ScreenRecord.togglePause();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Left) {
+                shiftTab(-1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Right) {
+                shiftTab(1);
+                event.accepted = true;
+            }
+            return;
+        }
+
+        // other / system actions
+        if (event.key === Qt.Key_Left) {
+            actionFocusIndex = (actionFocusIndex + 5) % 6;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Right) {
+            actionFocusIndex = (actionFocusIndex + 1) % 6;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            actionFocusIndex = (actionFocusIndex + 3) % 6;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            actionFocusIndex = (actionFocusIndex + 3) % 6;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
+            otherPage.activateFocused();
+            event.accepted = true;
+        }
+    }
+
     FocusScope {
         id: keyboardScope
         anchors.fill: parent
@@ -216,10 +340,51 @@ PocketSlidePanel {
 
         Keys.onPressed: (event) => {
             if (!root.shouldBeActive) return;
+
+            if (confirmDialog.isOpen) {
+                if (event.key === Qt.Key_Escape) {
+                    confirmDialog.cancelled();
+                    event.accepted = true;
+                } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                    confirmDialog.confirmed();
+                    event.accepted = true;
+                }
+                return;
+            }
+
             if (event.key === Qt.Key_Escape) {
                 if (panelState) panelState.controlCenter = false;
                 event.accepted = true;
-            } else if (event.key === Qt.Key_Down) {
+                return;
+            }
+
+            if (event.key === Qt.Key_Tab) {
+                cycleFocusArea();
+                event.accepted = true;
+                return;
+            }
+
+            // Bracket keys always cycle tabs
+            if (event.key === Qt.Key_BracketLeft) {
+                focusArea = "controls";
+                shiftTab(-1);
+                event.accepted = true;
+                return;
+            }
+            if (event.key === Qt.Key_BracketRight) {
+                focusArea = "controls";
+                shiftTab(1);
+                event.accepted = true;
+                return;
+            }
+
+            if (focusArea === "controls") {
+                handleControlsKeys(event);
+                return;
+            }
+
+            // Notifications focus
+            if (event.key === Qt.Key_Down) {
                 navigateDown();
                 event.accepted = true;
             } else if (event.key === Qt.Key_Up) {
@@ -247,6 +412,9 @@ PocketSlidePanel {
             } else if (event.key === Qt.Key_D) {
                 deleteSelected();
                 event.accepted = true;
+            } else if (event.key === Qt.Key_1 || event.key === Qt.Key_2 || event.key === Qt.Key_3) {
+                focusArea = "controls";
+                handleControlsKeys(event);
             }
         }
 
@@ -262,108 +430,140 @@ PocketSlidePanel {
             Layout.fillHeight: true
             Layout.minimumHeight: contentColumn.height * 0.6
 
-            Column {
+            ColumnLayout {
                 anchors.fill: parent
                 spacing: 8
 
-                Row {
-                    width: parent.width
-                    height: 32
-                    spacing: 10
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
 
-                    Text {
-                        width: parent.width - 34
-                        text: "Notifications"
-                        color: Theme.textPrimary
-                        font.family: Settings.fontFamilyDefault
-                        font.pixelSize: Settings.fontSizeTitle
-                        font.weight: Font.Bold
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 28
+                        spacing: 10
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Notifications"
+                            color: Theme.textPrimary
+                            font.family: Settings.fontFamilyDefault
+                            font.pixelSize: Settings.fontSizeTitle
+                            font.weight: Font.Bold
+                        }
+
+                        IconButton {
+                            Layout.preferredWidth: 24
+                            Layout.preferredHeight: 24
+                            icon: "\ue872"
+                            iconSize: 16
+                            buttonSize: 24
+
+                            onClicked: {
+                                NotificationStore.clearAll();
+                                root.updateNotifications();
+                            }
+                        }
                     }
 
-                    IconButton {
-                        width: 24
-                        height: 24
-                        icon: "\ue872"
-                        iconSize: 16
-                        buttonSize: 24
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.hintPrimary
+                        color: Theme.textSecondary
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeCaption
+                    }
 
-                        onClicked: {
-                            NotificationStore.clearAll();
-                            root.updateNotifications();
-                        }
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.hintSecondary
+                        color: Theme.withAlpha(Theme.textSecondary, 0.85)
+                        font.family: Settings.fontFamilyDefault
+                        font.pixelSize: Settings.fontSizeCaption
                     }
                 }
 
-                ScrollView {
-                    id: scrollView
-                    width: parent.width
-                    height: parent.height - 40
-                    clip: true
-                    focus: false
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: "transparent"
+                    radius: Settings.cardRadius
+                    border.width: root.focusArea === "notifications" && root.shouldBeActive ? 1 : 0
+                    border.color: Theme.withAlpha(Theme.accent, 0.35)
 
-                    ScrollBar.vertical: ScrollBar {
-                        policy: ScrollBar.AsNeeded
-                        width: 6
-                    }
+                    ScrollView {
+                        id: scrollView
+                        anchors.fill: parent
+                        anchors.margins: root.focusArea === "notifications" ? 1 : 0
+                        clip: true
+                        focus: false
 
-                    Column {
-                        id: groupsColumn
-                        width: scrollView.width
-                        height: childrenRect.height
-                        spacing: 12
-
-                        Repeater {
-                            id: groupsRepeater
-                            model: root.groupedNotifications || []
-
-                            delegate: NotificationHistoryGroup {
-                                required property var modelData
-                                required property int index
-
-                                objectName: "notificationGroup" + index
-                                width: groupsColumn.width
-                                appName: modelData.appName || ""
-                                notifications: modelData.notifications || []
-                                hasCritical: modelData.hasCritical || false
-                                expanded: root.expandedGroupIndex === index
-                                groupKeyboardFocused: root.shouldBeActive
-                                    && root.isGroupSelected
-                                    && root.selectedGroupIndex === index
-                                focusedNotificationIndex: root.shouldBeActive
-                                    && !root.isGroupSelected
-                                    && root.selectedGroupIndex === index
-                                    ? root.selectedNotificationIndex
-                                    : -1
-
-                                onToggleExpandRequested: {
-                                    root.expandedGroupIndex = (root.expandedGroupIndex === index) ? -1 : index;
-                                }
-
-                                onNotificationDismissed: function(appName, notificationId) {
-                                    NotificationService.dismissOnly(notificationId);
-                                    root.updateNotifications();
-                                    root.adjustSelectionAfterDelete();
-                                }
-
-                                onGroupDismissed: function(appName) {
-                                    NotificationStore.clearApp(appName);
-                                    root.updateNotifications();
-                                    root.adjustSelectionAfterDelete();
-                                }
-                            }
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            width: 6
                         }
 
-                        Item {
-                            width: groupsColumn.width
-                            height: 80
-                            visible: root.groupedNotifications.length === 0
+                        Column {
+                            id: groupsColumn
+                            width: scrollView.width
+                            height: childrenRect.height
+                            spacing: 12
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: "No notifications"
-                                color: Theme.textSecondary
-                                font.family: Settings.fontFamilyDefault
-                                font.pixelSize: Settings.fontSizeMedium
+                            Repeater {
+                                id: groupsRepeater
+                                model: root.groupedNotifications || []
+
+                                delegate: NotificationHistoryGroup {
+                                    required property var modelData
+                                    required property int index
+
+                                    objectName: "notificationGroup" + index
+                                    width: groupsColumn.width
+                                    appName: modelData.appName || ""
+                                    notifications: modelData.notifications || []
+                                    hasCritical: modelData.hasCritical || false
+                                    expanded: root.expandedGroupIndex === index
+                                    groupKeyboardFocused: root.shouldBeActive
+                                        && root.focusArea === "notifications"
+                                        && root.isGroupSelected
+                                        && root.selectedGroupIndex === index
+                                    focusedNotificationIndex: root.shouldBeActive
+                                        && root.focusArea === "notifications"
+                                        && !root.isGroupSelected
+                                        && root.selectedGroupIndex === index
+                                        ? root.selectedNotificationIndex
+                                        : -1
+
+                                    onToggleExpandRequested: {
+                                        root.expandedGroupIndex = (root.expandedGroupIndex === index) ? -1 : index;
+                                    }
+
+                                    onNotificationDismissed: function(appName, notificationId) {
+                                        NotificationService.dismissOnly(notificationId);
+                                        root.updateNotifications();
+                                        root.adjustSelectionAfterDelete();
+                                    }
+
+                                    onGroupDismissed: function(appName) {
+                                        NotificationStore.clearApp(appName);
+                                        root.updateNotifications();
+                                        root.adjustSelectionAfterDelete();
+                                    }
+                                }
+                            }
+
+                            Item {
+                                width: groupsColumn.width
+                                height: 80
+                                visible: root.groupedNotifications.length === 0
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "No notifications"
+                                    color: Theme.textSecondary
+                                    font.family: Settings.fontFamilyDefault
+                                    font.pixelSize: Settings.fontSizeMedium
+                                }
                             }
                         }
                     }
@@ -386,7 +586,9 @@ PocketSlidePanel {
                 radius: 18
                 color: Theme.withAlpha(Theme.surfaceBase, 0.78)
                 border.width: 1
-                border.color: Theme.withAlpha(Theme.textPrimary, 0.08)
+                border.color: root.focusArea === "controls" && root.shouldBeActive
+                    ? Theme.withAlpha(Theme.accent, 0.55)
+                    : Theme.withAlpha(Theme.textPrimary, 0.08)
 
                 Row {
                     id: tabRow
@@ -396,9 +598,9 @@ PocketSlidePanel {
 
                     Repeater {
                         model: [
-                            { id: "audio", label: "Audio" },
-                            { id: "record", label: "Record" },
-                            { id: "other", label: "Other" }
+                            { id: "audio", label: "Audio", hint: "1" },
+                            { id: "record", label: "Record", hint: "2" },
+                            { id: "other", label: "Other", hint: "3" }
                         ]
 
                         delegate: Rectangle {
@@ -418,19 +620,35 @@ PocketSlidePanel {
                                 ColorAnimation { duration: Settings.animationDurationShort }
                             }
 
-                            Text {
+                            Row {
                                 anchors.centerIn: parent
-                                text: modelData.label
-                                color: selected ? Theme.textOnPrimary : Theme.textPrimary
-                                font.family: Settings.fontFamilyDefault
-                                font.pixelSize: Settings.fontSizeSmall
-                                font.weight: selected ? Font.DemiBold : Font.Medium
-                                // Soft outline so light aurora can't wash out glyphs
-                                style: Text.Outline
-                                styleColor: Theme.withAlpha(Theme.surfaceBase, selected ? 0.35 : 0.65)
+                                spacing: 6
 
-                                Behavior on color {
-                                    ColorAnimation { duration: Settings.animationDurationShort }
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: modelData.label
+                                    color: selected ? Theme.textOnPrimary : Theme.textPrimary
+                                    font.family: Settings.fontFamilyDefault
+                                    font.pixelSize: Settings.fontSizeSmall
+                                    font.weight: selected ? Font.DemiBold : Font.Medium
+                                    style: Text.Outline
+                                    styleColor: Theme.withAlpha(Theme.surfaceBase, selected ? 0.35 : 0.65)
+
+                                    Behavior on color {
+                                        ColorAnimation { duration: Settings.animationDurationShort }
+                                    }
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: modelData.hint
+                                    visible: root.focusArea === "controls"
+                                    color: selected
+                                        ? Theme.withAlpha(Theme.textOnPrimary, 0.7)
+                                        : Theme.textSecondary
+                                    font.family: Settings.fontFamilyDefault
+                                    font.pixelSize: 9
+                                    font.weight: Font.Medium
                                 }
                             }
 
@@ -439,7 +657,10 @@ PocketSlidePanel {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: root.setControlsTab(modelData.id)
+                                onClicked: {
+                                    root.focusArea = "controls";
+                                    root.setControlsTab(modelData.id);
+                                }
                             }
                         }
                     }
@@ -475,7 +696,6 @@ PocketSlidePanel {
                     spacing: 8
                     opacity: root.controlsTab === "audio" ? 1 : 0
                     x: tabPages.pageX("audio")
-                    // Keep laid out for height measurement; disable hit-testing when hidden
                     enabled: root.controlsTab === "audio"
                     z: root.controlsTab === "audio" ? 1 : 0
 
@@ -492,7 +712,11 @@ PocketSlidePanel {
                         }
                     }
 
-                    AudioSliders { width: parent.width }
+                    AudioSliders {
+                        width: parent.width
+                        keyboardActive: root.focusArea === "controls" && root.controlsTab === "audio"
+                        focusedRow: root.audioFocusRow
+                    }
                     MediaCard { width: parent.width }
                 }
 
@@ -526,6 +750,10 @@ PocketSlidePanel {
                     enabled: root.controlsTab === "other"
                     z: root.controlsTab === "other" ? 1 : 0
                     confirmDialog: confirmDialog
+                    keyboardActive: root.focusArea === "controls" && root.controlsTab === "other"
+                    focusedIndex: root.focusArea === "controls" && root.controlsTab === "other"
+                        ? root.actionFocusIndex
+                        : -1
 
                     Behavior on opacity {
                         NumberAnimation {

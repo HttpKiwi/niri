@@ -18,6 +18,7 @@ Item {
     property Item wallpaperPanel: null
     property Item controlCenterPanel: null
     property Item settingsPanel: null
+    property Item calendarPanel: null
     readonly property real blobMargin: 50
     readonly property real borderTop: Settings.barHeight + blobMargin
     readonly property real borderSide: Settings.screenBorderWidth + blobMargin
@@ -155,6 +156,22 @@ Item {
             stiffness: 200
             damping: 60
             visible: settingsPanel ? settingsPanel.pocketActive : false
+        }
+
+        // Calendar — top-right drop-down from date/time
+        BlobRect {
+            group: blobGroup
+            x: calendarPanel ? calendarPanel.blobX + blobMargin : 0
+            y: calendarPanel ? calendarPanel.blobY + blobMargin - Math.min(Settings.barHeight - 4, 20) : 0
+            width: calendarPanel && calendarPanel.blobH > 0 ? calendarPanel.blobW : 0
+            height: calendarPanel && calendarPanel.blobH > 0
+                ? calendarPanel.blobH + Math.min(Settings.barHeight - 4, 20)
+                : 0
+            radius: Settings.screenCornerRadius
+            deformScale: calendarPanel && calendarPanel.blobH > 4 && calendarPanel.hideProgress < 0.85 ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: calendarPanel ? calendarPanel.pocketActive : false
         }
 
         Repeater {

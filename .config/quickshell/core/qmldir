@@ -20,3 +20,4 @@ singleton LockState 1.0 LockState.qml
 singleton HttpClient 1.0 HttpClient.qml
 singleton ScreenRecord 1.0 ScreenRecord.qml
 singleton NiriConfig 1.0 NiriConfig.qml
+singleton Caffeine 1.0 Caffeine.qml

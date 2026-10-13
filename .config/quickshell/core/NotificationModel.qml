@@ -10,7 +10,7 @@ QtObject {
     property ListModel model: ListModel {}
 
     function add(data) {
-        model.append({
+        const entry = {
             "summary": data.summary || "",
             "body": data.body || "",
             "appName": data.appName || "",
@@ -21,7 +21,17 @@ QtObject {
             "actions": data.actions || [],
             "timeout": data.timeout || 5000,
             "timestamp": Date.now()
-        })
+        }
+        const key = String(entry.id)
+        if (key && key !== "0") {
+            for (let i = 0; i < model.count; i++) {
+                if (String(model.get(i).id) === key) {
+                    model.set(i, entry)
+                    return
+                }
+            }
+        }
+        model.append(entry)
     }
 
     function remove(index) {

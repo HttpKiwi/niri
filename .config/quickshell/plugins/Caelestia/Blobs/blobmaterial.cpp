@@ -25,6 +25,28 @@ int BlobMaterial::compare(const QSGMaterial* other) const {
 BlobMaterialShader::BlobMaterialShader() {
     setShaderFileName(VertexStage, QStringLiteral(":/Caelestia/Blobs/shaders/blob.vert.qsb"));
     setShaderFileName(FragmentStage, QStringLiteral(":/Caelestia/Blobs/shaders/blob.frag.qsb"));
+    setFlag(UpdatesGraphicsPipelineState);
+}
+
+bool BlobMaterialShader::updateGraphicsPipelineState(
+    RenderState& state, GraphicsPipelineState* ps, QSGMaterial* newMaterial, QSGMaterial* oldMaterial) {
+    Q_UNUSED(state)
+    Q_UNUSED(newMaterial)
+    Q_UNUSED(oldMaterial)
+
+    // BlobShape meshes overlap by their smoothing padding and each evaluates
+    // the same merged SDF. Source-over blending stacks translucent chrome at
+    // mesh boundaries. The group is rendered into an offscreen transparent
+    // layer, so component-wise max forms a single premultiplied union.
+    ps->blendEnable = true;
+    ps->srcColor = GraphicsPipelineState::One;
+    ps->dstColor = GraphicsPipelineState::One;
+    ps->separateBlendFactors = true;
+    ps->srcAlpha = GraphicsPipelineState::One;
+    ps->dstAlpha = GraphicsPipelineState::One;
+    ps->opColor = GraphicsPipelineState::BlendOp::Max;
+    ps->opAlpha = GraphicsPipelineState::BlendOp::Max;
+    return true;
 }
 
 bool BlobMaterialShader::updateUniformData(RenderState& state, QSGMaterial* newMaterial, QSGMaterial* oldMaterial) {

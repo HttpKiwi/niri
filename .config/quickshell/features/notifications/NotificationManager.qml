@@ -33,9 +33,35 @@ QtObject {
         return out
     }
 
+    property var _recentFingerprints: []
+
+    function _fingerprint(notification) {
+        const entry = (notification.desktopEntry || notification.appName || "").toString().toLowerCase()
+        const summary = (notification.summary || "").toString().trim()
+        const body = (notification.body || "").toString().trim()
+        return `${entry}\n${summary}\n${body}`
+    }
+
+    function _isDuplicate(notification) {
+        const now = Date.now()
+        const fp = _fingerprint(notification)
+        const windowMs = 2500
+        manager._recentFingerprints = manager._recentFingerprints.filter(r => now - r.at < windowMs)
+        if (manager._recentFingerprints.some(r => r.fp === fp))
+            return true
+        manager._recentFingerprints.push({ fp: fp, at: now })
+        return false
+    }
+
     function _add(notification) {
         if (!notification || !notification.summary)
             return
+
+        // KDE Connect (and some apps) emit the same Notify twice, or a replace as a new popup
+        if (manager._isDuplicate(notification)) {
+            console.log("Notification skipped duplicate:", notification.summary)
+            return
+        }
 
         const desktopEntry = notification.desktopEntry || ""
         const id = notification.id || 0

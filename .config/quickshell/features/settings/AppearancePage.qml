@@ -8,14 +8,14 @@ import qs.core
 
 SettingsScrollPage {
     id: root
-    spacing: 22
+    spacing: 16
 
         SettingsSection {
-            title: "Look & feel"
-            subtitle: "Glass panels, frame chrome, and shell surfaces"
+            title: "Glass"
+            subtitle: "Frosted panel fill used by cards, settings, and calendar"
 
             SettingsSlider {
-                label: "Glass opacity"
+                label: "Opacity"
                 valueText: Settings.glassOpacity.toFixed(2)
                 from: 0.15
                 to: 0.9
@@ -26,7 +26,7 @@ SettingsScrollPage {
             }
 
             SettingsSlider {
-                label: "Glass tint"
+                label: "Tint strength"
                 valueText: Settings.glassTintStrength.toFixed(2)
                 from: 0
                 to: 0.4
@@ -37,7 +37,7 @@ SettingsScrollPage {
             }
 
             SettingsSlider {
-                label: "Glass border opacity"
+                label: "Border opacity"
                 valueText: Settings.glassBorderOpacity.toFixed(2)
                 from: 0.04
                 to: 0.4
@@ -46,6 +46,11 @@ SettingsScrollPage {
                 defaultValue: 0.16
                 onMoved: v => Settings.setPref("glassBorderOpacity", v)
             }
+        }
+
+        SettingsSection {
+            title: "Surfaces"
+            subtitle: "Solid chrome / bar fill behind glass overlays"
 
             SettingsSlider {
                 label: "Surface transparency"
@@ -59,7 +64,7 @@ SettingsScrollPage {
             }
 
             SettingsSlider {
-                label: "Card radius"
+                label: "Card corner radius"
                 valueText: `${Settings.cardRadius}px`
                 from: 4
                 to: 28
@@ -68,9 +73,14 @@ SettingsScrollPage {
                 defaultValue: 12
                 onMoved: v => Settings.setPref("cardRadius", Math.round(v))
             }
+        }
+
+        SettingsSection {
+            title: "Shell frame"
+            subtitle: "Outer blob border around the desktop (not niri window corners)"
 
             SettingsSlider {
-                label: "Shell frame corner radius"
+                label: "Corner radius"
                 valueText: `${Settings.screenCornerRadius}px`
                 from: 0
                 to: 48
@@ -80,17 +90,8 @@ SettingsScrollPage {
                 onMoved: v => Settings.setPref("screenCornerRadius", Math.round(v))
             }
 
-            Text {
-                Layout.fillWidth: true
-                text: "Blob hole around the desktop — separate from niri window corner radius (Niri → Windows)"
-                color: Theme.textSecondary
-                font.family: Settings.fontFamilyDefault
-                font.pixelSize: Settings.fontSizeCaption
-                wrapMode: Text.Wrap
-            }
-
             SettingsSlider {
-                label: "Frame border width"
+                label: "Border width"
                 valueText: `${Settings.screenBorderWidth}px`
                 from: 0
                 to: 16
@@ -101,7 +102,23 @@ SettingsScrollPage {
             }
 
             SettingsSlider {
-                label: "Bar height"
+                label: "Blob smoothing"
+                valueText: `${Settings.screenSmoothing}`
+                from: 0
+                to: 40
+                stepSize: 1
+                value: Settings.screenSmoothing
+                defaultValue: 20
+                onMoved: v => Settings.setPref("screenSmoothing", Math.round(v))
+            }
+        }
+
+        SettingsSection {
+            title: "Bar"
+            subtitle: "Top chrome height"
+
+            SettingsSlider {
+                label: "Height"
                 valueText: `${Settings.barHeight}px`
                 from: 24
                 to: 48
@@ -114,7 +131,7 @@ SettingsScrollPage {
 
         SettingsSection {
             title: "Theme"
-            subtitle: "Matugen scheme used for the whole desktop"
+            subtitle: "Matugen palette for the whole desktop"
 
             RowLayout {
                 Layout.fillWidth: true

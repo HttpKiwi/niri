@@ -206,6 +206,10 @@ PocketBottomPanel {
         if (itemsToShow && itemsToShow.length > maxRows)
             itemsToShow = itemsToShow.slice(0, maxRows)
 
+        const prevSelectedId = filteredItems.length > selectedIndex && selectedIndex >= 0
+            ? filteredItems[selectedIndex]?.id
+            : null
+
         filteredItems = itemsToShow
 
         if (!itemsToShow.length) {
@@ -238,9 +242,24 @@ PocketBottomPanel {
         } else {
             listContentHeight = Math.min(filteredModel.count, maxVisibleItems) * itemHeight
         }
-        selectedIndex = 0
+
+        if (prevSelectedId) {
+            let restored = false
+            for (let k = 0; k < itemsToShow.length; k++) {
+                if (itemsToShow[k].id === prevSelectedId) {
+                    selectedIndex = k
+                    restored = true
+                    break
+                }
+            }
+            if (!restored)
+                selectedIndex = 0
+        } else {
+            selectedIndex = 0
+        }
+
         if (!isGifGrid && listView.count > 0)
-            listView.currentIndex = 0
+            listView.currentIndex = selectedIndex
 
         _updatingFilter = false
     }
@@ -329,17 +348,31 @@ PocketBottomPanel {
         positionGifCell(next)
     }
 
+    property bool _pendingClipboardClose: false
+
     function executeSelected() {
         if (filteredItems.length === 0)
             return
         if (selectedIndex >= 0 && selectedIndex < filteredItems.length) {
             if (filteredModel.get(selectedIndex).status)
                 return
-            const item = filteredItems[selectedIndex]
-            if (item) {
-                source.executeItem(item)
-                panelState.launcher = false
-            }
+            executeItemAt(selectedIndex)
+        }
+    }
+
+    function executeItemAt(index) {
+        if (index < 0 || index >= filteredItems.length)
+            return
+        const item = filteredItems[index]
+        if (!item)
+            return
+
+        if (source.sourceName === "clipboard") {
+            _pendingClipboardClose = true
+            source.executeItem(item)
+        } else {
+            source.executeItem(item)
+            panelState.launcher = false
         }
     }
 
@@ -356,6 +389,12 @@ PocketBottomPanel {
         onIsLoadingChanged: {
             if (source === clipboardLauncherSource)
                 updateFilter()
+        }
+        onCopyFinished: {
+            if (!_pendingClipboardClose)
+                return
+            _pendingClipboardClose = false
+            panelState.launcher = false
         }
     }
 
@@ -702,7 +741,7 @@ PocketBottomPanel {
                         onClicked: {
                             selectedIndex = index
                             listView.currentIndex = index
-                            executeSelected()
+                            root.executeItemAt(index)
                         }
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor

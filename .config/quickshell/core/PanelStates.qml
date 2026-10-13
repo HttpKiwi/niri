@@ -25,7 +25,7 @@ QtObject {
             const s = _states[name];
             if (!s)
                 continue;
-            if (s.launcher || s.wallpaper || s.controlCenter || s.osd || s.settings) {
+            if (s.launcher || s.wallpaper || s.controlCenter || s.osd || s.settings || s.calendar) {
                 anyPanelOpen = true;
                 return;
             }

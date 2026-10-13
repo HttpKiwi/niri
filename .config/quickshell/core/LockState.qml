@@ -14,4 +14,13 @@ QtObject {
     property real chromeReveal: 1
 
     readonly property bool shellRetracted: locked || engaging || chromeReveal < 0.01
+
+    // In-process lock request (AutoLock / other modules) — LockScreen handles it
+    signal lockRequested()
+
+    function requestLock() {
+        if (locked || engaging)
+            return;
+        lockRequested();
+    }
 }

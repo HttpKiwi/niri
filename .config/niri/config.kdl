@@ -50,11 +50,10 @@ xwayland-satellite {
 // More info: https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 
 output "DP-3" {
-   
-    mode "1920x1080@143.981"  
-    transform "normal"        
+    mode "1920x1080@143.981"
+    transform "normal"
     position x=0 y=0
-    focus-at-startup   
+    focus-at-startup
 }
 
 output "HDMI-A-1" {
@@ -145,7 +144,7 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
- spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; QML_IMPORT_PATH=/usr/lib/qt6/bin/:~/.config/quickshell qs -n -d"
+ spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export QML_IMPORT_PATH=\"$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell\"; qs -n -d"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
@@ -157,7 +156,8 @@ spawn-at-startup "bash" "-c" "sunshine"
 
 environment {
     // Set the DPI for X11 applications.
-    QML_IMPORT_PATH "/usr/lib/qt6/bin/:~/.config/quickshell"
+    // Expand ~ so Qt actually finds the local Caelestia.Blobs build (tilde is literal otherwise)
+    QML_IMPORT_PATH "/home/httpkiwi/.config/quickshell/qml:/usr/lib/qt6/bin/:/home/httpkiwi/.config/quickshell"
     QT_QPA_PLATFORM "wayland;xcb"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
     // Prefer VAAPI for Qt Multimedia / FFmpeg video wallpapers
@@ -189,6 +189,20 @@ window-rule {
     }
 }
 
+// Games: skip blur/rounding (extra compositor work). No VRR — FreeSync
+// chasing uneven frametimes was snapping the panel between ~48 and 144Hz.
+window-rule {
+    match app-id=r#"^steam_app_\d+$"#
+    match app-id="^gamescope$"
+    opacity 1.0
+    geometry-corner-radius 0
+    clip-to-geometry false
+    background-effect {
+        blur false
+    }
+    default-column-width { proportion 1.0; }
+}
+
 window-rule {
   match is-active=false
   opacity 0.90
@@ -214,6 +228,15 @@ window-rule {
 layer-rule {
     match namespace="overview"
     place-within-backdrop true
+}
+
+// Allow Quickshell's ext-background-effect blur requests on the shell layer.
+// Shape still comes from the client blurRegion (frame ring ∪ pockets).
+layer-rule {
+    match namespace="^quickshell:unifiedBar$"
+    background-effect {
+        blur true
+    }
 }
 
 animations {workspace-switch {

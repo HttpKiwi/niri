@@ -29,6 +29,7 @@ PocketTopPanel {
         { key: "appearance", label: "Appearance", icon: "\ue3ae" },
         { key: "chrome", label: "Chrome", icon: "\ue3a0" },
         { key: "shell", label: "Shell", icon: "\ue8b8" },
+        { key: "modules", label: "Modules", icon: "\ue9b0" },
         { key: "niri", label: "Niri", icon: "\ue871" },
         { key: "about", label: "About", icon: "\ue88e" }
     ]
@@ -102,13 +103,18 @@ PocketTopPanel {
                                 ? Theme.withAlpha(Theme.accent, 0.28)
                                 : (navMa.containsMouse ? Theme.withAlpha(Theme.textPrimary, 0.08) : "transparent")
 
-                            Row {
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
+                            RowLayout {
+                                anchors.fill: parent
                                 anchors.leftMargin: 10
+                                anchors.rightMargin: 10
                                 spacing: 10
 
                                 Text {
+                                    Layout.preferredWidth: 20
+                                    Layout.preferredHeight: parent.height
+                                    Layout.alignment: Qt.AlignVCenter
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
                                     text: modelData.icon
                                     color: selected ? Theme.accent : Theme.textSecondary
                                     font.family: Settings.fontFamilyIcons
@@ -116,6 +122,10 @@ PocketTopPanel {
                                 }
 
                                 Text {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    verticalAlignment: Text.AlignVCenter
                                     text: modelData.label
                                     color: selected ? Theme.accent : Theme.textPrimary
                                     font.family: Settings.fontFamilyDefault
@@ -164,6 +174,7 @@ PocketTopPanel {
                     AppearancePage {}
                     ChromePage {}
                     ShellPage {}
+                    ModulesPage {}
                     NiriPage {}
                     AboutPage {}
                 }

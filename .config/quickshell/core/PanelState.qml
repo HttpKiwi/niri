@@ -15,6 +15,7 @@ QtObject {
     property bool wallpaper: false
     property bool controlCenter: false
     property bool settings: false
+    property bool calendar: false
 
     signal flagsChanged()
 
@@ -38,8 +39,10 @@ QtObject {
     }
 
     onControlCenterChanged: {
-        if (root.controlCenter)
+        if (root.controlCenter) {
             root.settings = false;
+            root.calendar = false;
+        }
         flagsChanged();
     }
 
@@ -49,6 +52,18 @@ QtObject {
             root.wallpaper = false;
             root.clipboard = false;
             root.controlCenter = false;
+            root.calendar = false;
+        }
+        flagsChanged();
+    }
+
+    onCalendarChanged: {
+        if (root.calendar) {
+            root.launcher = false;
+            root.wallpaper = false;
+            root.clipboard = false;
+            root.controlCenter = false;
+            root.settings = false;
         }
         flagsChanged();
     }

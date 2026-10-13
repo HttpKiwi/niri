@@ -69,6 +69,15 @@ output_path = "~/.config/equibop/themes/HyprLuna.css"
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/equibop/themes/HyprLuna-Acrylic.css"
 
+# Equicord (Discord + Equicord asar) — same themes as Equibop
+[templates.equicord]
+input_path = "~/.config/matugen/templates/discord.css"
+output_path = "~/.config/Equicord/themes/HyprLuna.css"
+
+[templates.equicord-acrylic]
+input_path = "~/.config/matugen/templates/discord.css"
+output_path = "~/.config/Equicord/themes/HyprLuna-Acrylic.css"
+
 [templates.vesktop]
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/vesktop/themes/HyprLuna.css"

@@ -14,6 +14,7 @@ import qs.features.osd
 import qs.features.wallpaper
 import qs.features.controlcenter
 import qs.features.settings
+import qs.features.calendar
 
 
 Scope {
@@ -42,7 +43,7 @@ Scope {
             exclusiveZone: 0
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings || window.panelState.calendar) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
@@ -105,6 +106,7 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: Settings.barContentMargin
                     spacing: Settings.barWorkspaceSpacing
+                    visible: Settings.showBarWorkspaces
 
                     Row {
                         id: workspaces
@@ -130,6 +132,7 @@ Scope {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.leftMargin: Settings.barContentMargin
                     anchors.rightMargin: Settings.barContentMargin
+                    visible: Settings.showBarTitle
 
                     text: root.sanitizeTitle(Niri.title)
                     textFormat: Text.PlainText
@@ -151,31 +154,49 @@ Scope {
 
                     // Volume pill
                     Pill {
+                        visible: Settings.showBarVolume
                         VolumeIndicator {}
                     }
 
                     // Screen recording pill
                     Pill {
+                        visible: Settings.showBarRecording
                         RecordingIndicator {}
                     }
 
                     // Headset battery pill
                     Pill {
+                        visible: Settings.showBarHeadset
                         HeadsetBatteryIndicator {}
                     }
 
                     // Status pill
                     Pill {
+                        visible: Settings.showBarResources
                         ResourceIndicator {}
                     }
 
                     // Date pill
                     Pill {
+                        visible: Settings.showBarDate
+                        clickable: true
+                        onClicked: {
+                            if (!window.panelState)
+                                return;
+                            window.panelState.calendar = !window.panelState.calendar;
+                        }
                         DateIndicator {}
                     }
 
                     // Time pill
                     Pill {
+                        visible: Settings.showBarTime
+                        clickable: true
+                        onClicked: {
+                            if (!window.panelState)
+                                return;
+                            window.panelState.calendar = !window.panelState.calendar;
+                        }
                         TimeIndicator {}
                     }
                 }
@@ -204,6 +225,9 @@ Scope {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 anchors.topMargin: Settings.barHeight
+                    + (window.panelState && window.panelState.calendar
+                        ? calendarPanel.height + 8
+                        : 0)
                 anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.controlCenter ? controlCenterShift : 0)
                 width: Settings.notificationWidth + Settings.screenBorderWidth + 50
                 height: window.isFocusedScreen ? notifList.contentHeight : 0
@@ -213,6 +237,13 @@ Scope {
                 readonly property int controlCenterShift: Settings.controlCenterWidth
 
                 Behavior on anchors.rightMargin {
+                    NumberAnimation {
+                        duration: Settings.animationDurationMedium
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                Behavior on anchors.topMargin {
                     NumberAnimation {
                         duration: Settings.animationDurationMedium
                         easing.type: Easing.OutCubic
@@ -319,6 +350,16 @@ Scope {
                 z: 2
             }
 
+            CalendarPanel {
+                id: calendarPanel
+                panelState: window.panelState
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: Settings.barHeight
+                anchors.rightMargin: Settings.screenBorderWidth + Settings.barContentMargin
+                z: 2
+            }
+
             Component.onCompleted: {
                 pocketFrame.notifWrapper = notifWrapper;
                 pocketFrame.launcherPanel = launcherPanel;
@@ -326,6 +367,7 @@ Scope {
                 pocketFrame.wallpaperPanel = wallpaperPanel;
                 pocketFrame.controlCenterPanel = controlCenterPanel;
                 pocketFrame.settingsPanel = settingsPanel;
+                pocketFrame.calendarPanel = calendarPanel;
                 const niriName = Niri.niriNameFor(window.screen?.name ?? "");
                 if (niriName) {
                     PopupRegistry.notifWrappers[niriName] = notifWrapper;
@@ -380,6 +422,14 @@ Scope {
             }
 
             Item {
+                id: calendarHitRegion
+                x: calendarPanel.visualX
+                y: calendarPanel.visualY
+                width: calendarPanel.pocketActive ? calendarPanel.visualW : 0
+                height: calendarPanel.pocketActive ? calendarPanel.visualH : 0
+            }
+
+            Item {
                 id: wallpaperHitRegion
                 x: wallpaperPanel.visualX
                 y: wallpaperPanel.visualY
@@ -404,6 +454,11 @@ Scope {
 
                 Region {
                     item: settingsHitRegion
+                    intersection: Intersection.Subtract
+                }
+
+                Region {
+                    item: calendarHitRegion
                     intersection: Intersection.Subtract
                 }
 

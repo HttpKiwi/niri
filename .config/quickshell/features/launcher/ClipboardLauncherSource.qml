@@ -257,34 +257,52 @@ QtObject {
         }
     }
 
+    signal copyFinished(bool success)
+
     property var copyProcess: Process {
         command: ["sh", "-c", ""]
         running: false
+
+        onExited: function (exitCode) {
+            root.copyFinished(exitCode === 0)
+        }
+    }
+
+    function shellQuote(value) {
+        return "'" + String(value).replace(/'/g, "'\\''") + "'"
+    }
+
+    // File-based wl-copy is more reliable for Electron/Wayland apps (Equibop) than piping.
+    // Always decode from cliphist for copy — preview thumbs are display-only and can be stale.
+    function buildCopyCommand(item) {
+        const id = shellQuote(item.id)
+        const tmpDir = shellQuote(thumbDir)
+
+        return [
+            "sh", "-c",
+            "set -e; "
+                + "mkdir -p " + tmpDir + "; "
+                + "tmp=$(mktemp -p " + tmpDir + " clip.XXXXXX); "
+                + "trap 'rm -f \"$tmp\"' EXIT; "
+                + "cliphist decode " + id + " > \"$tmp\"; "
+                + "if [ ! -s \"$tmp\" ]; then exit 1; fi; "
+                + "mime=$(file --brief --mime-type \"$tmp\" 2>/dev/null || echo application/octet-stream); "
+                + "case \"$mime\" in "
+                + "image/*|application/pdf) "
+                + "printf 'cliphist:%s' " + id + " | wl-copy --type text/plain; "
+                + "sleep 0.08; "
+                + "wl-copy --type \"$mime\" < \"$tmp\"; "
+                + ";; "
+                + "*) wl-copy --type text/plain < \"$tmp\"; "
+                + "esac"
+        ]
     }
 
     function executeItem(item) {
         if (!item || !item.id)
             return
 
-        // Prefer cached thumb for images (faster, correct MIME via file bytes)
-        if (item.isImage && item.thumbPath) {
-            const ext = item.thumbPath.split(".").pop()
-            let mime = "image/png"
-            if (ext === "jpg" || ext === "jpeg")
-                mime = "image/jpeg"
-            else if (ext === "gif")
-                mime = "image/gif"
-            else if (ext === "webp")
-                mime = "image/webp"
-            copyProcess.command = [
-                "sh", "-c",
-                "if [ -s '" + item.thumbPath + "' ]; then "
-                    + "wl-copy --type " + mime + " < '" + item.thumbPath + "'; "
-                    + "else cliphist decode '" + item.id + "' | wl-copy; fi"
-            ]
-        } else {
-            copyProcess.command = ["sh", "-c", "cliphist decode '" + item.id + "' | wl-copy"]
-        }
+        copyProcess.command = buildCopyCommand(item)
         copyProcess.running = true
     }
 

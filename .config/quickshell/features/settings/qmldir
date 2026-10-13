@@ -8,5 +8,6 @@ SettingsScrollPage 1.0 SettingsScrollPage.qml
 AppearancePage 1.0 AppearancePage.qml
 ChromePage 1.0 ChromePage.qml
 ShellPage 1.0 ShellPage.qml
+ModulesPage 1.0 ModulesPage.qml
 NiriPage 1.0 NiriPage.qml
 AboutPage 1.0 AboutPage.qml

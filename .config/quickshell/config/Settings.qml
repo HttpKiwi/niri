@@ -115,6 +115,18 @@ QtObject {
     readonly property int barContentMargin: 12
     readonly property int barModuleSpacing: 6
     readonly property int barWorkspaceSpacing: 8
+    // Bar module visibility
+    property bool showBarWorkspaces: true
+    property bool showBarTitle: true
+    property bool showBarVolume: true
+    property bool showBarRecording: true
+    property bool showBarHeadset: true
+    property bool showBarResources: true
+    property bool showBarDate: true
+    property bool showBarTime: true
+    // Qt format strings — see QLocale/Qt.formatTime docs
+    property string barTimeFormat: "HH:mm"
+    property string barDateFormat: "ddd. dd MMM"
     // Workspace indicator
     readonly property int workspaceIndicatorHeight: 12
     readonly property int workspaceIndicatorInactiveWidth: 12
@@ -228,8 +240,12 @@ QtObject {
     property int idleLockTimeout: 300
     property int idleSleepTimeout: 600
     property bool inhibitIdleWhenAudio: true
+    // Last selected control center tab: audio | record | other
+    property string controlCenterTab: "audio"
     property bool enableAutoLock: true
     property bool enableAutoSleep: true
+    // When true, apps holding Wayland idle inhibitors (browsers, caffeine, etc.) block auto-lock
+    property bool respectIdleInhibitors: true
     // ========================================
     // Control Center Settings
     // ========================================
@@ -281,9 +297,14 @@ QtObject {
         "screenBorderWidth", "screenCornerRadius", "screenSmoothing", "cardRadius",
         "glassOpacity", "glassBorderOpacity", "glassTintStrength",
         "idleLockTimeout", "idleSleepTimeout", "inhibitIdleWhenAudio",
-        "enableAutoLock", "enableAutoSleep",
+        "controlCenterTab",
+        "enableAutoLock", "enableAutoSleep", "respectIdleInhibitors",
         "blurEnabled", "blurBorderOpacity", "surfaceTransparency",
         "notificationTimeout", "screenRecordFps", "barHeight",
+        "showBarWorkspaces", "showBarTitle", "showBarVolume", "showBarRecording",
+        "showBarHeadset", 
+        "showBarResources", "showBarDate", "showBarTime",
+        "barTimeFormat", "barDateFormat",
         "chromeShaderEnabled", "chromeClockIntervalMs",
         "chromeCellSize", "chromeDotSize", "chromeAnimSpeed", "chromeIntensity",
         "animatedWallpapersEnabled", "animatedWallpaperFocusedOnly"

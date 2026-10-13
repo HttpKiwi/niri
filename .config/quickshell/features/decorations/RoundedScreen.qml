@@ -48,7 +48,7 @@ Scope {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 corner: 0  // topLeft
-                radius: 12
+                radius: Settings.screenCornerRadius
                 color: "black"
             }
 
@@ -57,25 +57,25 @@ Scope {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 corner: 1  // topRight
-                radius: 12
+                radius: Settings.screenCornerRadius
                 color: "black"
             }
-            
+
             Corner {
                 id: bottomLeftCorner
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 corner: 3  // bottomLeft
-                radius: 12
+                radius: Settings.screenCornerRadius
                 color: "black"
             }
-            
+
             Corner {
                 id: bottomRightCorner
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 corner: 2  // bottomRight
-                radius: 12
+                radius: Settings.screenCornerRadius
                 color: "black"
             }
             }

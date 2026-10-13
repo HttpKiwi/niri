@@ -78,18 +78,29 @@ Scope {
         }
     }
 
+    Connections {
+        target: LockState
+        function onLockRequested() {
+            lockScope.lockNow()
+        }
+    }
+
+    function lockNow() {
+        if (lock.locked || LockState.engaging)
+            return
+        chromeRestoreTimer.stop()
+        chromeRevealAnim.stop()
+        LockState.engaging = true
+        LockState.locked = true
+        lockScope.hideChrome()
+        engageTimer.restart()
+    }
+
     IpcHandler {
         target: "lock"
 
         function lockSession() {
-            if (lock.locked || LockState.engaging)
-                return
-            chromeRestoreTimer.stop()
-            chromeRevealAnim.stop()
-            LockState.engaging = true
-            LockState.locked = true
-            lockScope.hideChrome()
-            engageTimer.restart()
+            lockScope.lockNow()
         }
 
         function unlockSession() {

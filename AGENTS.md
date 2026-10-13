@@ -4,87 +4,42 @@
 
 **All work must be done in `/home/httpkiwi/niri/`.** This is a GNU Stow dotfiles repo. Files are under `.config/` and symlinked to `~/.config/` via stow. Never edit files directly under `~/.config/` — always edit them in the repo at `/home/httpkiwi/niri/`.
 
+Session-specific resume notes (dirty tree, unfinished UX): see [`HANDOFF.md`](./HANDOFF.md).
+
 ## Important Commands
 
 ### Never Kill Niri
 **NEVER run `killall niri` or similar commands.** Niri manages the entire desktop session - killing it will terminate your GUI. If issues occur, let Quickshell auto-reload by saving a QML file.
 
 ### Niri Config Changes
-When modifying `~/.config/niri/config.kdl`, always validate before restarting:
+When modifying niri config in the repo (`.config/niri/config.kdl`), always validate:
 ```bash
 niri validate
 ```
 
 ### Quickshell Config Changes
 When modifying Quickshell QML files, the shell auto-reloads when files change. Do NOT manually restart Quickshell:
-- Quickshell watches `~/.config/quickshell/` for changes and auto-reloads
+- Quickshell watches `~/.config/quickshell/` (stow → this repo) for changes and auto-reloads
 - Check `qs log` after QML changes to catch runtime errors
 - If there are errors, save a QML file to trigger a reload
+
+### Other useful checks
+```bash
+qs log
+qs ipc call lock isLocked
+qs ipc call caffeine isEnabled
+python3 ~/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py --json --timeout 1.0 --retries 4 --swap
+```
 
 ---
 
 ## Project Overview
 
-This is a custom desktop environment setup using:
-- **Niri** - Wayland compositor
-- **Quickshell** - QML-based shell framework
-- **Matugen** - Material color generation tool
-
----
-
-## Directory Structure
-
-```
-~/.config/
-├── niri/                    # Niri compositor config
-│   └── config.kdl          # Main Niri configuration
-│
-└── quickshell/             # Quickshell shell config
-    ├── shell.qml           # Main entry point
-    │
-    ├── common/             # Shared resources
-    │   ├── Colors.json     # Matugen color palette (generated)
-    │   └── matugen-prefs.json
-    │
-    ├── config/             # Configuration files
-    │   ├── Settings.qml    # Hardcoded values (durations, sizes, margins)
-    │   ├── Theme.qml       # Semantic colors and styling
-    │   └── MatugenPreferences.qml  # Matugen settings
-    │
-    ├── core/               # Core logic and services
-    │   ├── Niri.qml        # Niri QML plugin integration
-    │   ├── Color.qml       # Colors.json loader
-    │   ├── Audio.qml       # PipeWire audio
-    │   ├── Storage.qml     # JSON persistence (notifications + app usage)
-    │   ├── MatugenRunner.qml  # matugen-cache.sh runner
-    │   ├── NotificationStore.qml
-    │   ├── NotificationService.qml
-    │   ├── NotificationModel.qml
-    │   ├── PanelState.qml / PanelStates.qml  # Per-monitor panel flags
-    │   ├── Players.qml     # MPRIS + ipc target "mpris"
-    │   ├── PopupRegistry.qml
-    │   ├── ChromeClock.qml
-    │   ├── FuzzyMatcher.qml
-    │   └── ResourceUsage.qml
-    │
-    ├── components/         # Reusable UI components
-    │   ├── base/           # Card, Pill, PocketSlidePanel, PocketBottomPanel, …
-    │   └── indicators/
-    │
-    ├── features/           # Main UI features
-    │   ├── bar/            # UnifiedBar, PocketFrame, LauncherPanel
-    │   ├── background/
-    │   ├── wallpaper/      # WallpaperPanel
-    │   ├── launcher/
-    │   ├── notifications/
-    │   ├── osd/            # OSDWrapper (volume pocket)
-    │   ├── controlcenter/  # ControlCenterPanel
-    │   ├── lockscreen/
-    │   └── decorations/
-    │
-    ├── plugins/            # Caelestia Blobs (build → system install)
-    └── scripts/            # matugen-cache.sh, build-blobs-plugin.sh
-```
+Custom desktop environment:
+- **Niri** — Wayland compositor
+- **Quickshell** — QML shell (`UnifiedBar` + `PocketFrame` blob chrome)
+- **Matugen** — Material color generation from wallpaper
+- **Kiwiboard** — ZMK split keyboard (USB dongle central + L/R peripherals); host tooling lives outside this repo
 
 ---
 
@@ -223,7 +178,7 @@ console.error("Invalid state:", details)
 ```qml
 function executeSelected() {
     if (filteredItems.length === 0) return;
-    
+
     if (selectedIndex >= 0 && selectedIndex < filteredItems.length) {
         const item = filteredItems[selectedIndex];
         if (item && item.execute) {
@@ -270,39 +225,38 @@ anchors {
 
 ---
 
-## Launcher Extension System
+## Panel State
 
-### Creating a New Launcher Source
+Per-monitor flags in `PanelState` (via `PanelStates.forName(Niri.focused_output_name)`):
 
-1. Create `features/launcher/XXXLauncherSource.qml` as a `QtObject` matching the `AppLauncherSource` pattern
-2. Implement: `sourceName`, `displayName`, `loadItems()`, `filterItems()`, `getItemDisplay()`, `executeItem()`, optional `getPrefix()`
-3. Add to `LauncherPanel.qml` sources array:
+| Flag | Pocket / UI |
+|------|-------------|
+| `launcher` | Bottom launcher (+ optional `clipboard` mode) |
+| `wallpaper` | Bottom wallpaper selector |
+| `controlCenter` | Right slide control center |
+| `osd` | Left slide volume OSD |
+| `settings` | Settings panel |
+| `calendar` | Calendar pocket from date/time pills |
 
-```qml
-property var sources: [appLauncherSource, clipboardLauncherSource, mySource]
-```
-
----
-
-## Background System
-
-The background system currently displays static images via `Background.qml` (PNG, JPG, WebP, etc.). Video/GIF crossfade support is planned; `BackgroundUtil` was removed.
+Mutex rules: launcher ↔ wallpaper; settings/calendar close each other and major panels as coded in `PanelState.qml`.
 
 ---
 
 ## IPC Handlers (`shell.qml`)
 
-| Target | Functions | Niri keybind |
+| Target | Functions | Typical bind |
 |--------|-----------|--------------|
 | `appLauncher` | `toggleLauncher`, `toggleClipboard` | `Super+Space`, `Super+V` |
 | `controlCenter` | `toggleControlCenter` | `Super+N` |
 | `wallpaperSelector` | `toggleSelector` | `Super+Shift+W` |
-| `audio` | `raiseVolume`, `lowerVolume`, `toggleMute`, `toggleMicMute` | Volume keys |
+| `settings` | `toggle`, `open`, `close`, `isOpen` | (settings UI / bind) |
+| `audio` | `raiseVolume`, `lowerVolume`, `toggleMute`, `toggleMicMute` | Prefer these over raw `wpctl` so OSD tracks |
+| `screenrecord` | `toggle`, `start`, `stop`, `pause`, `isRecording` | Control center / bind |
+| `caffeine` | `toggle`, `enable`, `disable`, `isEnabled` | Idle inhibit |
+| `notifications` | `dismissFocused`, `focusPopup`, `navigateUp/Down`, `activateFocused` | Keyboard notif nav |
 | `storage` | `clearAll` | — |
-| `lock` | `lockSession`, `unlockSession`, `isLocked` | `Mod+Escape` |
+| `lock` | `lockSession`, `unlockSession`, `isLocked` | `Mod+Escape` (in lockscreen module) |
 | `mpris` | play/pause/next/… | (in `Players.qml`) |
-
-Per-monitor state via `PanelStates.forName(Niri.focused_output_name)`.
 
 ---
 
@@ -313,145 +267,77 @@ Bar pockets share animation bases in `components/base/`:
 - **PocketSlidePanel** — horizontal slide (OSD from left, control center from right)
 - **PocketBottomPanel** — bottom emerge (launcher, wallpaper)
 
-Bind `panelFlag` to a bool on `PanelState` (`launcher`, `wallpaper`, `controlCenter`, `osd`).
+Calendar and settings follow the same blob-mounted pocket patterns in `UnifiedBar` / `PocketFrame`. Bind `panelFlag` to the matching `PanelState` bool.
+
+---
+
+## Calendar Module (`qs.features.calendar`)
+
+- **`CalendarPanel.qml`** — month view pocket; opened from bar **date** and **time** indicators
+- **`ColombianHolidays.qml`** — Colombia public holidays + Ley Emiliani shifting
+- Glass styling on cards (not a single solid panel fill); blob rect wired in `PocketFrame`
+- Flag: `panelState.calendar`
+
+---
+
+## Settings Modules
+
+- **`features/settings/ModulesPage.qml`** — toggles for bar modules (workspaces, title, volume, recording, headset, **keyboard battery**, resources, date/time)
+- Prefs persist via `Settings.setPref` → `common/shell-prefs.json`
+- Other pages: Appearance, Shell, Chrome, Niri, About
+
+Bar visibility prefs (examples): `showBarWorkspaces`, `showBarKeyboardBattery`, `showBarDate`, `showBarTime`, …
+
+---
+
+## Keyboard Battery (ZMK / Kiwiboard)
+
+Bar indicator: `components/indicators/KeyboardBatteryIndicator.qml`.
+
+### Data path
+1. Dongle exposes HID battery (firmware in `zmk-config`; central fetch + proxy)
+2. Host script polls:  
+   `/home/httpkiwi/Projects/Kiwiboard/zmk-split-battery-tray/host/zmk-split-battery.py`  
+   Flags: `--json`, `--timeout`, `--retries`, **`--swap`**
+3. QML `Process` + timer (~6s); keep last reading on `WAITING`
+
+### Important: L/R are pairing slots
+ZMK peripheral **slot 0/1 = BLE pairing order**, not physical left/right. If charging the right half moves the left %, enable swap.
+
+| Pref | Default | Meaning |
+|------|---------|---------|
+| `showBarKeyboardBattery` | `true` | Show pill |
+| `keyboardBatterySwapLR` | `true` | Pass `--swap` (correct for current pairing) |
+| `keyboardBatteryLowThreshold` | `20` | Low warning threshold |
+
+### UX intent
+- **Calm default:** keyboard icon only (no constant dual %)
+- **Hover:** full `L xx%  R yy%`
+- **Low (≤ threshold):** icon blinks (`Theme.error`), show only the low side(s)
+- Do not reflash firmware for UI/slot bugs; fix with `--swap` / prefs
+- Cells are **~150 mAh**; ZMK profiler ~1–2 months is optimistic → ~**1 month** daily use is realistic. Jumpy % is SoC noise + slot mapping, not sudden failure
+
+### Toggle location
+**Settings → Modules →** Keyboard battery / Swap keyboard L/R
+
+---
+
+## Background System
+
+`Background.qml` supports static images, **animated WebP/GIF/APNG**, and **video** wallpapers (gated by `Settings.animatedWallpapersEnabled` / focused-only prefs). `BackgroundUtil.qml` classifies media type. Matugen/lock use still posters for video.
 
 ---
 
 ## Development Notes
 
-- Quickshell watches `~/.config/quickshell/` for changes and auto-reloads
-- Niri must be restarted to apply config changes
-- Always run `niri validate` after editing `config.kdl`
-- Check `qs log` after QML changes to catch runtime errors
-- Use `MatugenPreferences` singleton for color scheme preferences
-- The wallpaper selector saves to `current_wallpaper.json` in the wallpapers directory
-- Use `qs config` to inspect Quickshell configuration
+- Prefer editing repo paths; stow keeps `~/.config` in sync
+- Niri must be restarted (or config reload if supported) to apply `config.kdl` — always `niri validate` first
+- Use `MatugenPreferences` for color scheme preferences
+- Wallpaper selection saves to `current_wallpaper.json` in the wallpapers directory
+- `qs config` inspects Quickshell configuration
+- Do not commit large built artifacts under `qml/Caelestia/Blobs/*.so` unless intentional
+- Many absolute `/home/httpkiwi/` paths exist in Settings/scripts — keep consistent when changing machines
 
----
-
-## Lockscreen Module (`qs.features.lockscreen`)
-
-### Architecture
-- Uses `WlSessionLock` (Quickshell 0.3.0+) for proper session locking via `ext-session-lock-v1`
-- `LockState` singleton coordinates bar/frame retraction before the lock surface appears
-- Lock surface uses the current wallpaper with animated `MultiEffect` blur (not a desktop screencopy)
-- Enter: backdrop → clock → toolbar (staggered). Exit: toolbar → clock → backdrop, then release lock
-- `WlSessionLockSurface` is a **QWindow**, not a QQuickItem — `Keys` and `focus` properties don't work on it directly
-- Use a child `FocusScope` or `MouseArea` to capture input
-- Authentication via `PamContext` with custom PAM config at `features/lockscreen/pam.d/quickshell`
-
-### PAM Flow
-1. User types password → presses Enter
-2. Store password in `_pendingPassword`, clear input field
-3. Call `pamContext.start()` to begin authentication
-4. When `responseRequired` changes to true, call `pamContext.respond(_pendingPassword)`
-5. On `PamResult.Success` → emit unlock signal, on failure → shake animation + error message
-
-### IPC Usage
-```bash
-quickshell ipc call lock lockSession    # Lock
-quickshell ipc call lock unlockSession  # Unlock (testing)
-quickshell ipc call lock isLocked       # Check status
-```
-
-### Niri Keybind
-```kdl
-Mod+Escape { spawn "qs" "ipc" "call" "lock" "lockSession"; }
-```
-
-### Important Gotchas
-- `WlSessionLockSurface` cannot use `Keys.onPressed` directly — use a child `FocusScope` or `MouseArea`
-- `forceActiveFocus()` on `WlSessionLockSurface` will crash — use it on child `TextInput` instead
-- Content surface color must be `transparent` — solid black causes a flash before wallpaper/screencopy appears
-- Bar and blob frame retract via `LockState` before `lock.locked = true` (`Settings.lockscreenEngageDelay`)
-- Use a delayed timer (`lockAnimTimer`) to trigger the fade-in animation after surface creation
-
----
-
-## Quickshell Plugin System (Caelestia Blobs)
-
-### How It's Compiled
-Build system: CMake + Qt6's QML module system
-
-```cmake
-# plugins/CMakeLists.txt
-qt_add_qml_module(caelestia-blobs
-    URI Caelestia.Blobs
-    VERSION 1.0
-    SOURCES
-        Caelestia/Blobs/blobgroup.hpp
-        Caelestia/Blobs/blobgroup.cpp
-        # ... more sources
-)
-qt_add_shaders(caelestia-blobs "blob_shaders"
-    BATCHABLE OPTIMIZED NOHLSL NOMSL
-    GLSL "300es,330"
-    PREFIX "/"
-    FILES
-        Caelestia/Blobs/shaders/blob.frag
-        Caelestia/Blobs/shaders/blob.vert
-)
-```
-
-Build command:
-```bash
-~/.config/quickshell/scripts/build-blobs-plugin.sh
-```
-
-This builds in `plugins/build/` and installs to `/usr/lib/qt6/qml/Caelestia/Blobs/` (requires sudo). The `plugins/build/` directory is gitignored.
-
-### Architecture
-| Component | Role |
-|---|---|
-| `BlobGroup` | Manages shapes, holds `color` + `smoothing` |
-| `BlobShape` | Base `QQuickItem` with custom `updatePaintNode()` |
-| `BlobRect` | Rectangle with spring physics for deformation |
-| `BlobInvertedRect` | Creates a "hole" (frame) in the blob |
-| `BlobMaterial` | `QSGMaterial` that packs rect data into uniforms |
-| `blob.frag` | GLSL shader using SDF merging (`smin`) |
-
-The shader uses signed distance functions to merge multiple rectangles into a single smooth blob. `smoothing` controls the blend radius.
-
-### Creating a Custom Plugin
-1. Create directory structure:
-```
-plugins/MyPlugin/
-├── CMakeLists.txt
-├── MyPlugin/
-│   ├── MyComponent.hpp
-│   └── MyComponent.cpp
-```
-
-2. Use `QML_ELEMENT` macro in C++ to expose types to QML
-3. Build with CMake, Quickshell loads from `build/` automatically
-
----
-
-## Matugen Cache System
-
-### Location
-`~/.config/quickshell/scripts/matugen-cache.sh`
-
-### How It Works
-- Caches matugen outputs per wallpaper in `~/Pictures/Wallpapers/.matugen_cache/`
-- Nested structure: `.matugen_cache/<scheme-type>/<mode>/<wallpaper.jpg>/`
-- On wallpaper change, `MatugenRunner` invokes `scripts/matugen-cache.sh`
-- If cache exists, applies cached files instantly; otherwise runs matugen then caches
-
-### Post-Hooks
-After applying cached files, runs reload signals for:
-- Gradience (GTK4/libadwaita)
-- GTK theme toggle
-- Kitty (SIGUSR1 + socket reload)
-- Fuzzel (SIGUSR1 when running)
-
-### Zen Browser
-**Removed from matugen-cache.sh.** The zen browser template and chrome directory touch were removed to avoid conflicts with transparent-zen. If you need zen theming back, re-add it to:
-- `CACHE_FILES` array in `matugen-cache.sh`
-- `run_post_hooks()` function
-- `~/.config/matugen/config.toml` (uncomment `[templates.zen]`)
-
----
 
 ## Reference Implementations
 
@@ -470,3 +356,13 @@ Key modules to study:
 - Toolbar fades in + scales up (0.9→1) on lock
 - Toolbar scales down + fades out on unlock
 - All pills are rounded rectangles with semi-transparent backgrounds
+
+---
+
+## Planned / known debt (short)
+
+1. Verify keyboard-battery calm + low blink live (`qs log`)
+2. Glass chrome: `blob.frag` × `color.a` → rebuild plugin → `chromeOpacity` → `PocketFrame` / blur
+3. Prefer volume keys → `qs ipc call audio …` if OSD should always track
+4. Legacy unused QML still present in places; prefer `UnifiedBar` / pocket paths as canonical
+5. See `HANDOFF.md` for current dirty-tree resume order

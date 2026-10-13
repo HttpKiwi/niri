@@ -1,0 +1,4 @@
+module qs.features.calendar
+
+singleton ColombianHolidays 1.0 ColombianHolidays.qml
+CalendarPanel 1.0 CalendarPanel.qml

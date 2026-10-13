@@ -54,4 +54,6 @@ class BlobMaterialShader : public QSGMaterialShader {
 public:
     BlobMaterialShader();
     bool updateUniformData(RenderState& state, QSGMaterial* newMaterial, QSGMaterial* oldMaterial) override;
+    bool updateGraphicsPipelineState(RenderState& state, GraphicsPipelineState* ps,
+        QSGMaterial* newMaterial, QSGMaterial* oldMaterial) override;
 };

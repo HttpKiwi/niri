@@ -9,25 +9,33 @@ import qs.config
 Rectangle {
     id: root
 
-    // Content padding
+    // Total horizontal padding (split evenly left/right via centerIn)
     property int horizontalPadding: Settings.barPillPadding
     property int verticalPadding: 0
-    // Default content
+    property bool clickable: false
+    signal clicked()
+
+    // Default content goes into the sized content host (not the click overlay)
     default property alias contentItem: contentContainer.data
 
-    // Styling
     color: Theme.pillBackground
     radius: Settings.barPillRadius
-    // Auto-size to content
     implicitHeight: Settings.barPillHeight
     implicitWidth: contentContainer.implicitWidth + horizontalPadding
 
     Item {
         id: contentContainer
-
         anchors.centerIn: parent
         implicitWidth: childrenRect.width
         implicitHeight: childrenRect.height
     }
 
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.clickable
+        visible: root.clickable
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.clicked()
+        z: 10
+    }
 }

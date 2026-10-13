@@ -143,6 +143,9 @@ python3 -c "import json, os, shutil; os.makedirs('${dirPath}', exist_ok=True); d
             dismissed: false
         }
 
+        const existing = root._data.notifications.findIndex(n => String(n.id) === notificationData.id)
+        if (existing >= 0)
+            root._data.notifications.splice(existing, 1)
         root._data.notifications.unshift(notificationData)
         trimOldNotifications()
         saveData()

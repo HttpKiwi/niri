@@ -34,10 +34,17 @@ SettingsScrollPage {
                 onToggled: v => Settings.setPref("inhibitIdleWhenAudio", v)
             }
 
+            SettingsToggle {
+                label: "Respect idle inhibitors"
+                description: "Browsers, caffeine, and other apps can block auto-lock while active"
+                checked: Settings.respectIdleInhibitors !== false
+                onToggled: v => Settings.setPref("respectIdleInhibitors", v)
+            }
+
             SettingsSlider {
                 label: "Lock after (seconds)"
                 valueText: `${Settings.idleLockTimeout}s`
-                from: 60
+                from: 30
                 to: 1800
                 stepSize: 30
                 value: Settings.idleLockTimeout
@@ -48,7 +55,7 @@ SettingsScrollPage {
             SettingsSlider {
                 label: "Sleep after lock (seconds)"
                 valueText: `${Settings.idleSleepTimeout}s`
-                from: 60
+                from: 30
                 to: 3600
                 stepSize: 30
                 value: Settings.idleSleepTimeout

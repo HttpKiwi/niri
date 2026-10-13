@@ -1,8 +1,11 @@
 # Local reference implementations
 .references/
 
-# Quickshell plugin build artifacts (rebuild with plugins/build-blobs-plugin.sh)
+# Quickshell plugin build artifacts (rebuild with scripts/build-blobs-plugin.sh)
 .config/quickshell/plugins/build/
+CMakeFiles/
+.config/quickshell/qml/Caelestia/Blobs/
+.config/quickshell/common/*.tmp.*
 
 # Runtime / legacy quickshell data
 shell.db

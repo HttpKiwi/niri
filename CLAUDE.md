@@ -1,2 +1,3 @@
 - When changing niri config, run `niri validate` to check for errors
 - When changing quickshell config, execute `qs log` to check for errors
+@AGENTS.md
