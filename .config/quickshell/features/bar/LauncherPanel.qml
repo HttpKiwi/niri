@@ -22,7 +22,9 @@ PocketBottomPanel {
     property int selectedIndex: 0
 
     readonly property int maxVisibleItems: 10
-    readonly property int itemHeight: source && source.sourceName === "clipboard" ? 48 : 40
+    readonly property bool isClipboard: source && source.sourceName === "clipboard"
+    readonly property int panelWidth: 500
+    readonly property int itemHeight: isClipboard ? 48 : 40
     readonly property int searchInputHeight: 36
     readonly property int clipboardThumbSize: Settings.clipboardThumbSize
     readonly property int searchInputHorizontalPadding: 12
@@ -33,8 +35,9 @@ PocketBottomPanel {
     readonly property int searchAreaHeight: tabBarHeight + 8 + searchInputHeight
     property int listContentHeight: 0
     property bool _updatingFilter: false
-    readonly property int calculatedHeight: searchAreaHeight + 8 + separatorHeight + listContentHeight + topPadding + bottomPadding
-    readonly property int tabPillWidth: Math.max(88, Math.floor((500 - 12 * 2 - (sources.length - 1) * 6) / sources.length))
+    // Column spacing (8) sits between its three children: search, separator, list
+    readonly property int calculatedHeight: searchAreaHeight + 8 * 2 + separatorHeight + listContentHeight + topPadding + bottomPadding
+    readonly property int tabPillWidth: Math.max(88, Math.floor((panelWidth - 12 * 2 - (sources.length - 1) * 6) / sources.length))
     readonly property bool isGifGrid: source.sourceName === "gifs"
     readonly property bool gifShowingStatus: isGifGrid && filteredModel.count > 0 && filteredModel.get(0).status
     readonly property int gifGridColumns: Settings.launcherGifGridColumns
@@ -115,7 +118,7 @@ PocketBottomPanel {
     }
 
     implicitHeight: calculatedHeight
-    implicitWidth: 500
+    implicitWidth: panelWidth
 
     Behavior on implicitHeight {
         NumberAnimation {
@@ -367,7 +370,7 @@ PocketBottomPanel {
         if (!item)
             return
 
-        if (source.sourceName === "clipboard") {
+        if (isClipboard) {
             _pendingClipboardClose = true
             source.executeItem(item)
         } else {
@@ -465,10 +468,7 @@ PocketBottomPanel {
 
     Column {
         anchors.fill: parent
-        anchors.topMargin: 12
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        anchors.bottomMargin: 12
+        anchors.margins: 12
         spacing: 8
 
         Column {
@@ -653,7 +653,7 @@ PocketBottomPanel {
 
                 delegate: Item {
                     width: parent ? parent.width : 0
-                    height: root.isGifGrid ? itemHeight : itemHeight
+                    height: itemHeight
                     visible: !root.isGifGrid || isStatus
                     property bool isSelected: listView.currentIndex === index
                     property bool isStatus: model.status
@@ -667,10 +667,9 @@ PocketBottomPanel {
                         spacing: 10
 
                         Item {
-                            id: thumbHost
                             visible: !isStatus && model.icon !== ""
                             Layout.preferredWidth: visible
-                                ? (root.source && root.source.sourceName === "clipboard"
+                                ? (root.isClipboard
                                     ? root.clipboardThumbSize
                                     : 24)
                                 : 0
@@ -682,14 +681,13 @@ PocketBottomPanel {
                                 anchors.fill: parent
                                 radius: 6
                                 color: Theme.glass(0.25, Settings.glassTintStrength)
-                                visible: root.source && root.source.sourceName === "clipboard"
+                                visible: root.isClipboard
                             }
 
                             Image {
                                 anchors.fill: parent
-                                anchors.margins: root.source && root.source.sourceName === "clipboard" ? 0 : 0
                                 source: model.icon || ""
-                                fillMode: root.source && root.source.sourceName === "clipboard"
+                                fillMode: root.isClipboard
                                     ? Image.PreserveAspectCrop
                                     : Image.PreserveAspectFit
                                 smooth: true
@@ -698,7 +696,7 @@ PocketBottomPanel {
                                 cache: true
                                 visible: parent.visible
 
-                                layer.enabled: root.source && root.source.sourceName === "clipboard"
+                                layer.enabled: root.isClipboard
                                 layer.smooth: true
                             }
                         }

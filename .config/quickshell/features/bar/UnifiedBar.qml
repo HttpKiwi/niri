@@ -307,7 +307,7 @@ Scope {
                 panelState: window.panelState
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
-                width: 500
+                width: implicitWidth
             }
 
             OSDWrapper {
