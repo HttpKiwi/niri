@@ -4,6 +4,9 @@ project(CaelestiaBlobs LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+# The QML plugin loads its backing lib from its own directory, so the
+# installed copy under qml/ never depends on the build tree
+set(CMAKE_BUILD_RPATH "\$ORIGIN")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Gui ShaderTools)
 
