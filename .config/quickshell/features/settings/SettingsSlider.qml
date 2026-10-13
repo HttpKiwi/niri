@@ -6,14 +6,23 @@ import qs.config
 ColumnLayout {
     id: root
     property string label: ""
-    property string valueText: ""
+    // Shortcut for Settings-backed sliders: binds value, formats valueText,
+    // and persists via Settings.setPref (integers when stepSize >= 1)
+    property string key: ""
+    property string suffix: ""
     property real from: 0
     property real to: 1
     property real stepSize: 0.01
-    property real value: 0
+    property real value: key ? Settings[key] : 0
+    readonly property int decimals: stepSize >= 1 ? 0 : stepSize >= 0.1 ? 1 : stepSize >= 0.01 ? 2 : 3
+    property string valueText: key ? (decimals ? value.toFixed(decimals) : `${Math.round(value)}`) + suffix : ""
     // When set, shows a restore control while the value differs from default
     property real defaultValue: Number.NaN
     signal moved(real value)
+    onMoved: v => {
+        if (key)
+            Settings.setPref(key, stepSize >= 1 ? Math.round(v) : v);
+    }
 
     readonly property bool hasDefault: !isNaN(defaultValue)
     readonly property bool isAtDefault: {

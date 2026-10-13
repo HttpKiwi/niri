@@ -22,57 +22,47 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Intensity"
-                valueText: Settings.chromeIntensity.toFixed(2)
+                key: "chromeIntensity"
                 from: 0
                 to: 1.5
                 stepSize: 0.05
-                value: Settings.chromeIntensity
                 defaultValue: 1
-                onMoved: v => Settings.setPref("chromeIntensity", v)
             }
 
             SettingsSlider {
                 label: "Anim speed"
-                valueText: Settings.chromeAnimSpeed.toFixed(2)
+                key: "chromeAnimSpeed"
                 from: 0.05
                 to: 1.0
                 stepSize: 0.05
-                value: Settings.chromeAnimSpeed
                 defaultValue: 0.2
-                onMoved: v => Settings.setPref("chromeAnimSpeed", v)
             }
 
             SettingsSlider {
                 label: "Cell size"
-                valueText: Settings.chromeCellSize.toFixed(1)
+                key: "chromeCellSize"
                 from: 2
                 to: 12
                 stepSize: 0.5
-                value: Settings.chromeCellSize
                 defaultValue: 5
-                onMoved: v => Settings.setPref("chromeCellSize", v)
             }
 
             SettingsSlider {
                 label: "Dot size"
-                valueText: Settings.chromeDotSize.toFixed(2)
+                key: "chromeDotSize"
                 from: 0.1
                 to: 0.8
                 stepSize: 0.05
-                value: Settings.chromeDotSize
                 defaultValue: 0.35
-                onMoved: v => Settings.setPref("chromeDotSize", v)
             }
 
             SettingsSlider {
                 label: "Blob smoothing"
-                valueText: `${Settings.screenSmoothing}`
+                key: "screenSmoothing"
                 from: 0
                 to: 40
                 stepSize: 1
-                value: Settings.screenSmoothing
                 defaultValue: 20
-                onMoved: v => Settings.setPref("screenSmoothing", Math.round(v))
             }
         }
 }

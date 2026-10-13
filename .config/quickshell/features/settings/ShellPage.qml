@@ -43,24 +43,22 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Lock after (seconds)"
-                valueText: `${Settings.idleLockTimeout}s`
+                key: "idleLockTimeout"
+                suffix: "s"
                 from: 30
                 to: 1800
                 stepSize: 30
-                value: Settings.idleLockTimeout
                 defaultValue: 300
-                onMoved: v => Settings.setPref("idleLockTimeout", Math.round(v))
             }
 
             SettingsSlider {
                 label: "Sleep after lock (seconds)"
-                valueText: `${Settings.idleSleepTimeout}s`
+                key: "idleSleepTimeout"
+                suffix: "s"
                 from: 30
                 to: 3600
                 stepSize: 30
-                value: Settings.idleSleepTimeout
                 defaultValue: 600
-                onMoved: v => Settings.setPref("idleSleepTimeout", Math.round(v))
             }
         }
 
@@ -86,13 +84,11 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "FPS"
-                valueText: `${Settings.screenRecordFps}`
+                key: "screenRecordFps"
                 from: 30
                 to: 144
                 stepSize: 6
-                value: Settings.screenRecordFps
                 defaultValue: 60
-                onMoved: v => Settings.setPref("screenRecordFps", Math.round(v))
             }
         }
 
@@ -102,35 +98,32 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Short"
-                valueText: `${Settings.animationDurationShort}ms`
+                key: "animationDurationShort"
+                suffix: "ms"
                 from: 50
                 to: 400
                 stepSize: 10
-                value: Settings.animationDurationShort
                 defaultValue: 150
-                onMoved: v => Settings.setPref("animationDurationShort", Math.round(v))
             }
 
             SettingsSlider {
                 label: "Medium"
-                valueText: `${Settings.animationDurationMedium}ms`
+                key: "animationDurationMedium"
+                suffix: "ms"
                 from: 100
                 to: 600
                 stepSize: 10
-                value: Settings.animationDurationMedium
                 defaultValue: 250
-                onMoved: v => Settings.setPref("animationDurationMedium", Math.round(v))
             }
 
             SettingsSlider {
                 label: "Long"
-                valueText: `${Settings.animationDurationLong}ms`
+                key: "animationDurationLong"
+                suffix: "ms"
                 from: 200
                 to: 900
                 stepSize: 20
-                value: Settings.animationDurationLong
                 defaultValue: 400
-                onMoved: v => Settings.setPref("animationDurationLong", Math.round(v))
             }
         }
 
@@ -158,13 +151,11 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Blur border opacity"
-                valueText: Settings.blurBorderOpacity.toFixed(2)
+                key: "blurBorderOpacity"
                 from: 0.1
                 to: 0.8
                 stepSize: 0.05
-                value: Settings.blurBorderOpacity
                 defaultValue: 0.35
-                onMoved: v => Settings.setPref("blurBorderOpacity", v)
             }
         }
 

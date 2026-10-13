@@ -16,35 +16,29 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Opacity"
-                valueText: Settings.glassOpacity.toFixed(2)
+                key: "glassOpacity"
                 from: 0.15
                 to: 0.9
                 stepSize: 0.01
-                value: Settings.glassOpacity
                 defaultValue: 0.45
-                onMoved: v => Settings.setPref("glassOpacity", v)
             }
 
             SettingsSlider {
                 label: "Tint strength"
-                valueText: Settings.glassTintStrength.toFixed(2)
+                key: "glassTintStrength"
                 from: 0
                 to: 0.4
                 stepSize: 0.01
-                value: Settings.glassTintStrength
                 defaultValue: 0.14
-                onMoved: v => Settings.setPref("glassTintStrength", v)
             }
 
             SettingsSlider {
                 label: "Border opacity"
-                valueText: Settings.glassBorderOpacity.toFixed(2)
+                key: "glassBorderOpacity"
                 from: 0.04
                 to: 0.4
                 stepSize: 0.01
-                value: Settings.glassBorderOpacity
                 defaultValue: 0.16
-                onMoved: v => Settings.setPref("glassBorderOpacity", v)
             }
         }
 
@@ -54,24 +48,21 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Surface transparency"
-                valueText: Settings.surfaceTransparency.toFixed(2)
+                key: "surfaceTransparency"
                 from: 0.2
                 to: 1.0
                 stepSize: 0.05
-                value: Settings.surfaceTransparency
                 defaultValue: 0.6
-                onMoved: v => Settings.setPref("surfaceTransparency", v)
             }
 
             SettingsSlider {
                 label: "Card corner radius"
-                valueText: `${Settings.cardRadius}px`
+                key: "cardRadius"
+                suffix: "px"
                 from: 4
                 to: 28
                 stepSize: 1
-                value: Settings.cardRadius
                 defaultValue: 12
-                onMoved: v => Settings.setPref("cardRadius", Math.round(v))
             }
         }
 
@@ -81,35 +72,31 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Corner radius"
-                valueText: `${Settings.screenCornerRadius}px`
+                key: "screenCornerRadius"
+                suffix: "px"
                 from: 0
                 to: 48
                 stepSize: 1
-                value: Settings.screenCornerRadius
                 defaultValue: 24
-                onMoved: v => Settings.setPref("screenCornerRadius", Math.round(v))
             }
 
             SettingsSlider {
                 label: "Border width"
-                valueText: `${Settings.screenBorderWidth}px`
+                key: "screenBorderWidth"
+                suffix: "px"
                 from: 0
                 to: 16
                 stepSize: 1
-                value: Settings.screenBorderWidth
                 defaultValue: 6
-                onMoved: v => Settings.setPref("screenBorderWidth", Math.round(v))
             }
 
             SettingsSlider {
                 label: "Blob smoothing"
-                valueText: `${Settings.screenSmoothing}`
+                key: "screenSmoothing"
                 from: 0
                 to: 40
                 stepSize: 1
-                value: Settings.screenSmoothing
                 defaultValue: 20
-                onMoved: v => Settings.setPref("screenSmoothing", Math.round(v))
             }
         }
 
@@ -119,13 +106,12 @@ SettingsScrollPage {
 
             SettingsSlider {
                 label: "Height"
-                valueText: `${Settings.barHeight}px`
+                key: "barHeight"
+                suffix: "px"
                 from: 24
                 to: 48
                 stepSize: 1
-                value: Settings.barHeight
                 defaultValue: 30
-                onMoved: v => Settings.setPref("barHeight", Math.round(v))
             }
         }
 
