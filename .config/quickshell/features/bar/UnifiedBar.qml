@@ -133,7 +133,8 @@ Scope {
                     Pill {
                         anchors.verticalCenter: parent.verticalCenter
                         horizontalPadding: 12
-                        visible: Settings.showBarMinimap && minimap.columns.length > 0
+                        // A single window needs no map
+                        visible: Settings.showBarMinimap && minimap.tileCount > 1
 
                         WorkspaceMinimap {
                             id: minimap

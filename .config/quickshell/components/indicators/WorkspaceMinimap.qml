@@ -36,6 +36,8 @@ Item {
             .map(k => cols[k].sort((a, b) => a.tileIndex - b.tileIndex));
     }
 
+    readonly property int tileCount: columns.reduce((n, col) => n + col.length, 0)
+
     // One scale for the whole map so relative column widths stay true
     readonly property real scale: {
         let totalW = 0;
@@ -48,9 +50,11 @@ Item {
         return Math.min(mapHeight / maxH, totalW > 0 ? usableW / totalW : 1);
     }
 
-    implicitWidth: columns.length ? row.implicitWidth : 0
+    implicitWidth: columns.length ? Math.min(row.implicitWidth, maxWidth) : 0
     implicitHeight: mapHeight
     visible: columns.length > 0
+    // niri can report transient sizes mid-switch; never draw outside the pill
+    clip: true
 
     Instantiator {
         id: windowTracker
@@ -84,8 +88,8 @@ Item {
                         required property var modelData
                         readonly property var win: modelData
 
-                        width: Math.max(3, Math.round(win.tileWidth * root.scale))
-                        height: Math.max(3, Math.round(win.tileHeight * root.scale) - (column.modelData.length > 1 ? root.gap : 0))
+                        width: Math.min(root.maxWidth, Math.max(3, Math.round(win.tileWidth * root.scale)))
+                        height: Math.min(root.mapHeight, Math.max(3, Math.round(win.tileHeight * root.scale) - (column.modelData.length > 1 ? root.gap : 0)))
                         radius: 2
                         color: win.isFocused ? Theme.accent
                             : win.isUrgent ? Theme.error
@@ -94,8 +98,6 @@ Item {
                         border.width: win.isFocused ? 0 : 1
                         border.color: win.isUrgent ? Theme.error : Theme.withAlpha(Theme.textPrimary, 0.45)
 
-                        Behavior on width { NumberAnimation { duration: Settings.animationDurationShort; easing.type: Easing.OutCubic } }
-                        Behavior on height { NumberAnimation { duration: Settings.animationDurationShort; easing.type: Easing.OutCubic } }
                         Behavior on color { ColorAnimation { duration: Settings.animationDurationShort } }
 
                         MouseArea {
