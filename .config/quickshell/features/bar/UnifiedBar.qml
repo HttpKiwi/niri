@@ -33,6 +33,11 @@ Scope {
         PanelWindow {
             id: window
 
+            function toggleCalendar() {
+                if (panelState)
+                    panelState.calendar = !panelState.calendar;
+            }
+
             property var modelData
             readonly property string niriScreenName: Niri.niriNameFor(window.screen?.name ?? "")
             readonly property bool shellRetracted: LockState.shellRetracted
@@ -180,11 +185,7 @@ Scope {
                     Pill {
                         visible: Settings.showBarDate
                         clickable: true
-                        onClicked: {
-                            if (!window.panelState)
-                                return;
-                            window.panelState.calendar = !window.panelState.calendar;
-                        }
+                        onClicked: window.toggleCalendar()
                         DateIndicator {}
                     }
 
@@ -192,11 +193,7 @@ Scope {
                     Pill {
                         visible: Settings.showBarTime
                         clickable: true
-                        onClicked: {
-                            if (!window.panelState)
-                                return;
-                            window.panelState.calendar = !window.panelState.calendar;
-                        }
+                        onClicked: window.toggleCalendar()
                         TimeIndicator {}
                     }
                 }
