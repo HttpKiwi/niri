@@ -150,6 +150,7 @@ spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
 spawn-at-startup "bash" "-c" "udiskie"
 spawn-at-startup "bash" "-c" "sunshine"
+spawn-at-startup "/home/httpkiwi/.local/bin/gamegent" "daemon"
 // ============================================================================
 // ENVIRONMENT VARIABLES
 // ============================================================================

@@ -8,10 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Stow symlink into the repo; writes land in the repo, niri reads the same file.
 CONFIG = Path.home() / ".config" / "niri" / "config.kdl"
-REPO = Path.home() / "niri" / ".config" / "niri" / "config.kdl"
-if REPO.is_file():
-    CONFIG = REPO
 
 
 def read() -> str:
@@ -25,7 +23,7 @@ def write(text: str) -> None:
 def validate() -> tuple[bool, str]:
     try:
         p = subprocess.run(
-            ["niri", "validate"],
+            ["niri", "validate", "-c", str(CONFIG)],
             capture_output=True,
             text=True,
             timeout=10,
