@@ -29,7 +29,6 @@ PocketBottomPanel {
     BackgroundUtil {
         id: bgUtil
     }
-    readonly property string currentWallpaperFile: Settings.currentWallpaperFile
 
     property string originalWallpaper: ""
     property bool isPreviewing: false
@@ -90,7 +89,13 @@ PocketBottomPanel {
 
     Process {
         id: wallpaperScanner
-        command: ["sh", "-c", `find "${wallpapersDir}" -maxdepth 1 -type f \\( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" -o -name "*.gif" -o -name "*.mp4" -o -name "*.webm" -o -name "*.mkv" -o -name "*.mov" \\) ! -name "*current_wallpaper*" -print | sort`]
+        // argv, no shell: the directory is never parsed as shell syntax
+        command: {
+            const exts = ["jpg", "jpeg", "png", "webp", "gif", "mp4", "webm", "mkv", "mov"];
+            const names = [];
+            exts.forEach((e, i) => names.push(...(i ? ["-o"] : []), "-iname", "*." + e));
+            return ["find", root.wallpapersDir, "-maxdepth", "1", "-type", "f", "(", ...names, ")"];
+        }
         running: false
 
         stdout: SplitParser {
@@ -103,7 +108,10 @@ PocketBottomPanel {
 
         onRunningChanged: {
             if (!running) {
-                const output = scannerOutput.collectedOutput.trim();
+                const output = scannerOutput.collectedOutput.split("\n")
+                    .filter(p => p && p.indexOf("current_wallpaper") < 0)
+                    .sort()
+                    .join("\n");
                 // Unchanged listing: keep the array so the thumbnail Repeater isn't rebuilt
                 if (output !== root._lastScan) {
                     root._lastScan = output;
@@ -112,48 +120,11 @@ PocketBottomPanel {
                         const name = filename.replace(/\.[^/.]+$/, "");
                         return { path: path, name: name, filename: filename };
                     });
-                    currentWallpaperLoader.running = true;
+                    root.selectCurrentWallpaper();
                 }
                 scannerOutput.collectedOutput = "";
             }
         }
-    }
-
-    Process {
-        id: currentWallpaperLoader
-        command: ["cat", currentWallpaperFile]
-        running: false
-
-        stdout: SplitParser {
-            id: currentWallpaperOutput
-            property string collectedOutput: ""
-            onRead: function(data) {
-                collectedOutput += data;
-            }
-        }
-
-        onRunningChanged: {
-            if (!running) {
-                const output = currentWallpaperOutput.collectedOutput.trim();
-                if (output && !_userHasManuallySelected) {
-                    try {
-                        const data = JSON.parse(output);
-                        if (data.path) {
-                            const idx = root.wallpapers.findIndex(function(w) { return w.path === data.path; });
-                            if (idx !== -1) {
-                                root.selectedIndex = idx;
-                            }
-                        }
-                    } catch (e) {}
-                }
-                currentWallpaperOutput.collectedOutput = "";
-            }
-        }
-    }
-
-    Process {
-        id: wallpaperSaver
-        running: false
     }
 
     onSelectedIndexChanged: {
@@ -212,24 +183,23 @@ PocketBottomPanel {
         isPreviewing = false;
     }
 
+    // Highlight the applied wallpaper after a scan, unless the user already moved
+    function selectCurrentWallpaper() {
+        if (_userHasManuallySelected)
+            return;
+        const current = originalWallpaper || Settings.backgroundImagePath;
+        const idx = wallpapers.findIndex(w => w.path === current);
+        if (idx !== -1)
+            selectedIndex = idx;
+    }
+
     function applyWallpaper() {
         if (wallpapers.length === 0 || selectedIndex < 0 || selectedIndex >= wallpapers.length) return;
 
         const selectedWallpaper = wallpapers[selectedIndex];
         const path = selectedWallpaper.path;
-        const payload = { path: path };
         const poster = bgUtil.posterPathFor(path);
-        if (poster)
-            payload.poster = poster;
-        const jsonData = JSON.stringify(payload);
-        wallpaperSaver.command = ["sh", "-c", 'printf "%s\\n" "$1" > "$2"', "sh", jsonData, currentWallpaperFile];
-        wallpaperSaver.running = true;
-
-        Settings.backgroundImagePath = path;
-        if (payload.poster)
-            Settings.backgroundPosterPath = "file://" + payload.poster;
-        else
-            Settings.backgroundPosterPath = "";
+        Settings.saveCurrentWallpaper(path, poster);
         isPreviewing = false;
 
         panelState.wallpaper = false;

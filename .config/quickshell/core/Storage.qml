@@ -40,8 +40,11 @@ QtObject {
         onLoaded: {
             try {
                 const obj = JSON.parse(text() || "{}")
+                const notifications = Array.isArray(obj.notifications) ? obj.notifications : []
+                for (const n of notifications)
+                    n.image = root._persistableImage(n.image)
                 root._data = {
-                    notifications: Array.isArray(obj.notifications) ? obj.notifications : [],
+                    notifications: notifications,
                     appUsage: (obj.appUsage && typeof obj.appUsage === "object") ? obj.appUsage : {}
                 }
             } catch (e) {
@@ -87,6 +90,13 @@ QtObject {
         }
         fileView.setText(JSON.stringify(root._data, null, 2))
         root.notificationsChanged()
+    }
+
+    // image://qsimage/ URLs point at in-memory pixmaps of the session that
+    // received the notification; drop them when loading history from disk
+    function _persistableImage(url) {
+        const s = url ? String(url) : ""
+        return s.startsWith("image://qsimage/") ? "" : s
     }
 
     // Notification operations

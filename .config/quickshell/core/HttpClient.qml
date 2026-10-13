@@ -21,10 +21,6 @@ Item {
     property bool _busy: false
     property var _activeCallback: null
 
-    function shellQuote(value) {
-        return "'" + String(value).replace(/'/g, "'\\''") + "'"
-    }
-
     function get(url, callback, headers) {
         _queue.push({
             url: url,
@@ -42,20 +38,18 @@ Item {
         var req = _queue.shift()
         _activeCallback = req.callback
 
-        var headerArgs = ""
+        var cmd = ["/usr/bin/curl", "-sS", "--fail",
+            "--connect-timeout", String(connectTimeoutSec),
+            "--max-time", String(maxTimeSec), "--compressed"]
         var headerKeys = Object.keys(req.headers)
-        for (var i = 0; i < headerKeys.length; i++) {
-            var key = headerKeys[i]
-            headerArgs += " -H " + shellQuote(key + ": " + req.headers[key])
-        }
-
-        var cmd = "/usr/bin/curl -sS --fail --connect-timeout "
-            + connectTimeoutSec + " --max-time " + maxTimeSec
-            + " --compressed" + headerArgs + " " + shellQuote(req.url)
+        for (var i = 0; i < headerKeys.length; i++)
+            cmd.push("-H", headerKeys[i] + ": " + req.headers[headerKeys[i]])
+        // "--" so a URL can never be parsed as a curl option
+        cmd.push("--", req.url)
 
         requestProc._stdoutText = ""
         requestProc._stderrText = ""
-        requestProc.command = ["sh", "-c", cmd]
+        requestProc.command = cmd
         requestProc.running = true
     }
 

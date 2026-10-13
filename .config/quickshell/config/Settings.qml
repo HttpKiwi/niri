@@ -27,55 +27,39 @@ QtObject {
     property string backgroundPosterPath: ""
     // Decode/animate video & GIF wallpapers
     property bool animatedWallpapersEnabled: true
-    // Legacy pref — playback always runs on all outputs now (avoids focus-switch distraction)
 
-    property var wallpaperLoader: Process {
-        running: true
-        command: ["cat", root.currentWallpaperFile]
-
-        stdout: SplitParser {
-            id: wallpaperParser
-            property string collectedOutput: ""
-            onRead: data => { collectedOutput += data }
-        }
-
-        onRunningChanged: {
-            if (!running) {
-                const output = wallpaperParser.collectedOutput.trim()
-                if (output) {
-                    try {
-                        const data = JSON.parse(output)
-                        if (data.path) {
-                            root.backgroundImagePath = data.path
-                            if (data.poster)
-                                root.backgroundPosterPath = data.poster.startsWith("file://")
-                                    ? data.poster
-                                    : ("file://" + data.poster)
-                            else
-                                root.backgroundPosterPath = ""
-                        } else {
-                            root.backgroundImagePath = root.defaultWallpaper
-                            defaultWallpaperSaver.running = true
-                        }
-                    } catch (e) {
-                        root.backgroundImagePath = root.defaultWallpaper
-                        defaultWallpaperSaver.running = true
-                    }
-                } else {
-                    root.backgroundImagePath = root.defaultWallpaper
-                    defaultWallpaperSaver.running = true
-                }
-                wallpaperParser.collectedOutput = ""
-            }
+    // current_wallpaper.json: single reader/writer (WallpaperPanel saves through here)
+    property var currentWallpaperView: FileView {
+        path: root.currentWallpaperFile
+        onLoaded: root._applyCurrentWallpaper(text())
+        // Missing file → write the default; other read errors leave the file alone
+        onLoadFailed: err => {
+            if (err === FileViewError.FileNotFound)
+                root._applyCurrentWallpaper("");
         }
     }
 
-    // ========================================
-    // Wallpaper saver (creates default JSON if missing)
-    // ========================================
-    property var defaultWallpaperSaver: Process {
-        running: false
-        command: ["sh", "-c", 'printf "%s\\n" "$1" > "$2"', "sh", JSON.stringify({ path: root.defaultWallpaper }), root.currentWallpaperFile]
+    function _applyCurrentWallpaper(json) {
+        let data = null;
+        try {
+            data = JSON.parse(json);
+        } catch (e) {}
+        if (!data || !data.path) {
+            saveCurrentWallpaper(root.defaultWallpaper, "");
+            return;
+        }
+        root.backgroundImagePath = data.path;
+        root.backgroundPosterPath = !data.poster ? ""
+            : data.poster.startsWith("file://") ? data.poster : "file://" + data.poster;
+    }
+
+    function saveCurrentWallpaper(path, poster) {
+        const payload = { path: path };
+        if (poster)
+            payload.poster = poster;
+        currentWallpaperView.setText(JSON.stringify(payload) + "\n");
+        root.backgroundImagePath = path;
+        root.backgroundPosterPath = poster ? "file://" + poster : "";
     }
 
     // ========================================
@@ -349,34 +333,25 @@ QtObject {
 
     signal secretsLoaded()
 
-    property var secretsLoader: Process {
-        running: false
-        command: ["bash", "-c", "f='" + root.secretsFile + "'; if [ -f \"$f\" ]; then set -a; . \"$f\"; set +a; fi; printf '%s' \"$KLIPY_API_KEY\""]
+    // Read KLIPY_API_KEY from secrets.env as data (never sourced by a shell)
+    property var secretsView: FileView {
+        path: root.secretsFile
+        onLoaded: root._applySecrets(text())
+        onLoadFailed: root._applySecrets("")
+    }
 
-        stdout: SplitParser {
-            onRead: data => {
-                const key = data.trim()
-                if (key && key !== "your-klipy-api-key")
-                    root._klipyApiKeyFromFile = key
-                root.klipyReady = true
-                root.secretsLoaded()
-            }
-        }
-
-        onExited: (exitCode, exitStatus) => {
-            if (!root.klipyReady) {
-                root.klipyReady = true
-                root.secretsLoaded()
-            }
-        }
+    function _applySecrets(text) {
+        const m = text.match(/^\s*(?:export\s+)?KLIPY_API_KEY\s*=\s*["']?([^"'\n#]*)/m);
+        const key = m ? m[1].trim() : "";
+        if (key && key !== "your-klipy-api-key")
+            root._klipyApiKeyFromFile = key;
+        root.klipyReady = true;
+        root.secretsLoaded();
     }
 
     Component.onCompleted: {
         const envKey = Quickshell.env("KLIPY_API_KEY") || ""
-        if (envKey && envKey !== "your-klipy-api-key") {
+        if (envKey && envKey !== "your-klipy-api-key")
             klipyReady = true
-            return
-        }
-        secretsLoader.running = true
     }
 }
