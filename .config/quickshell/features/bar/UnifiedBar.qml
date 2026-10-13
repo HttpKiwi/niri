@@ -110,24 +110,31 @@ Scope {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: Settings.barContentMargin
-                    spacing: Settings.barWorkspaceSpacing
-                    visible: Settings.showBarWorkspaces
+                    spacing: Settings.barWorkspaceSpacing * 3
 
                     Row {
                         id: workspaces
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: Settings.showBarWorkspaces
                         spacing: Settings.barWorkspaceSpacing
 
                         Repeater {
-                        model: Niri.workspaceModel
+                            model: Niri.workspaceModel
 
-                        delegate: WorkspaceIndicator {
-                            required property var modelData
-                            visible: modelData.output === window.niriScreenName
-                            workspace: modelData
-                            isActive: modelData.isFocused
+                            delegate: WorkspaceIndicator {
+                                required property var modelData
+                                visible: modelData.output === window.niriScreenName
+                                workspace: modelData
+                                isActive: modelData.isFocused
+                            }
                         }
-}
-}
+                    }
+
+                    WorkspaceMinimap {
+                        anchors.verticalCenter: parent.verticalCenter
+                        outputName: window.niriScreenName
+                        visible: Settings.showBarMinimap && columns.length > 0
+                    }
                 }
 
                 // Center - Window title

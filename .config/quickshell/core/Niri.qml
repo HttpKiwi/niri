@@ -30,10 +30,18 @@ Item {
     }
 
     readonly property var workspaceModel: niriInstance.workspaces
+    readonly property var windows: niriInstance.windows
     readonly property var focusedWindow: niriInstance.focusedWindow
     readonly property string title: niriInstance.focusedWindow?.title ?? ""
 
     readonly property string focused_output_name: root._focusedOutput
+
+    function activeWorkspaceIdFor(output) {
+        root._version
+        const list = root._wsByMonitor[output] || []
+        const ws = list.find(w => w.is_active)
+        return ws ? ws.id : -1
+    }
 
     function getMonitorNames() {
         var m = root._wsByMonitor
@@ -116,4 +124,5 @@ Item {
     }
 
     function focusWorkspace(index) { return niriInstance.focusWorkspace(index) }
+    function focusWindow(id) { return niriInstance.focusWindow(id) }
 }

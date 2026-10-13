@@ -19,6 +19,13 @@ SettingsScrollPage {
                 checked: Settings.showBarWorkspaces
                 onToggled: v => Settings.setPref("showBarWorkspaces", v)
             }
+
+            SettingsToggle {
+                label: "Workspace minimap"
+                description: "Tiny layout of the active workspace's columns"
+                checked: Settings.showBarMinimap
+                onToggled: v => Settings.setPref("showBarMinimap", v)
+            }
         }
 
         SettingsSection {

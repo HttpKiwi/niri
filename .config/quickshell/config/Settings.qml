@@ -94,6 +94,7 @@ QtObject {
     readonly property int barWorkspaceSpacing: 8
     // Bar module visibility
     property bool showBarWorkspaces: true
+    property bool showBarMinimap: true
     property bool showBarTitle: true
     property bool showBarVolume: true
     property bool showBarRecording: true
@@ -261,7 +262,7 @@ QtObject {
         "enableAutoLock", "enableAutoSleep", "respectIdleInhibitors",
         "blurEnabled", "blurBorderOpacity", "surfaceTransparency",
         "notificationTimeout", "screenRecordFps", "barHeight",
-        "showBarWorkspaces", "showBarTitle", "showBarVolume", "showBarRecording",
+        "showBarWorkspaces", "showBarMinimap", "showBarTitle", "showBarVolume", "showBarRecording",
         "showBarHeadset", 
         "showBarResources", "showBarDate", "showBarTime",
         "barTimeFormat", "barDateFormat",
