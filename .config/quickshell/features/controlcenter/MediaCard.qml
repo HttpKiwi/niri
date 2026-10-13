@@ -56,7 +56,7 @@ Rectangle {
 
     Timer {
         id: posTimer
-        running: Players.active !== null
+        running: root.visible && Players.active !== null
         interval: Players.active?.isPlaying ? 500 : 2000
         triggeredOnStart: true
         repeat: true

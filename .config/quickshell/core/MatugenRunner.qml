@@ -22,6 +22,17 @@ QtObject {
         stderr: SplitParser {
             onRead: data => console.log("Matugen Cache:", data)
         }
+
+        // Never kill a run mid-write (leaves Colors.json.tmp.*); start the queued one after
+        onExited: root._start()
+    }
+
+    property string _pendingPath: ""
+
+    // Coalesce bursts (live sliders, arrow-key wallpaper preview)
+    property var debounce: Timer {
+        interval: 250
+        onTriggered: root._start()
     }
 
     function buildCommand(wallpaperPath) {
@@ -37,9 +48,15 @@ QtObject {
     function run(wallpaperPath) {
         if (!wallpaperPath)
             return;
-        if (runner.running)
-            runner.running = false;
-        runner.command = buildCommand(wallpaperPath);
+        _pendingPath = wallpaperPath;
+        debounce.restart();
+    }
+
+    function _start() {
+        if (runner.running || !_pendingPath)
+            return;
+        runner.command = buildCommand(_pendingPath);
+        _pendingPath = "";
         runner.running = true;
     }
 }

@@ -15,17 +15,18 @@ WrapperMouseArea {
     property bool available: false
     hoverEnabled: true
 
+    // Battery drains slowly; poll only while the pill is shown
     Timer {
-        interval: 1000
-        running: true
+        interval: 30000
+        running: root.visible
         repeat: true
+        triggeredOnStart: true
         onTriggered: checkBattery()
     }
 
-    Component.onCompleted: checkBattery()
-
     function checkBattery() {
-        process.running = true
+        if (!process.running)
+            process.running = true
     }
 
     Process {

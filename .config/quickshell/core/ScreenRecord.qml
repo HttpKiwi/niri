@@ -201,8 +201,9 @@ QtObject {
         onTriggered: root.elapsed++
     }
 
+    // Fast while recording; slow idle check still adopts recorders started elsewhere
     property var pidCheckTimer: Timer {
-        interval: 2000
+        interval: (root.recording || root.pending) ? 2000 : 15000
         running: true
         repeat: true
         onTriggered: pidCheck.running = true

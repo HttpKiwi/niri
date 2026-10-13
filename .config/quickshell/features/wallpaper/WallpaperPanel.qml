@@ -20,6 +20,7 @@ PocketBottomPanel {
     easingType: Settings.easingStandard
 
     property var wallpapers: []
+    property string _lastScan: ""
     property int selectedIndex: 0
     readonly property string wallpapersDir: Settings.wallpapersDir
     readonly property string currentWallpaperFile: Settings.currentWallpaperFile
@@ -98,8 +99,10 @@ PocketBottomPanel {
         onRunningChanged: {
             if (!running) {
                 const output = scannerOutput.collectedOutput.trim();
-                if (output) {
-                    root.wallpapers = output.split('\n').map(function(path) {
+                // Unchanged listing: keep the array so the thumbnail Repeater isn't rebuilt
+                if (output !== root._lastScan) {
+                    root._lastScan = output;
+                    root.wallpapers = !output ? [] : output.split('\n').map(function(path) {
                         const filename = path.split('/').pop();
                         const name = filename.replace(/\.[^/.]+$/, "");
                         return { path: path, name: name, filename: filename };

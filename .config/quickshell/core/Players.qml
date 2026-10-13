@@ -35,16 +35,6 @@ Singleton {
         return "";
     }
 
-    Timer {
-        running: active !== null
-        interval: 1000
-        triggeredOnStart: true
-        repeat: true
-        onTriggered: {
-            if (active) active.positionChanged();
-        }
-    }
-
     function play(): void {
         if (active?.canPlay) active.play();
     }

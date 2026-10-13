@@ -4,6 +4,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.config
 
 /**
  * Simple polled resource usage service with RAM, Swap, and CPU usage.
@@ -23,7 +24,8 @@ QtObject {
 
   property QtObject timer: Timer {
     interval: 5000
-    running: true 
+    running: Settings.showBarResources
+    triggeredOnStart: true
     repeat: true
     onTriggered: {
       // Reload files
