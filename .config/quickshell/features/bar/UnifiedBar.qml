@@ -163,40 +163,51 @@ Scope {
                     horizontalAlignment: Text.AlignHCenter
                 }
 
+                // Shared background for the right-side modules (Settings.barMergedPills)
+                Pill {
+                    anchors.fill: systemIndicators
+                    visible: Settings.barMergedPills && systemIndicators.width > 0
+                }
+
                 // Right - System indicators
                 RowLayout {
                     id: systemIndicators
-                    spacing: Settings.barModuleSpacing
+                    spacing: Settings.barMergedPills ? 0 : Settings.barModuleSpacing
                     anchors.right: parent.right
                     anchors.rightMargin: Settings.barContentMargin
                     anchors.verticalCenter: parent.verticalCenter
 
                     // Volume pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarVolume
                         VolumeIndicator {}
                     }
 
                     // Screen recording pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarRecording
                         RecordingIndicator {}
                     }
 
                     // Headset battery pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarHeadset
                         HeadsetBatteryIndicator {}
                     }
 
                     // Status pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarResources
                         ResourceIndicator {}
                     }
 
                     // Date pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarDate
                         clickable: true
                         onClicked: window.toggleCalendar()
@@ -205,6 +216,7 @@ Scope {
 
                     // Time pill
                     Pill {
+                        flat: Settings.barMergedPills
                         visible: Settings.showBarTime
                         clickable: true
                         onClicked: window.toggleCalendar()

@@ -15,13 +15,15 @@ Rectangle {
     // Translucent tint + hairline border so the bar chrome shows through.
     // Driven by the Settings → Appearance → Glass sliders.
     property bool glass: true
+    // No background of its own (e.g. when sitting on a shared group pill)
+    property bool flat: false
     signal clicked()
 
     // Default content goes into the sized content host (not the click overlay)
     default property alias contentItem: contentContainer.data
 
-    color: glass ? Theme.glass(Settings.glassOpacity, Settings.glassTintStrength) : Theme.pillBackground
-    border.width: glass ? 1 : 0
+    color: flat ? "transparent" : glass ? Theme.glass(Settings.glassOpacity, Settings.glassTintStrength) : Theme.pillBackground
+    border.width: glass && !flat ? 1 : 0
     border.color: Theme.glassBorder(Settings.glassBorderOpacity, Settings.glassTintStrength)
     radius: Settings.barPillRadius
     implicitHeight: Settings.barPillHeight
@@ -29,7 +31,7 @@ Rectangle {
 
     // Soft top highlight, like light catching the glass edge
     Rectangle {
-        visible: root.glass
+        visible: root.glass && !root.flat
         anchors.fill: parent
         anchors.margins: root.border.width
         radius: root.radius - root.border.width

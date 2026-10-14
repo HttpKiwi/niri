@@ -95,6 +95,8 @@ QtObject {
     // Bar module visibility
     property bool showBarWorkspaces: true
     property bool showBarMinimap: true
+    // One shared pill behind the right-side modules instead of one each
+    property bool barMergedPills: true
     property bool showBarTitle: true
     property bool showBarVolume: true
     property bool showBarRecording: true
@@ -262,7 +264,7 @@ QtObject {
         "enableAutoLock", "enableAutoSleep", "respectIdleInhibitors",
         "blurEnabled", "blurBorderOpacity", "surfaceTransparency",
         "notificationTimeout", "screenRecordFps", "barHeight",
-        "showBarWorkspaces", "showBarMinimap", "showBarTitle", "showBarVolume", "showBarRecording",
+        "showBarWorkspaces", "showBarMinimap", "barMergedPills", "showBarTitle", "showBarVolume", "showBarRecording",
         "showBarHeadset", 
         "showBarResources", "showBarDate", "showBarTime",
         "barTimeFormat", "barDateFormat",

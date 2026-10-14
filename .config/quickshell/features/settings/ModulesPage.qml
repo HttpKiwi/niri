@@ -45,6 +45,13 @@ SettingsScrollPage {
             subtitle: "Status indicators before date and clock"
 
             SettingsToggle {
+                label: "Single pill"
+                description: "One shared pill behind all right-side modules"
+                checked: Settings.barMergedPills
+                onToggled: v => Settings.setPref("barMergedPills", v)
+            }
+
+            SettingsToggle {
                 label: "Volume"
                 description: "Mute toggle and scroll to change volume"
                 checked: Settings.showBarVolume
