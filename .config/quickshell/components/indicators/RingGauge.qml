@@ -14,8 +14,9 @@ Item {
     // Material Symbols ligature, e.g. "memory"
     property string icon: ""
     property real warnAt: 0.85
-    property int size: Settings.barPillHeight
-    property real thickness: 2.2
+    // Leave room inside the pill so the ring never touches its border
+    property int size: Settings.barPillHeight - 4
+    property real thickness: 2
 
     // 288° sweep, 72° gap centred on the bottom (Qt angles: 0° = 3 o'clock, clockwise)
     readonly property real sweep: 288
@@ -72,7 +73,7 @@ Item {
         text: hover.containsMouse ? Math.round(root.clamped * 100) : root.icon
         color: Theme.textPrimary
         font.family: hover.containsMouse ? Settings.fontFamilyDefault : Settings.fontFamilyIcons
-        font.pixelSize: hover.containsMouse ? 7 : Math.round(root.size * 0.58)
+        font.pixelSize: hover.containsMouse ? 7 : Math.round(root.size * 0.62)
         font.weight: hover.containsMouse ? Font.DemiBold : Font.Normal
     }
 
