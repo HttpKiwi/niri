@@ -34,6 +34,10 @@ QtObject {
 
       // Parse memory and swap usage
       const textMeminfo = fileMeminfo.text()
+      // reload() is async: the first tick reads nothing, and the ?? fallbacks
+      // below would report 100% memory. Keep the previous values instead.
+      if (!textMeminfo.includes("MemTotal"))
+        return
       statusService.memoryTotal = Number(textMeminfo.match(/MemTotal:\s*(\d+)/)?.[1] ?? 1)
       statusService.memoryFree = Number(textMeminfo.match(/MemAvailable:\s*(\d+)/)?.[1] ?? 0)
       statusService.swapTotal = Number(textMeminfo.match(/SwapTotal:\s*(\d+)/)?.[1] ?? 1)
