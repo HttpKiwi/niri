@@ -17,6 +17,15 @@ Rectangle {
     property bool glass: true
     // No background of its own (e.g. when sitting on a shared group pill)
     property bool flat: false
+    // Flat pills on a shared group draw a faint divider before every module
+    // except the first visible one in their row
+    readonly property bool _firstVisibleInRow: {
+        const siblings = parent ? parent.children : [];
+        for (let i = 0; i < siblings.length; i++)
+            if (siblings[i].visible)
+                return siblings[i] === root;
+        return true;
+    }
     signal clicked()
 
     // Default content goes into the sized content host (not the click overlay)
@@ -39,6 +48,15 @@ Rectangle {
             GradientStop { position: 0.0; color: Theme.withAlpha(Theme.textPrimary, 0.08) }
             GradientStop { position: 0.5; color: "transparent" }
         }
+    }
+
+    Rectangle {
+        visible: root.flat && !root._firstVisibleInRow
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        width: 1
+        height: parent.height * 0.5
+        color: Theme.withAlpha(Theme.textPrimary, 0.18)
     }
 
     Item {
