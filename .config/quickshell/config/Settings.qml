@@ -86,7 +86,8 @@ QtObject {
     // Bar Settings
     // ========================================
     property int barHeight: 30
-    readonly property int barPillHeight: 20 // Reduced from 24 to add more padding inside bar
+    // 24px, but always leave 3px above/below inside the bar
+    readonly property int barPillHeight: Math.min(24, barHeight - 6)
     readonly property int barPillRadius: 12
     readonly property int barPillPadding: 16
     readonly property int barContentMargin: 12

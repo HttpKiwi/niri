@@ -3,7 +3,7 @@ import QtQuick.Shapes
 import qs.config
 
 /**
- * RingGauge - 80% ring (gap at the bottom) with an icon in the middle.
+ * RingGauge - 60% ring (open at the bottom, like a dial) with an icon in the middle.
  * Hover swaps the icon for the percentage.
  */
 Item {
@@ -18,17 +18,22 @@ Item {
     property int size: Settings.barPillHeight - 4
     property real thickness: 2
 
-    // 288° sweep, 72° gap centred on the bottom (Qt angles: 0° = 3 o'clock, clockwise)
-    readonly property real sweep: 288
+    // 216° sweep, 144° gap centred on the bottom (Qt angles: 0° = 3 o'clock, clockwise)
+    readonly property real sweep: 216
     readonly property real startAngle: 90 + (360 - sweep) / 2
     readonly property real clamped: Math.max(0, Math.min(1, value))
     readonly property color ringColor: clamped >= warnAt ? Theme.error : Theme.accent
+    // The arc's bounding box ends at r·sin(36°) below centre, so it reads
+    // top-heavy; nudge ring + icon down to centre it optically in the pill
+    readonly property int opticalOffset: Math.round(size * 0.1)
 
     implicitWidth: size
     implicitHeight: size
 
     Shape {
         anchors.fill: parent
+        anchors.topMargin: root.opticalOffset
+        anchors.bottomMargin: -root.opticalOffset
         preferredRendererType: Shape.CurveRenderer
 
         // Track
@@ -70,6 +75,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: root.opticalOffset
         text: hover.containsMouse ? Math.round(root.clamped * 100) : root.icon
         color: Theme.textPrimary
         font.family: hover.containsMouse ? Settings.fontFamilyDefault : Settings.fontFamilyIcons
