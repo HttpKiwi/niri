@@ -8,3 +8,4 @@ WorkspaceIndicator 1.0 WorkspaceIndicator.qml
 DateIndicator 1.0 DateIndicator.qml
 HeadsetBatteryIndicator 1.0 HeadsetBatteryIndicator.qml
 WorkspaceMinimap 1.0 WorkspaceMinimap.qml
+RingGauge 1.0 RingGauge.qml
