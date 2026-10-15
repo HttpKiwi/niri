@@ -7,7 +7,7 @@ import qs.core
 import qs.components.base
 
 /**
- * ScreenRecordCard - Control center recording controls (gpu-screen-recorder)
+ * ScreenRecordCard - Control center recording controls (wf-recorder → iGPU encode)
  */
 Rectangle {
     id: root
@@ -93,7 +93,7 @@ Rectangle {
                     Layout.fillWidth: true
                     text: {
                         if (!ScreenRecord.available)
-                            return "Needs gpu-screen-recorder";
+                            return "Needs wf-recorder + ffmpeg";
                         if (ScreenRecord.pending)
                             return ScreenRecord.statusLabel;
                         if (ScreenRecord.recording)
@@ -129,13 +129,6 @@ Rectangle {
                 label: "Display"
                 checked: ScreenRecord.captureMode === "screen"
                 onClicked: ScreenRecord.setCaptureMode("screen")
-            }
-
-            ToggleChip {
-                Layout.fillWidth: true
-                label: "Portal"
-                checked: ScreenRecord.captureMode === "portal"
-                onClicked: ScreenRecord.setCaptureMode("portal")
             }
 
             ToggleChip {
@@ -197,7 +190,7 @@ Rectangle {
 
             ActionButton {
                 Layout.fillWidth: true
-                visible: ScreenRecord.recording && !ScreenRecord.pending
+                visible: ScreenRecord.canPause && ScreenRecord.recording && !ScreenRecord.pending
                 label: ScreenRecord.paused ? "Resume" : "Pause"
                 icon: ScreenRecord.paused ? "\ue037" : "\ue034"
                 accent: Theme.accentSecondary
@@ -223,7 +216,7 @@ Rectangle {
                 if (ScreenRecord.errorMessage.length > 0)
                     return ScreenRecord.errorMessage;
                 if (!ScreenRecord.available)
-                    return "Install: pacman -S gpu-screen-recorder";
+                    return "Install: pacman -S wf-recorder ffmpeg";
                 if (ScreenRecord.captureMode === "region" && !ScreenRecord.regionPickerAvailable)
                     return "Region needs slurp: pacman -S slurp";
                 return "";

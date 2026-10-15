@@ -132,7 +132,7 @@ WrapperMouseArea {
                 }
 
                 ControlBtn {
-                    visible: ScreenRecord.recording && !ScreenRecord.pending
+                    visible: ScreenRecord.canPause && ScreenRecord.recording && !ScreenRecord.pending
                     icon: ScreenRecord.paused ? "\ue037" : "\ue034"
                     tipColor: Theme.accentSecondary
                     onClicked: ScreenRecord.togglePause()

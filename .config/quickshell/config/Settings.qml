@@ -21,6 +21,9 @@ QtObject {
     readonly property string matugenCacheScript: Quickshell.shellDir + "/scripts/matugen-cache.sh"
     readonly property string recordingsDir: homeDir + "/Videos/Recordings"
     property int screenRecordFps: 60
+    // Encode on the Intel iGPU (stable by-path name; renderD12x can swap between boots).
+    // The RX 580's VCE encoder hangs and resets the GPU, so never encode there.
+    readonly property string screenRecordEncodeDevice: "/dev/dri/by-path/pci-0000:00:02.0-render"
 
     property string backgroundImagePath: ""
     // First-frame JPEG for video wallpapers (matugen + lockscreen + inactive monitors)

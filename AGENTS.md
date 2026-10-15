@@ -250,7 +250,7 @@ Mutex rules: launcher ↔ wallpaper; settings/calendar close each other and majo
 | `wallpaperSelector` | `toggleSelector` | `Super+Shift+W` |
 | `settings` | `toggle`, `open`, `close`, `isOpen` | (settings UI / bind) |
 | `audio` | `raiseVolume`, `lowerVolume`, `toggleMute`, `toggleMicMute` | Prefer these over raw `wpctl` so OSD tracks |
-| `screenrecord` | `toggle`, `start`, `stop`, `pause`, `isRecording` | Control center / bind |
+| `screenrecord` | `toggle`, `start`, `stop`, `isRecording` (`pause` is a no-op) | wf-recorder capture → ffmpeg VAAPI on the Intel iGPU; never the RX 580 (VCE hangs the GPU) |
 | `caffeine` | `toggle`, `enable`, `disable`, `isEnabled` | Idle inhibit |
 | `notifications` | `dismissFocused`, `focusPopup`, `navigateUp/Down`, `activateFocused` | Keyboard notif nav |
 | `storage` | `clearAll` | — |

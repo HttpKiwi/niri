@@ -7,43 +7,43 @@ import Quickshell.Io
 import qs.config
 
 /**
- * ScreenRecord - gpu-screen-recorder wrapper
- * Stop: SIGINT · Pause/Resume: SIGUSR2
- * Modes: screen | portal | region (slurp)
+ * ScreenRecord - wf-recorder capture → ffmpeg VAAPI encode on the Intel iGPU.
+ *
+ * The monitors hang off the RX 580, whose VCE encoder hangs and resets the GPU
+ * (ring vce0 timeout → VRAM lost). gpu-screen-recorder always encodes on the
+ * monitor's GPU, so capture here (wf-recorder, raw frames over a pipe) and
+ * encode with ffmpeg on Settings.screenRecordEncodeDevice instead.
+ *
+ * Stop: SIGINT to wf-recorder → ffmpeg sees EOF and finalises the file.
+ * Modes: screen (focused output) | region (slurp). No pause (wf-recorder can't).
  */
 QtObject {
     id: root
 
     property bool available: false
     property bool regionPickerAvailable: false
-    property string binaryPath: ""
     property bool recording: false
-    property bool pending: false // portal picker / region select in progress
-    property bool paused: false
+    property bool pending: false // region select in progress
+    readonly property bool paused: false
+    readonly property bool canPause: false
     property int elapsed: 0
-    property int recorderPid: 0
     property string lastOutput: ""
     property string statusMessage: ""
     property string errorMessage: ""
-    property string regionGeometry: "" // WxH+X+Y from slurp
+    property string regionGeometry: "" // "x,y WxH" from slurp
 
     property bool includeAudio: true
     property bool includeMic: false
     property int fps: Settings.screenRecordFps
-    // portal: always show picker (never restore previous session)
-    property string captureMode: "screen" // screen | portal | region
+    property string captureMode: "screen" // screen | region
 
     readonly property string recordingsDir: Settings.recordingsDir
     readonly property string elapsedText: formatElapsed(elapsed)
     readonly property string statusLabel: {
         if (!available)
             return "Not installed";
-        if (pending && captureMode === "portal")
-            return "Pick a source…";
-        if (pending && captureMode === "region")
+        if (pending)
             return "Select a region…";
-        if (paused)
-            return "Paused";
         if (recording)
             return "Recording";
         return "Ready";
@@ -66,114 +66,92 @@ QtObject {
         return `${root.recordingsDir}/recording-${stamp}.mp4`;
     }
 
+    // sh -c script; values arrive as positional args, never spliced into the string.
+    // $1 out file  $2 encode device  $3 fps  $4 wf-recorder target flag (-o/-g)
+    // $5 target value  $6 audio mode: none|desktop|mic|both
+    readonly property string _pipeline: `
+        out="$1"; dev="$2"; fps="$3"; tflag="$4"; target="$5"; audio="$6"
+        # No microphone connected (default source unresolved): drop the mic, keep recording
+        case "$audio" in mic|both)
+            src=$(pactl get-default-source 2>/dev/null)
+            if [ -z "$src" ] || [ "$src" = "@DEFAULT_SOURCE@" ]; then
+                [ "$audio" = both ] && audio=desktop || audio=none
+            fi ;;
+        esac
+        case "$audio" in
+            desktop) wfa="--audio=@DEFAULT_MONITOR@" ;;
+            mic|both) wfa="--audio=@DEFAULT_SOURCE@" ;;
+            *) wfa="" ;;
+        esac
+        # Desktop + mic: wf-recorder takes one device, so ffmpeg adds the monitor and mixes
+        if [ "$audio" = both ]; then
+            set -- -f pulse -i @DEFAULT_MONITOR@ -filter_complex "[0:a][1:a]amix=inputs=2:duration=first[a]" -map 0:v -map "[a]" -c:a aac -b:a 160k
+        elif [ -n "$wfa" ]; then
+            set -- -map 0 -c:a copy
+        else
+            set -- -map 0
+        fi
+        wf-recorder -y -r "$fps" "$tflag" "$target" $wfa -c rawvideo -m nut -f /dev/stdout \\
+            | ffmpeg -hide_banner -loglevel error -y -vaapi_device "$dev" -f nut -i - "$@" \\
+                -vf "hwupload,scale_vaapi=format=nv12" -c:v h264_vaapi -qp 24 "$out"
+    `
+
     function buildCommand(path) {
-        const cmd = [
-            root.binaryPath || "gpu-screen-recorder",
-            "-f", String(root.fps),
-            "-cursor", "yes",
-            "-o", path
-        ];
-
-        if (root.captureMode === "portal") {
-            cmd.push("-w", "portal");
-            // Explicitly never restore — always show the portal picker
-            cmd.push("-restore-portal-session", "no");
-            // Drop any leftover restore token so the picker cannot be skipped
-            Quickshell.execDetached(["rm", "-f", `${Quickshell.env("HOME")}/.config/gpu-screen-recorder/restore_token`]);
-        } else if (root.captureMode === "region") {
-            cmd.push("-w", "region");
-            cmd.push("-region", root.regionGeometry);
-        } else {
-            cmd.push("-w", "screen");
-        }
-
-        if (root.includeAudio && root.includeMic)
-            cmd.push("-a", "default_output|default_input");
-        else if (root.includeAudio)
-            cmd.push("-a", "default_output");
-        else if (root.includeMic)
-            cmd.push("-a", "default_input");
-
-        return cmd;
-    }
-
-    function validPid() {
-        const pid = Number(root.recorderPid || recorder.processId || 0);
-        return pid > 1 ? Math.floor(pid) : 0;
-    }
-
-    function sendSignal(sigName) {
-        const pid = root.validPid();
-        if (pid > 1) {
-            Quickshell.execDetached(["kill", `-${sigName}`, String(pid)]);
-            return true;
-        }
-        Quickshell.execDetached(["pkill", `-SIG${sigName}`, "-x", "gpu-screen-recorder"]);
-        return false;
+        const audio = root.includeAudio && root.includeMic ? "both"
+            : root.includeAudio ? "desktop"
+            : root.includeMic ? "mic" : "none";
+        const region = root.captureMode === "region";
+        return ["sh", "-c", root._pipeline, "sh",
+            path, Settings.screenRecordEncodeDevice, String(root.fps),
+            region ? "-g" : "-o",
+            region ? root.regionGeometry : Niri.focused_output_name,
+            audio];
     }
 
     function refreshAvailable() {
-        if (availProc.running)
-            availProc.running = false;
-        availProc.running = true;
-        if (slurpCheck.running)
-            slurpCheck.running = false;
-        slurpCheck.running = true;
+        if (!availProc.running)
+            availProc.running = true;
     }
 
     function start() {
         if (!root.available) {
             root.refreshAvailable();
-            root.errorMessage = "Install gpu-screen-recorder (pacman -S gpu-screen-recorder)";
+            root.errorMessage = "Needs wf-recorder, ffmpeg and the iGPU encode device";
             return;
         }
         if (root.recording || root.pending || recorder.running)
             return;
-
         if (root.captureMode === "region" && !root.regionPickerAvailable) {
             root.errorMessage = "Install slurp for region capture (pacman -S slurp)";
             return;
         }
 
         root.errorMessage = "";
-        root.statusMessage = "";
+        root.statusMessage = root.captureMode === "region" ? "Drag to select a region…" : "";
         root.lastOutput = root.outputPath();
         root.regionGeometry = "";
-        root.pending = true;
-        root.paused = false;
+        root.pending = root.captureMode === "region";
         root.elapsed = 0;
-
-        if (root.captureMode === "portal")
-            root.statusMessage = "Pick a screen or window…";
-        else if (root.captureMode === "region")
-            root.statusMessage = "Drag to select a region…";
 
         ensureDir.command = ["mkdir", "-p", root.recordingsDir];
         ensureDir.running = true;
     }
 
     function stop() {
-        if (!recorder.running && !root.recording && !root.pending)
-            return;
-        console.log("ScreenRecord: stop");
-        // Cancel portal/region wait or stop active recording
         if (slurpProc.running) {
             slurpProc.running = false;
             root.pending = false;
             root.statusMessage = "Cancelled";
             return;
         }
-        root.sendSignal("INT");
-        root.statusMessage = root.lastOutput ? `Saving ${root.lastOutput}` : "Stopping…";
+        if (!recorder.running)
+            return;
+        // Only our pipeline's wf-recorder (child of the sh we started)
+        Quickshell.execDetached(["pkill", "-INT", "-P", String(recorder.processId), "-x", "wf-recorder"]);
+        root.statusMessage = `Saving ${root.lastOutput}`;
     }
 
-    function togglePause() {
-        if (!root.recording || root.pending)
-            return;
-        root.sendSignal("USR2");
-        root.paused = !root.paused;
-        root.statusMessage = root.paused ? "Paused" : "Recording…";
-    }
+    function togglePause() {}
 
     function toggle() {
         if (root.recording || root.pending)
@@ -185,7 +163,7 @@ QtObject {
     function setCaptureMode(mode) {
         if (root.recording || root.pending)
             return;
-        if (mode === "portal" || mode === "screen" || mode === "region")
+        if (mode === "screen" || mode === "region")
             root.captureMode = mode;
     }
 
@@ -197,59 +175,26 @@ QtObject {
     property var elapsedTimer: Timer {
         interval: 1000
         repeat: true
-        running: root.recording && !root.paused && !root.pending
+        running: root.recording
         onTriggered: root.elapsed++
     }
 
-    // Fast while recording; slow idle check still adopts recorders started elsewhere
-    property var pidCheckTimer: Timer {
-        interval: (root.recording || root.pending) ? 2000 : 15000
-        running: true
-        repeat: true
-        onTriggered: pidCheck.running = true
-    }
-
     property var availProc: Process {
-        command: [
-            "sh", "-c",
-            "for p in /usr/bin/gpu-screen-recorder /usr/sbin/gpu-screen-recorder; do " +
-            "  if [ -x \"$p\" ]; then printf '%s' \"$p\"; exit 0; fi; " +
-            "done; " +
-            "command -v gpu-screen-recorder"
-        ]
-        running: false
-        stdout: StdioCollector {
-            id: availOut
-        }
+        command: ["sh", "-c", 'command -v wf-recorder >/dev/null && command -v ffmpeg >/dev/null && [ -e "$1" ]',
+            "sh", Settings.screenRecordEncodeDevice]
         onExited: code => {
-            const path = availOut.text.trim();
-            root.available = code === 0 && path.length > 0;
-            root.binaryPath = root.available ? path : "";
-            if (root.available) {
-                if (root.errorMessage.indexOf("Install gpu-screen-recorder") === 0)
-                    root.errorMessage = "";
-            } else {
-                console.warn("ScreenRecord: gpu-screen-recorder not found");
-            }
+            root.available = code === 0;
+            if (!root.available)
+                console.warn("ScreenRecord: needs wf-recorder, ffmpeg and", Settings.screenRecordEncodeDevice);
         }
     }
 
     property var slurpCheck: Process {
-        command: [
-            "sh", "-c",
-            "for p in /usr/bin/slurp /usr/sbin/slurp; do " +
-            "  if [ -x \"$p\" ]; then exit 0; fi; " +
-            "done; " +
-            "command -v slurp >/dev/null"
-        ]
-        running: false
-        onExited: code => {
-            root.regionPickerAvailable = code === 0;
-        }
+        command: ["sh", "-c", "command -v slurp >/dev/null"]
+        onExited: code => root.regionPickerAvailable = code === 0
     }
 
     property var ensureDir: Process {
-        running: false
         onExited: code => {
             if (code !== 0) {
                 root.pending = false;
@@ -257,7 +202,8 @@ QtObject {
                 return;
             }
             if (root.captureMode === "region") {
-                slurpProc.command = ["slurp", "-f", "%wx%h+%x+%y"];
+                // slurp's default output is wf-recorder's -g format: "x,y WxH"
+                slurpProc.command = ["slurp"];
                 slurpProc.running = true;
                 return;
             }
@@ -266,132 +212,55 @@ QtObject {
     }
 
     property var slurpProc: Process {
-        running: false
         stdout: StdioCollector {
             id: slurpOut
         }
         onExited: code => {
             const geom = slurpOut.text.trim();
+            if (!root.pending)
+                return; // cancelled via stop()
             if (code !== 0 || geom.length === 0) {
                 root.pending = false;
                 root.statusMessage = "Region select cancelled";
-                root.errorMessage = "";
                 return;
             }
             root.regionGeometry = geom;
-            root.statusMessage = `Region ${geom}`;
             root._launchRecorder();
         }
     }
 
     property var recorder: Process {
-        running: false
-
-        stdout: StdioCollector {}
-
         stderr: SplitParser {
             onRead: data => {
                 const line = data.trim();
-                if (line.length === 0)
-                    return;
-
-                const lower = line.toLowerCase();
-
-                // Portal/capture actually began encoding
-                if (root.pending && (
-                    lower.indexOf("update fps") >= 0
-                    || lower.indexOf("new state: \"streaming\"") >= 0
-                    || lower.indexOf("streaming") >= 0 && lower.indexOf("pipewire") >= 0
-                )) {
-                    root.pending = false;
-                    root.recording = true;
-                    root.elapsed = 0;
-                    root.statusMessage = "Recording…";
-                }
-
-                if (line === "Unpaused" || line.endsWith("Unpaused")) {
-                    root.paused = false;
-                    root.statusMessage = "Recording…";
-                } else if (line === "Paused" || line.endsWith("Paused")) {
-                    root.paused = true;
-                    root.statusMessage = "Paused";
-                } else if (lower.indexOf("canceled") >= 0 || lower.indexOf("cancelled") >= 0
-                           || lower.indexOf("selectsources failed") >= 0
-                           || lower.indexOf("portal capture failed") >= 0) {
-                    root.errorMessage = "Capture cancelled";
-                    root.pending = false;
-                } else if ((lower.indexOf("error") >= 0 && lower.indexOf("error: none") < 0)
-                           || lower.indexOf("failed") >= 0) {
+                // wf-recorder prints its stream setup; only surface real failures
+                if (/error|failed|cannot|invalid/i.test(line))
                     console.warn("ScreenRecord:", line);
-                }
             }
         }
 
         onStarted: {
-            root.recorderPid = Number(processId) || 0;
-            root.paused = false;
-            root.errorMessage = "";
-            // Screen/region usually start immediately; portal waits for picker
-            if (root.captureMode === "portal") {
-                root.pending = true;
-                root.recording = false;
-                root.statusMessage = "Pick a screen or window…";
-            } else {
-                root.pending = false;
-                root.recording = true;
-                root.elapsed = 0;
-                root.statusMessage = "Recording…";
-            }
-            console.log("ScreenRecord: started pid=", root.recorderPid, "mode=", root.captureMode);
+            root.pending = false;
+            root.recording = true;
+            root.elapsed = 0;
+            root.statusMessage = "Recording…";
+            console.log("ScreenRecord: started mode=", root.captureMode, "device=", Settings.screenRecordEncodeDevice);
         }
 
         onExited: code => {
-            const wasPending = root.pending;
-            root.recorderPid = 0;
             root.recording = false;
             root.pending = false;
-            root.paused = false;
             if (code === 0) {
-                root.statusMessage = root.lastOutput ? `Saved ${root.lastOutput}` : "Saved";
-            } else if (wasPending) {
-                root.statusMessage = "Cancelled";
-                root.errorMessage = "";
-            } else if (root.errorMessage.length === 0) {
-                root.errorMessage = code === 127
-                    ? "gpu-screen-recorder not found"
-                    : `Recorder exited (${code})`;
+                root.statusMessage = `Saved ${root.lastOutput}`;
+            } else {
+                root.errorMessage = `Recorder exited (${code})`;
+                root.statusMessage = "";
             }
         }
     }
 
-    property var pidCheck: Process {
-        command: ["pidof", "gpu-screen-recorder"]
-        running: false
-        stdout: StdioCollector {
-            id: pidOut
-        }
-        onExited: code => {
-            const alive = code === 0;
-            if (!alive && (root.recording || root.pending) && !recorder.running) {
-                root.recording = false;
-                root.pending = false;
-                root.paused = false;
-                root.recorderPid = 0;
-            } else if (alive && !root.recording && !root.pending && !recorder.running) {
-                const first = pidOut.text.trim().split(/\s+/)[0];
-                const pid = Number(first) || 0;
-                if (pid > 1) {
-                    root.recorderPid = pid;
-                    root.recording = true;
-                }
-            } else if (alive && root.recording && root.recorderPid <= 1) {
-                const first = pidOut.text.trim().split(/\s+/)[0];
-                const pid = Number(first) || 0;
-                if (pid > 1)
-                    root.recorderPid = pid;
-            }
-        }
+    Component.onCompleted: {
+        availProc.running = true;
+        slurpCheck.running = true;
     }
-
-    Component.onCompleted: refreshAvailable()
 }
