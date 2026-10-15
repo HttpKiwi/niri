@@ -131,6 +131,11 @@ ShellRoot {
             ScreenRecord.start();
         }
 
+        function startRegion() {
+            ScreenRecord.setCaptureMode("region");
+            ScreenRecord.start();
+        }
+
         function stop() {
             ScreenRecord.stop();
         }

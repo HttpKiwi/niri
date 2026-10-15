@@ -202,8 +202,10 @@ QtObject {
                 return;
             }
             if (root.captureMode === "region") {
-                // slurp's default output is wf-recorder's -g format: "x,y WxH"
-                slurpProc.command = ["slurp"];
+                // slurp's default output is wf-recorder's -g format: "x,y WxH".
+                // With a non-tty stdin slurp reads predefined boxes until EOF, and
+                // Process keeps stdin open, so it would wait forever without drawing.
+                slurpProc.command = ["sh", "-c", "exec slurp < /dev/null"];
                 slurpProc.running = true;
                 return;
             }
