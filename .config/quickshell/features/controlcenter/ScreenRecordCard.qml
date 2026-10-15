@@ -139,6 +139,28 @@ Rectangle {
             }
         }
 
+        // Quality preset
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            enabled: !ScreenRecord.recording && !ScreenRecord.pending
+            opacity: enabled ? 1 : 0.5
+
+            ToggleChip {
+                Layout.fillWidth: true
+                label: `Showcase · ${Settings.screenRecordFps}fps`
+                checked: ScreenRecord.quality === "showcase"
+                onClicked: ScreenRecord.setQuality("showcase")
+            }
+
+            ToggleChip {
+                Layout.fillWidth: true
+                label: "Clip · 720p30"
+                checked: ScreenRecord.quality === "clip"
+                onClicked: ScreenRecord.setQuality("clip")
+            }
+        }
+
         // Audio toggles
         RowLayout {
             Layout.fillWidth: true

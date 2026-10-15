@@ -21,6 +21,8 @@ QtObject {
     readonly property string matugenCacheScript: Quickshell.shellDir + "/scripts/matugen-cache.sh"
     readonly property string recordingsDir: homeDir + "/Videos/Recordings"
     property int screenRecordFps: 60
+    // "showcase" (native, screenRecordFps, high quality) | "clip" (720p, 30fps, smaller)
+    property string screenRecordQuality: "showcase"
     // Encode on the Intel iGPU (stable by-path name; renderD12x can swap between boots).
     // The RX 580's VCE encoder hangs and resets the GPU, so never encode there.
     readonly property string screenRecordEncodeDevice: "/dev/dri/by-path/pci-0000:00:02.0-render"
@@ -267,7 +269,7 @@ QtObject {
         "controlCenterTab",
         "enableAutoLock", "enableAutoSleep", "respectIdleInhibitors",
         "blurEnabled", "blurBorderOpacity", "surfaceTransparency",
-        "notificationTimeout", "screenRecordFps", "barHeight",
+        "notificationTimeout", "screenRecordFps", "screenRecordQuality", "barHeight",
         "showBarWorkspaces", "showBarMinimap", "barMergedPills", "showBarTitle", "showBarVolume", "showBarRecording",
         "showBarHeadset", 
         "showBarResources", "showBarDate", "showBarTime",

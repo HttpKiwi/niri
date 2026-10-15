@@ -131,6 +131,11 @@ ShellRoot {
             ScreenRecord.start();
         }
 
+        // "showcase" | "clip"
+        function setQuality(quality: string) {
+            ScreenRecord.setQuality(quality);
+        }
+
         function startRegion() {
             ScreenRecord.setCaptureMode("region");
             ScreenRecord.start();

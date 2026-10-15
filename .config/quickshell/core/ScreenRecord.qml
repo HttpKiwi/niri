@@ -34,7 +34,15 @@ QtObject {
 
     property bool includeAudio: true
     property bool includeMic: false
-    property int fps: Settings.screenRecordFps
+    readonly property string quality: Settings.screenRecordQuality
+    // Short side scaled to 720 (portrait-safe), never upscaled; done on the iGPU
+    readonly property var presets: ({
+        showcase: { label: "Showcase", fps: Settings.screenRecordFps, qp: 20,
+                    vf: "hwupload,scale_vaapi=format=nv12" },
+        clip: { label: "Clip 720p30", fps: 30, qp: 26,
+                vf: "hwupload,scale_vaapi=w='if(gt(iw,ih),-2,min(720,iw))':h='if(gt(iw,ih),min(720,ih),-2)':format=nv12" }
+    })
+    readonly property var preset: presets[quality] || presets.showcase
     property string captureMode: "screen" // screen | region
 
     readonly property string recordingsDir: Settings.recordingsDir
@@ -68,9 +76,9 @@ QtObject {
 
     // sh -c script; values arrive as positional args, never spliced into the string.
     // $1 out file  $2 encode device  $3 fps  $4 wf-recorder target flag (-o/-g)
-    // $5 target value  $6 audio mode: none|desktop|mic|both
+    // $5 target value  $6 audio mode: none|desktop|mic|both  $7 qp  $8 video filter
     readonly property string _pipeline: `
-        out="$1"; dev="$2"; fps="$3"; tflag="$4"; target="$5"; audio="$6"
+        out="$1"; dev="$2"; fps="$3"; tflag="$4"; target="$5"; audio="$6"; qp="$7"; vf="$8"
         # No microphone connected (default source unresolved): drop the mic, keep recording
         case "$audio" in mic|both)
             src=$(pactl get-default-source 2>/dev/null)
@@ -93,7 +101,7 @@ QtObject {
         fi
         wf-recorder -y -r "$fps" "$tflag" "$target" $wfa -c rawvideo -m nut -f /dev/stdout \\
             | ffmpeg -hide_banner -loglevel error -y -vaapi_device "$dev" -f nut -i - "$@" \\
-                -vf "hwupload,scale_vaapi=format=nv12" -c:v h264_vaapi -qp 24 "$out"
+                -vf "$vf" -c:v h264_vaapi -qp "$qp" "$out"
     `
 
     function buildCommand(path) {
@@ -102,10 +110,10 @@ QtObject {
             : root.includeMic ? "mic" : "none";
         const region = root.captureMode === "region";
         return ["sh", "-c", root._pipeline, "sh",
-            path, Settings.screenRecordEncodeDevice, String(root.fps),
+            path, Settings.screenRecordEncodeDevice, String(root.preset.fps),
             region ? "-g" : "-o",
             region ? root.regionGeometry : Niri.focused_output_name,
-            audio];
+            audio, String(root.preset.qp), root.preset.vf];
     }
 
     function refreshAvailable() {
@@ -158,6 +166,11 @@ QtObject {
             root.stop();
         else
             root.start();
+    }
+
+    function setQuality(q) {
+        if (!root.recording && !root.pending && root.presets[q])
+            Settings.setPref("screenRecordQuality", q);
     }
 
     function setCaptureMode(mode) {
@@ -246,7 +259,7 @@ QtObject {
             root.recording = true;
             root.elapsed = 0;
             root.statusMessage = "Recording…";
-            console.log("ScreenRecord: started mode=", root.captureMode, "device=", Settings.screenRecordEncodeDevice);
+            console.log("ScreenRecord: started mode=", root.captureMode, "quality=", root.quality, "device=", Settings.screenRecordEncodeDevice);
         }
 
         onExited: code => {
