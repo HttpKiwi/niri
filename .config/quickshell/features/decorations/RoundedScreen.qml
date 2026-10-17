@@ -40,8 +40,22 @@ Scope {
             }
 
             Item {
+                id: cornersRoot
                 anchors.fill: parent
-                opacity: LockState.chromeReveal
+                // Animated by this window's render loop (see LockState)
+                opacity: LockState.chromeHidden ? 0 : 1
+                Behavior on opacity {
+                    id: cornersReveal
+                    SequentialAnimation {
+                        PauseAnimation {
+                            duration: cornersReveal.targetValue > 0.5 ? Settings.lockscreenChromeRestoreDelay : 0
+                        }
+                        NumberAnimation {
+                            duration: Settings.lockscreenEngageDelay
+                            easing.type: Easing.InOutCubic
+                        }
+                    }
+                }
 
             Corner {
                 id: topLeftCorner

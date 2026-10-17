@@ -41,7 +41,20 @@ Scope {
             property var modelData
             readonly property string niriScreenName: Niri.niriNameFor(window.screen?.name ?? "")
             readonly property bool shellRetracted: LockState.shellRetracted
-            readonly property real chromeReveal: LockState.chromeReveal
+            // Chrome reveal animated by this window's own render loop (see LockState)
+            property real chromeReveal: LockState.chromeHidden ? 0 : 1
+            Behavior on chromeReveal {
+                id: chromeRevealBehavior
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: chromeRevealBehavior.targetValue > 0.5 ? Settings.lockscreenChromeRestoreDelay : 0
+                    }
+                    NumberAnimation {
+                        duration: Settings.lockscreenEngageDelay
+                        easing.type: Easing.InOutCubic
+                    }
+                }
+            }
 
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore

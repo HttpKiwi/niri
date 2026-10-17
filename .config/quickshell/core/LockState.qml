@@ -2,7 +2,6 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import qs.config
 
 /**
  * LockState - Shared lock session state and chrome reveal progress (0–1)
@@ -12,27 +11,14 @@ QtObject {
 
     property bool locked: false
     property bool engaging: false
-    // Bar/frame visibility: a binding on the lock state, animated by the Behavior.
-    // It was set imperatively by an animation + restore timer, and a missed step
-    // left it at 0 after unlock (bar slid away, frame invisible) with no recovery.
+    // Bar/frame visibility. Animate it in the windows that draw the chrome
+    // (UnifiedBar, RoundedScreen): an animation owned by this non-visual
+    // singleton runs on whatever render loop is active, and starting it at
+    // unlock (as the lock surfaces are destroyed) left it frozen at 0.
     readonly property bool chromeHidden: locked || engaging
-    property real chromeReveal: chromeHidden ? 0 : 1
+    readonly property real chromeReveal: chromeHidden ? 0 : 1
 
-    Behavior on chromeReveal {
-        id: revealBehavior
-        SequentialAnimation {
-            // Let the lock surface fade first before the chrome comes back
-            PauseAnimation {
-                duration: revealBehavior.targetValue > 0.5 ? Settings.lockscreenChromeRestoreDelay : 0
-            }
-            NumberAnimation {
-                duration: Settings.lockscreenEngageDelay
-                easing.type: Easing.InOutCubic
-            }
-        }
-    }
-
-    readonly property bool shellRetracted: locked || engaging || chromeReveal < 0.01
+    readonly property bool shellRetracted: chromeHidden
 
     // In-process lock request (AutoLock / other modules) — LockScreen handles it
     signal lockRequested()

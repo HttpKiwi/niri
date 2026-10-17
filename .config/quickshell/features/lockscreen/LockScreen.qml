@@ -47,7 +47,7 @@ Scope {
     function lockNow() {
         if (lock.locked || LockState.engaging)
             return
-        // Chrome retracts via LockState.chromeReveal's binding
+        // Bar/frame retract via LockState.chromeHidden (animated in their windows)
         LockState.engaging = true
         LockState.locked = true
         engageTimer.restart()
@@ -60,8 +60,20 @@ Scope {
             lockScope.lockNow()
         }
 
-        function isLocked() {
+        function isLocked(): bool {
             return lock.locked || LockState.engaging
+        }
+
+        // Live lock/chrome state, for debugging stuck chrome
+        function state(): string {
+            return JSON.stringify({
+                sessionLocked: lock.locked,
+                secure: lock.secure,
+                stateLocked: LockState.locked,
+                engaging: LockState.engaging,
+                chromeHidden: LockState.chromeHidden,
+                chromeReveal: LockState.chromeReveal
+            })
         }
     }
 
