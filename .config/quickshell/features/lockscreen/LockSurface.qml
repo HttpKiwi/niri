@@ -169,7 +169,15 @@ WlSessionLockSurface {
         }
 
         ScriptAction {
-            script: root.lock.locked = false
+            // Clear shell lock state here, in the same step that releases the
+            // session lock: WlSessionLock's lockedChanged did not reach
+            // LockScreen's handler on unlock, leaving LockState.locked true
+            // (bar/frame hidden, auto-lock never re-armed).
+            script: {
+                LockState.engaging = false;
+                LockState.locked = false;
+                root.lock.locked = false;
+            }
         }
     }
 

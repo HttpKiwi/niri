@@ -77,6 +77,20 @@ Scope {
         }
     }
 
+    // Safety net: the shell must never believe it is locked while the session
+    // lock is released (reading lock.locked works even when its signal doesn't)
+    Timer {
+        interval: 1000
+        repeat: true
+        running: LockState.locked && !LockState.engaging
+        onTriggered: {
+            if (!lock.locked) {
+                console.warn("LockScreen: session unlocked but LockState.locked was true; correcting")
+                LockState.locked = false
+            }
+        }
+    }
+
     Timer {
         id: engageTimer
         interval: Settings.lockscreenEngageDelay
