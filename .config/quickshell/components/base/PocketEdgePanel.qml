@@ -132,6 +132,12 @@ Item {
         slideOffset = _offscreenOffset(travel);
     }
 
+    // Lazily created panels (UnifiedBar Loaders) start with their flag already on
+    Component.onCompleted: {
+        if (shouldBeActive)
+            beginShow();
+    }
+
     Item {
         id: contentHost
         anchors.fill: parent

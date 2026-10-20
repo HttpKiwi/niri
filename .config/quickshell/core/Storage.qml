@@ -85,7 +85,8 @@ QtObject {
 
     function saveData() {
         if (!root._loaded) {
-            console.warn("Storage: save skipped, data not loaded yet")
+            // Expected on reload: re-delivered notifications arrive before the file is read
+            console.log("Storage: save skipped, data not loaded yet")
             return
         }
         fileView.setText(JSON.stringify(root._data, null, 2))

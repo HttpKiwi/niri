@@ -301,7 +301,7 @@ Scope {
                 anchors.right: parent.right
                 anchors.topMargin: Settings.barHeight
                     + (window.panelState && window.panelState.calendar
-                        ? calendarPanel.height + 8
+                        ? (calendarPanel ? calendarPanel.height : 0) + 8
                         : 0)
                 anchors.rightMargin: Settings.screenBorderWidth + (window.panelState && window.panelState.controlCenter ? controlCenterShift : 0)
                 width: Settings.notificationWidth + Settings.screenBorderWidth + 50
@@ -391,58 +391,128 @@ Scope {
                 screenName: window.screenName
             }
 
-            WallpaperPanel {
-                id: wallpaperPanel
-                panelState: window.panelState
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
+            // Built on first open, then kept: most panels are never opened on the
+            // second monitor, and each costs 6–17 MB there. The wrapper fills the
+            // window so the panel's x/y stay window-relative (PocketFrame, masks).
+            Loader {
+                id: wallpaperPanelLoader
+                anchors.fill: parent
+                z: 0
+                readonly property bool wanted: window.panelState ? window.panelState.wallpaper : false
+                property bool keep: false
+                // Latch outside the active binding (loading inside it is synchronous)
+                onWantedChanged: if (wanted) keep = true
+                Component.onCompleted: if (wanted) keep = true
+                active: keep
+                sourceComponent: Item {
+                    property alias panel: inner
+                    WallpaperPanel {
+                        id: inner
+                        panelState: window.panelState
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                    }
+                }
             }
+            readonly property Item wallpaperPanel: wallpaperPanelLoader.item ? wallpaperPanelLoader.item.panel : null
 
-            ControlCenterPanel {
-                id: controlCenterPanel
-                panelState: window.panelState
-                screenName: window.screenName
-                screenWidth: window.screen?.width ?? 0
-                screenHeight: window.screen?.height ?? 0
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.topMargin: Settings.barHeight
-                anchors.bottomMargin: Settings.screenBorderWidth
-                anchors.rightMargin: Settings.screenBorderWidth
+            // Built on first open, then kept: most panels are never opened on the
+            // second monitor, and each costs 6–17 MB there. The wrapper fills the
+            // window so the panel's x/y stay window-relative (PocketFrame, masks).
+            Loader {
+                id: controlCenterPanelLoader
+                anchors.fill: parent
                 z: 1
+                readonly property bool wanted: window.panelState ? window.panelState.controlCenter : false
+                property bool keep: false
+                // Latch outside the active binding (loading inside it is synchronous)
+                onWantedChanged: if (wanted) keep = true
+                Component.onCompleted: if (wanted) keep = true
+                active: keep
+                sourceComponent: Item {
+                    property alias panel: inner
+                    ControlCenterPanel {
+                        id: inner
+                        panelState: window.panelState
+                        screenName: window.screenName
+                        screenWidth: window.screen?.width ?? 0
+                        screenHeight: window.screen?.height ?? 0
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        anchors.topMargin: Settings.barHeight
+                        anchors.bottomMargin: Settings.screenBorderWidth
+                        anchors.rightMargin: Settings.screenBorderWidth
+                    }
+                }
             }
+            readonly property Item controlCenterPanel: controlCenterPanelLoader.item ? controlCenterPanelLoader.item.panel : null
 
-            SettingsPanel {
-                id: settingsPanel
-                panelState: window.panelState
-                screenName: window.screenName
-                screenWidth: window.screen?.width ?? 0
-                screenHeight: window.screen?.height ?? 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: Settings.barHeight
+            // Built on first open, then kept: most panels are never opened on the
+            // second monitor, and each costs 6–17 MB there. The wrapper fills the
+            // window so the panel's x/y stay window-relative (PocketFrame, masks).
+            Loader {
+                id: settingsPanelLoader
+                anchors.fill: parent
                 z: 2
+                readonly property bool wanted: window.panelState ? window.panelState.settings : false
+                property bool keep: false
+                // Latch outside the active binding (loading inside it is synchronous)
+                onWantedChanged: if (wanted) keep = true
+                Component.onCompleted: if (wanted) keep = true
+                active: keep
+                sourceComponent: Item {
+                    property alias panel: inner
+                    SettingsPanel {
+                        id: inner
+                        panelState: window.panelState
+                        screenName: window.screenName
+                        screenWidth: window.screen?.width ?? 0
+                        screenHeight: window.screen?.height ?? 0
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: Settings.barHeight
+                    }
+                }
             }
+            readonly property Item settingsPanel: settingsPanelLoader.item ? settingsPanelLoader.item.panel : null
 
-            CalendarPanel {
-                id: calendarPanel
-                panelState: window.panelState
-                anchors.top: parent.top
-                anchors.right: parent.right
-                anchors.topMargin: Settings.barHeight
-                anchors.rightMargin: Settings.screenBorderWidth + Settings.barContentMargin
+            // Built on first open, then kept: most panels are never opened on the
+            // second monitor, and each costs 6–17 MB there. The wrapper fills the
+            // window so the panel's x/y stay window-relative (PocketFrame, masks).
+            Loader {
+                id: calendarPanelLoader
+                anchors.fill: parent
                 z: 2
+                readonly property bool wanted: window.panelState ? window.panelState.calendar : false
+                property bool keep: false
+                // Latch outside the active binding (loading inside it is synchronous)
+                onWantedChanged: if (wanted) keep = true
+                Component.onCompleted: if (wanted) keep = true
+                active: keep
+                sourceComponent: Item {
+                    property alias panel: inner
+                    CalendarPanel {
+                        id: inner
+                        panelState: window.panelState
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.topMargin: Settings.barHeight
+                        anchors.rightMargin: Settings.screenBorderWidth + Settings.barContentMargin
+                    }
+                }
             }
+            readonly property Item calendarPanel: calendarPanelLoader.item ? calendarPanelLoader.item.panel : null
 
             Component.onCompleted: {
                 pocketFrame.notifWrapper = notifWrapper;
                 pocketFrame.launcherPanel = launcherPanel;
                 pocketFrame.osdPanel = osdPanel;
-                pocketFrame.wallpaperPanel = wallpaperPanel;
-                pocketFrame.controlCenterPanel = controlCenterPanel;
-                pocketFrame.settingsPanel = settingsPanel;
-                pocketFrame.calendarPanel = calendarPanel;
+                // Lazy panels: bind, they appear on first open
+                pocketFrame.wallpaperPanel = Qt.binding(() => window.wallpaperPanel);
+                pocketFrame.controlCenterPanel = Qt.binding(() => window.controlCenterPanel);
+                pocketFrame.settingsPanel = Qt.binding(() => window.settingsPanel);
+                pocketFrame.calendarPanel = Qt.binding(() => window.calendarPanel);
             }
 
             Rectangle {
@@ -459,7 +529,7 @@ Scope {
                         let m = Settings.screenBorderWidth;
                         if (window.panelState && window.panelState.launcher && launcherPanel.pocketActive)
                             m += launcherPanel.blobH;
-                        else if (window.panelState && window.panelState.wallpaper && wallpaperPanel.pocketActive)
+                        else if (window.panelState && window.panelState.wallpaper && wallpaperPanel && wallpaperPanel.pocketActive)
                             m += wallpaperPanel.blobH;
                         return m;
                     }
@@ -486,26 +556,26 @@ Scope {
 
             Item {
                 id: settingsHitRegion
-                x: settingsPanel.visualX
-                y: settingsPanel.visualY
-                width: settingsPanel.pocketActive ? settingsPanel.visualW : 0
-                height: settingsPanel.pocketActive ? settingsPanel.visualH : 0
+                x: settingsPanel ? settingsPanel.visualX : 0
+                y: settingsPanel ? settingsPanel.visualY : 0
+                width: settingsPanel && settingsPanel.pocketActive ? settingsPanel.visualW : 0
+                height: settingsPanel && settingsPanel.pocketActive ? settingsPanel.visualH : 0
             }
 
             Item {
                 id: calendarHitRegion
-                x: calendarPanel.visualX
-                y: calendarPanel.visualY
-                width: calendarPanel.pocketActive ? calendarPanel.visualW : 0
-                height: calendarPanel.pocketActive ? calendarPanel.visualH : 0
+                x: calendarPanel ? calendarPanel.visualX : 0
+                y: calendarPanel ? calendarPanel.visualY : 0
+                width: calendarPanel && calendarPanel.pocketActive ? calendarPanel.visualW : 0
+                height: calendarPanel && calendarPanel.pocketActive ? calendarPanel.visualH : 0
             }
 
             Item {
                 id: wallpaperHitRegion
-                x: wallpaperPanel.visualX
-                y: wallpaperPanel.visualY
-                width: wallpaperPanel.pocketActive ? wallpaperPanel.visualW : 0
-                height: wallpaperPanel.pocketActive ? wallpaperPanel.visualH : 0
+                x: wallpaperPanel ? wallpaperPanel.visualX : 0
+                y: wallpaperPanel ? wallpaperPanel.visualY : 0
+                width: wallpaperPanel && wallpaperPanel.pocketActive ? wallpaperPanel.visualW : 0
+                height: wallpaperPanel && wallpaperPanel.pocketActive ? wallpaperPanel.visualH : 0
             }
 
             // Input on chrome (Xor hole), then add popup hit regions back
