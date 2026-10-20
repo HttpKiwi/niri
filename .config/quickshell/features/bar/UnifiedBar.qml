@@ -15,6 +15,7 @@ import qs.features.wallpaper
 import qs.features.controlcenter
 import qs.features.settings
 import qs.features.calendar
+import qs.features.decorations
 
 
 Scope {
@@ -235,6 +236,44 @@ Scope {
                         onClicked: window.toggleCalendar()
                         TimeIndicator {}
                     }
+                }
+            }
+
+            // Rounded screen corners. Drawn here instead of a separate full-screen
+            // overlay window per monitor (each window costs ~30 MB: own GL context,
+            // render thread, buffers). Trade-off: hidden under fullscreen apps.
+            Item {
+                anchors.fill: parent
+                z: 100
+                opacity: window.chromeReveal
+
+                Corner {
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    corner: 0
+                    radius: Settings.screenCornerRadius
+                    color: "black"
+                }
+                Corner {
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    corner: 1
+                    radius: Settings.screenCornerRadius
+                    color: "black"
+                }
+                Corner {
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                    corner: 2
+                    radius: Settings.screenCornerRadius
+                    color: "black"
+                }
+                Corner {
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    corner: 3
+                    radius: Settings.screenCornerRadius
+                    color: "black"
                 }
             }
 

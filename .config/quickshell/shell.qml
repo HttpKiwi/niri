@@ -20,7 +20,6 @@ import qs.features.wallpaper
 ShellRoot {
     Background {}
     UnifiedBar {}
-    RoundedScreen {}
     LockScreen {}
     AutoLock {}
 

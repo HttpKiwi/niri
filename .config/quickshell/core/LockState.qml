@@ -12,7 +12,7 @@ QtObject {
     property bool locked: false
     property bool engaging: false
     // Bar/frame visibility. Animate it in the windows that draw the chrome
-    // (UnifiedBar, RoundedScreen): an animation owned by this non-visual
+    // (UnifiedBar): an animation owned by this non-visual
     // singleton runs on whatever render loop is active, and starting it at
     // unlock (as the lock surfaces are destroyed) left it frozen at 0.
     readonly property bool chromeHidden: locked || engaging

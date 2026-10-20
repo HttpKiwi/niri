@@ -1,4 +1,3 @@
 module qs.features.decorations
 
 Corner 1.0 Corner.qml
-RoundedScreen 1.0 RoundedScreen.qml
