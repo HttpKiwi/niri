@@ -121,6 +121,7 @@ Scope {
             Image {
                 anchors.fill: parent
                 source: win.showStaticImage ? win.mediaUrl : ""
+                sourceSize: Qt.size(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: true
@@ -132,6 +133,7 @@ Scope {
             Image {
                 anchors.fill: parent
                 source: win.showPoster ? win.posterUrl : ""
+                sourceSize: Qt.size(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: true
@@ -186,62 +188,66 @@ Scope {
                 }
             }
 
-            // Keep source loaded on every screen; play/pause only.
-            Video {
-                id: videoWallpaper
+            // Only created for video wallpapers: an idle Video still started
+            // QtMultimedia/ffmpeg and Vulkan (pulling in the lsfg-vk layer), ~14 MB.
+            Loader {
                 anchors.fill: parent
-                source: win.showVideo ? win.mediaUrl : ""
-                fillMode: VideoOutput.PreserveAspectCrop
-                loops: MediaPlayer.Infinite
-                muted: true
-                autoPlay: false
-                visible: win.showVideo
                 z: 2
+                active: win.showVideo
+                sourceComponent: Video {
+                    id: videoWallpaper
+                    source: win.showVideo ? win.mediaUrl : ""
+                    fillMode: VideoOutput.PreserveAspectCrop
+                    loops: MediaPlayer.Infinite
+                    muted: true
+                    autoPlay: false
+                    visible: win.showVideo
 
-                function syncPlayback() {
-                    if (!win.showVideo) {
-                        stop();
-                        return;
+                    function syncPlayback() {
+                        if (!win.showVideo) {
+                            stop();
+                            return;
+                        }
+                        if (win.playVideo) {
+                            if (playbackState !== MediaPlayer.PlayingState)
+                                play();
+                        } else if (playbackState === MediaPlayer.PlayingState) {
+                            pause();
+                        }
                     }
-                    if (win.playVideo) {
-                        if (playbackState !== MediaPlayer.PlayingState)
-                            play();
-                    } else if (playbackState === MediaPlayer.PlayingState) {
-                        pause();
+
+                    onSourceChanged: Qt.callLater(syncPlayback)
+
+                    onPlaybackStateChanged: {
+                        if (!win.showVideo)
+                            return;
+                        // Resume from pause/stop whenever motion is allowed again
+                        if (win.playVideo && playbackState !== MediaPlayer.PlayingState)
+                            Qt.callLater(play);
+                        else if (!win.playVideo && playbackState === MediaPlayer.PlayingState)
+                            Qt.callLater(pause);
                     }
+
+                    onErrorChanged: {
+                        if (error !== MediaPlayer.NoError)
+                            console.warn("Background video error:", errorString);
+                    }
+
+                    Connections {
+                        target: win
+                        function onPlayVideoChanged() { videoWallpaper.syncPlayback() }
+                        function onShowVideoChanged() { videoWallpaper.syncPlayback() }
+                        function onAllowMotionChanged() { videoWallpaper.syncPlayback() }
+                    }
+
+                    Connections {
+                        target: LockState
+                        function onLockedChanged() { videoWallpaper.syncPlayback() }
+                        function onEngagingChanged() { videoWallpaper.syncPlayback() }
+                    }
+
+                    Component.onCompleted: syncPlayback()
                 }
-
-                onSourceChanged: Qt.callLater(syncPlayback)
-
-                onPlaybackStateChanged: {
-                    if (!win.showVideo)
-                        return;
-                    // Resume from pause/stop whenever motion is allowed again
-                    if (win.playVideo && playbackState !== MediaPlayer.PlayingState)
-                        Qt.callLater(play);
-                    else if (!win.playVideo && playbackState === MediaPlayer.PlayingState)
-                        Qt.callLater(pause);
-                }
-
-                onErrorChanged: {
-                    if (error !== MediaPlayer.NoError)
-                        console.warn("Background video error:", errorString);
-                }
-
-                Connections {
-                    target: win
-                    function onPlayVideoChanged() { videoWallpaper.syncPlayback() }
-                    function onShowVideoChanged() { videoWallpaper.syncPlayback() }
-                    function onAllowMotionChanged() { videoWallpaper.syncPlayback() }
-                }
-
-                Connections {
-                    target: LockState
-                    function onLockedChanged() { videoWallpaper.syncPlayback() }
-                    function onEngagingChanged() { videoWallpaper.syncPlayback() }
-                }
-
-                Component.onCompleted: syncPlayback()
             }
         }
     }

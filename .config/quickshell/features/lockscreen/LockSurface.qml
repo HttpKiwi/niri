@@ -185,6 +185,8 @@ WlSessionLockSurface {
         id: wallpaper
         anchors.fill: parent
         source: Settings.backgroundPosterPath || Settings.backgroundImagePath
+        // Same size as Background's image → shares its pixmap-cache entry
+        sourceSize: Qt.size(root.width, root.height)
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         cache: true
