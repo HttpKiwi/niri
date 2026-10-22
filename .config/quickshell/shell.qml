@@ -154,6 +154,20 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "wallpaper"
+
+        // Apply a wallpaper (persists, re-themes); posters for videos come from Background
+        function set(path: string) {
+            Settings.saveCurrentWallpaper(path, "");
+            MatugenRunner.run(path);
+        }
+
+        function get(): string {
+            return Settings.backgroundImagePath;
+        }
+    }
+
+    IpcHandler {
         target: "caffeine"
 
         function toggle() {

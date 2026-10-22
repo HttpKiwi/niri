@@ -80,7 +80,10 @@ Scope {
             required property var modelData
 
             readonly property string wallpaperPath: Settings.backgroundImagePath
-            readonly property string mediaType: bgUtil.getBackgroundType(wallpaperPath)
+            readonly property string fileType: bgUtil.getBackgroundType(wallpaperPath)
+            readonly property bool animates: fileType === "animated"
+                && backgroundScope.animatedPath === bgUtil.normalizePath(wallpaperPath)
+            readonly property string mediaType: fileType === "animated" && !animates ? "image" : fileType
             readonly property bool hasMedia: wallpaperPath !== ""
             readonly property string posterUrl: Settings.backgroundPosterPath
                 || (bgUtil.isVideo(wallpaperPath) ? bgUtil.toUrl(bgUtil.posterPathFor(wallpaperPath)) : "")
@@ -122,7 +125,7 @@ Scope {
             CrossfadeImage {
                 anchors.fill: parent
                 z: 0
-                readonly property string url: win.showStaticImage ? win.mediaUrl
+                readonly property string url: win.showStaticImage || win.mediaType === "animated" ? win.mediaUrl
                     : win.showPoster ? win.posterUrl : ""
                 request: {
                     if (!url)
@@ -146,7 +149,12 @@ Scope {
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: false
-                visible: win.mediaType === "animated"
+                // Fades in over the first frame already crossfaded in below
+                opacity: win.mediaType === "animated" && status === AnimatedImage.Ready ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
+                }
                 z: 1
                 // Never use built-in playback — it honors finite loop counts
                 playing: false
@@ -248,6 +256,9 @@ Scope {
     }
 
     // Pixel size of the still image actually shown (wallpaper or video poster)
+    // Set by the probe when the wallpaper really animates. Extension alone lies:
+    // a still .webp went through AnimatedImage and skipped the crossfade.
+    property string animatedPath: ""
     readonly property string stillPath: bgUtil.normalizePath(
         bgUtil.isVideo(Settings.backgroundImagePath) ? Settings.backgroundPosterPath : Settings.backgroundImagePath)
     onStillPathChanged: probeStillSize()
@@ -255,10 +266,12 @@ Scope {
     function probeStillSize() {
         Settings.wallpaperPixelSize = Qt.size(0, 0);
         Settings.wallpaperPixelPath = "";
-        if (!stillPath || bgUtil.getBackgroundType(stillPath) !== "image")
+        animatedPath = "";
+        const type = bgUtil.getBackgroundType(stillPath);
+        if (!stillPath || (type !== "image" && type !== "animated"))
             return;
         sizeProbe.command = ["ffprobe", "-v", "error", "-select_streams", "v:0",
-            "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", stillPath];
+            "-show_entries", "stream=codec_name,width,height", "-of", "csv=p=0", stillPath];
         sizeProbe.running = true;
     }
 
@@ -268,10 +281,13 @@ Scope {
             id: sizeOut
         }
         onExited: code => {
-            const m = sizeOut.text.trim().match(/^(\d+)x(\d+)/);
+            // "codec,width,height", e.g. "webp_anim,1920,1080"
+            const m = sizeOut.text.trim().match(/^(\w+),(\d+),(\d+)/);
             if (code === 0 && m) {
-                Settings.wallpaperPixelSize = Qt.size(Number(m[1]), Number(m[2]));
+                Settings.wallpaperPixelSize = Qt.size(Number(m[2]), Number(m[3]));
                 Settings.wallpaperPixelPath = backgroundScope.stillPath;
+                if (m[1] === "webp_anim" || m[1] === "gif" || m[1] === "apng")
+                    backgroundScope.animatedPath = backgroundScope.stillPath;
             }
         }
     }

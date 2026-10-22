@@ -251,6 +251,7 @@ Mutex rules: launcher ↔ wallpaper; settings/calendar close each other and majo
 | `settings` | `toggle`, `open`, `close`, `isOpen` | (settings UI / bind) |
 | `audio` | `raiseVolume`, `lowerVolume`, `toggleMute`, `toggleMicMute` | Prefer these over raw `wpctl` so OSD tracks |
 | `screenrecord` | `toggle`, `start`, `startRegion`, `stop`, `setQuality showcase|clip`, `isRecording` (`pause` is a no-op) | wf-recorder capture → ffmpeg VAAPI on the Intel iGPU; never the RX 580 (VCE hangs the GPU) |
+| `wallpaper` | `set <path>`, `get` | Apply + persist + re-theme (scripts/keybinds) |
 | `caffeine` | `toggle`, `enable`, `disable`, `isEnabled` | Idle inhibit |
 | `notifications` | `dismissFocused`, `focusPopup`, `navigateUp/Down`, `activateFocused` | Keyboard notif nav |
 | `storage` | `clearAll` | — |
