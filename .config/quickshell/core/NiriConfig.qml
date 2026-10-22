@@ -40,8 +40,6 @@ QtObject {
     property int overviewAnimStiffness: 800
     property string configPath: ""
     property string statusMessage: ""
-    property bool dirty: false
-    property bool loading: false
     property var _pendingPatch: ({})
 
     readonly property int ffmMaxScrollPercent: {
@@ -50,7 +48,6 @@ QtObject {
     }
 
     function refresh() {
-        root.loading = true;
         getProc.running = true;
     }
 
@@ -76,7 +73,6 @@ QtObject {
 
     function set(key, value) {
         root[key] = value;
-        root.dirty = true;
         const patch = {};
         patch[key] = value;
         root.apply(patch);
@@ -140,7 +136,6 @@ QtObject {
             id: getOut
         }
         onExited: code => {
-            root.loading = false;
             if (code !== 0) {
                 root.statusMessage = "Failed to read niri config";
                 return;
@@ -148,7 +143,6 @@ QtObject {
             try {
                 root._ingest(JSON.parse(getOut.text.trim()));
                 root.statusMessage = "";
-                root.dirty = false;
             } catch (e) {
                 root.statusMessage = "Parse error reading niri config";
             }
@@ -167,7 +161,6 @@ QtObject {
                     root._ingest(result.values);
                 if (result.ok) {
                     root.statusMessage = "Applied (niri will hot-reload)";
-                    root.dirty = false;
                 } else {
                     root.statusMessage = result.restored
                         ? `Invalid — restored. ${result.message || ""}`

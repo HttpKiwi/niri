@@ -60,12 +60,12 @@ WrapperMouseArea {
                     color: ScreenRecord.pending
                         ? Theme.accentSecondary
                         : ScreenRecord.recording
-                            ? (ScreenRecord.paused ? Theme.accentSecondary : Theme.error)
+                            ? Theme.error
                             : Theme.textPrimary
                     text: ScreenRecord.pending ? "\ue8b8" : (ScreenRecord.recording ? "\ue061" : "\uef48")
 
                     SequentialAnimation on opacity {
-                        running: (ScreenRecord.recording && !ScreenRecord.paused) || ScreenRecord.pending
+                        running: ScreenRecord.recording || ScreenRecord.pending
                         loops: Animation.Infinite
                         NumberAnimation { from: 1; to: 0.25; duration: 650; easing.type: Easing.InOutQuad }
                         NumberAnimation { from: 0.25; to: 1; duration: 650; easing.type: Easing.InOutQuad }
@@ -129,13 +129,6 @@ WrapperMouseArea {
                         ScreenRecord.stop();
                         root.expanded = false;
                     }
-                }
-
-                ControlBtn {
-                    visible: ScreenRecord.canPause && ScreenRecord.recording && !ScreenRecord.pending
-                    icon: ScreenRecord.paused ? "\ue037" : "\ue034"
-                    tipColor: Theme.accentSecondary
-                    onClicked: ScreenRecord.togglePause()
                 }
 
                 ControlBtn {

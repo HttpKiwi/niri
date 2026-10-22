@@ -50,7 +50,7 @@ PocketSlidePanel {
         if (controlsTab === "audio")
             return "1–3 tabs · ←→ volume · M mute";
         if (controlsTab === "record")
-            return "1–3 tabs · Enter record · P pause";
+            return "1–3 tabs · Enter record";
         return "1–3 tabs · ←→↑↓ · Enter";
     }
 
@@ -74,7 +74,7 @@ PocketSlidePanel {
     // Positioned by the host Loader in UnifiedBar (do not self-anchor to the window)
 
     function updateNotifications() {
-        groupedNotifications = NotificationStore.getGroupedNotifications();
+        groupedNotifications = Storage.getGroupedNotifications();
     }
 
     onOpened: {
@@ -101,7 +101,7 @@ PocketSlidePanel {
     }
 
     Connections {
-        target: NotificationStore
+        target: Storage
         function onNotificationsChanged() {
             root.updateNotifications();
         }
@@ -213,7 +213,7 @@ PocketSlidePanel {
             if (groupComponent && typeof groupComponent.dismissNotificationAt === "function")
                 groupComponent.dismissNotificationAt(selectedNotificationIndex);
             else {
-                NotificationStore.dismissNotification(group.notifications[selectedNotificationIndex].id);
+                Storage.dismissNotification(group.notifications[selectedNotificationIndex].id);
                 updateNotifications();
                 adjustSelectionAfterDelete();
             }
@@ -221,7 +221,7 @@ PocketSlidePanel {
             if (groupComponent && typeof groupComponent.startGroupDismiss === "function") {
                 groupComponent.startGroupDismiss();
             } else {
-                NotificationStore.clearApp(group.appName);
+                Storage.clearApp(group.appName);
                 updateNotifications();
                 adjustSelectionAfterDelete();
             }
@@ -299,10 +299,6 @@ PocketSlidePanel {
                     ScreenRecord.stop();
                 else
                     ScreenRecord.start();
-                event.accepted = true;
-            } else if (event.key === Qt.Key_P) {
-                if (ScreenRecord.recording)
-                    ScreenRecord.togglePause();
                 event.accepted = true;
             } else if (event.key === Qt.Key_Left) {
                 shiftTab(-1);
@@ -460,7 +456,7 @@ PocketSlidePanel {
                             buttonSize: 24
 
                             onClicked: {
-                                NotificationStore.clearAll();
+                                Storage.clearAll();
                                 root.updateNotifications();
                             }
                         }
@@ -545,7 +541,7 @@ PocketSlidePanel {
                                     }
 
                                     onGroupDismissed: function(appName) {
-                                        NotificationStore.clearApp(appName);
+                                        Storage.clearApp(appName);
                                         root.updateNotifications();
                                         root.adjustSelectionAfterDelete();
                                     }

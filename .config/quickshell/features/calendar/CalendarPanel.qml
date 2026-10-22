@@ -11,8 +11,9 @@ import qs.components.base
 /**
  * CalendarPanel - Month view pocket; opens from bar date/time.
  */
-PocketTopPanel {
+PocketEdgePanel {
     id: root
+    edge: "top"
 
     panelFlag: "calendar"
     edgeInset: 8

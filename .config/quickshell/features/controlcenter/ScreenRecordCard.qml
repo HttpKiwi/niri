@@ -54,7 +54,7 @@ Rectangle {
                 color: ScreenRecord.pending
                     ? Theme.withAlpha(Theme.accentSecondary, 0.45)
                     : ScreenRecord.recording
-                        ? Theme.withAlpha(Theme.error, ScreenRecord.paused ? 0.35 : 0.55)
+                        ? Theme.withAlpha(Theme.error, 0.55)
                         : Theme.withAlpha(Theme.textPrimary, 0.08)
 
                 Text {
@@ -66,7 +66,7 @@ Rectangle {
                 }
 
                 SequentialAnimation on opacity {
-                    running: (ScreenRecord.recording && !ScreenRecord.paused) || ScreenRecord.pending
+                    running: ScreenRecord.recording || ScreenRecord.pending
                     loops: Animation.Infinite
                     // Stopping mid-pulse would leave the badge dimmed
                     onRunningChanged: if (!running) recordBadge.opacity = 1
@@ -208,15 +208,6 @@ Rectangle {
                 icon: "\ue5cd"
                 accent: Theme.error
                 onClicked: ScreenRecord.stop()
-            }
-
-            ActionButton {
-                Layout.fillWidth: true
-                visible: ScreenRecord.canPause && ScreenRecord.recording && !ScreenRecord.pending
-                label: ScreenRecord.paused ? "Resume" : "Pause"
-                icon: ScreenRecord.paused ? "\ue037" : "\ue034"
-                accent: Theme.accentSecondary
-                onClicked: ScreenRecord.togglePause()
             }
 
             ActionButton {

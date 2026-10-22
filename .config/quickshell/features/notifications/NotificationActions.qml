@@ -33,7 +33,7 @@ RowLayout {
             radius: 8
             color: actionMouse.containsMouse
                 ? (index === 0 ? Theme.accent : Theme.surfaceHighest)
-                : (index === 0 ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent")
+                : (index === 0 ? Theme.withAlpha(Theme.accent, 0.15) : "transparent")
             border.width: index === 0 ? 0 : 1
             border.color: Theme.cardBorder
 

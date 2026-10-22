@@ -9,7 +9,7 @@ import qs.core
 import qs.components.base
 import qs.features.launcher
 
-PocketBottomPanel {
+PocketEdgePanel {
     id: root
 
     panelFlag: "launcher"

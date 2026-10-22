@@ -137,8 +137,20 @@ QtObject {
         saveData()
     }
 
-    function getAllNotifications(callback) {
-        callback(root._data.notifications.slice())
+    // History grouped by app (undismissed only), for the control center
+    function getGroupedNotifications() {
+        const groups = {}
+        for (const n of root._data.notifications) {
+            if (n.dismissed)
+                continue
+            const g = groups[n.appName] = groups[n.appName]
+                || { appName: n.appName, notifications: [], count: 0, hasCritical: false }
+            g.notifications.push(n)
+            g.count++
+            if (n.urgency === 2)
+                g.hasCritical = true
+        }
+        return Object.values(groups)
     }
 
     function clearApp(appName) {

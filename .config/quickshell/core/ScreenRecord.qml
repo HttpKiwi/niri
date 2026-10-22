@@ -15,7 +15,7 @@ import qs.config
  * encode with ffmpeg on Settings.screenRecordEncodeDevice instead.
  *
  * Stop: SIGINT to wf-recorder → ffmpeg sees EOF and finalises the file.
- * Modes: screen (focused output) | region (slurp). No pause (wf-recorder can't).
+ * Modes: screen (focused output) | region (slurp). No pause: wf-recorder can't.
  */
 QtObject {
     id: root
@@ -24,8 +24,6 @@ QtObject {
     property bool regionPickerAvailable: false
     property bool recording: false
     property bool pending: false // region select in progress
-    readonly property bool paused: false
-    readonly property bool canPause: false
     property int elapsed: 0
     property string lastOutput: ""
     property string statusMessage: ""
@@ -158,8 +156,6 @@ QtObject {
         Quickshell.execDetached(["pkill", "-INT", "-P", String(recorder.processId), "-x", "wf-recorder"]);
         root.statusMessage = `Saving ${root.lastOutput}`;
     }
-
-    function togglePause() {}
 
     function toggle() {
         if (root.recording || root.pending)

@@ -346,7 +346,7 @@ Rectangle {
                         width: parent.width - x
                         height: parent.height
                         radius: 2
-                        color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.3)
+                        color: Theme.withAlpha(Theme.outline, 0.3)
                     }
                 }
 

@@ -81,7 +81,7 @@ QtObject {
         }
 
         try {
-            NotificationStore.addNotification({
+            Storage.addNotification({
                 summary: notification.summary || "",
                 body: notification.body || "",
                 appName: notification.appName || "",

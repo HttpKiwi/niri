@@ -5,7 +5,6 @@ singleton Niri 1.0 Niri.qml
 singleton Audio 1.0 Audio.qml
 singleton Color 1.0 Color.qml
 singleton NotificationService 1.0 NotificationService.qml
-singleton NotificationStore 1.0 NotificationStore.qml
 singleton Storage 1.0 Storage.qml
 singleton FuzzyMatcher 1.0 FuzzyMatcher.qml
 singleton NotificationModel 1.0 NotificationModel.qml
@@ -16,7 +15,6 @@ singleton Players 1.0 Players.qml
 singleton ChromeClock 1.0 ChromeClock.qml
 singleton MatugenRunner 1.0 MatugenRunner.qml
 singleton LockState 1.0 LockState.qml
-singleton HttpClient 1.0 HttpClient.qml
 singleton ScreenRecord 1.0 ScreenRecord.qml
 singleton NiriConfig 1.0 NiriConfig.qml
 singleton Caffeine 1.0 Caffeine.qml

@@ -34,11 +34,6 @@ QtObject {
         model.append(entry)
     }
 
-    function remove(index) {
-        if (index >= 0 && index < model.count)
-            model.remove(index)
-    }
-
     function removeById(id) {
         const key = String(id)
         for (let i = 0; i < model.count; i++) {
@@ -47,10 +42,6 @@ QtObject {
                 return
             }
         }
-    }
-
-    function clear() {
-        model.clear()
     }
 
     function count() {

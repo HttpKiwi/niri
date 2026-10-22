@@ -12,8 +12,9 @@ import qs.features.settings
 /**
  * SettingsPanel - Top-pinned pocket (launcher/wallpaper pattern, from the bar).
  */
-PocketTopPanel {
+PocketEdgePanel {
     id: root
+    edge: "top"
 
     panelFlag: "settings"
     edgeInset: 8

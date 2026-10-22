@@ -144,9 +144,6 @@ ShellRoot {
             ScreenRecord.stop();
         }
 
-        function pause() {
-            ScreenRecord.togglePause();
-        }
 
         function isRecording(): bool {
             return ScreenRecord.recording;

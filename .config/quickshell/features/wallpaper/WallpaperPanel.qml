@@ -12,7 +12,7 @@ import qs.core
 import qs.components.base
 import qs.features.background
 
-PocketBottomPanel {
+PocketEdgePanel {
     id: root
 
     panelFlag: "wallpaper"

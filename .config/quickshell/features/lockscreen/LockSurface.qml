@@ -274,7 +274,7 @@ WlSessionLockSurface {
         transformOrigin: Item.Bottom
 
         Rectangle {
-            color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.5)
+            color: Theme.withAlpha(Theme.surfaceBase, 0.5)
             radius: height / 2
             height: 40
             implicitWidth: usernameText.implicitWidth + 40
@@ -308,8 +308,8 @@ WlSessionLockSurface {
             readonly property bool isError: root.statusType === "error"
 
             color: isError
-                ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.2)
-                : Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.8)
+                ? Theme.withAlpha(Theme.error, 0.2)
+                : Theme.withAlpha(Theme.surfaceBase, 0.8)
             border.color: isError
                 ? Theme.error
                 : (passwordInput.activeFocus ? Theme.primary : "transparent")
@@ -415,7 +415,7 @@ WlSessionLockSurface {
         }
 
         Rectangle {
-            color: Qt.rgba(Theme.surfaceBase.r, Theme.surfaceBase.g, Theme.surfaceBase.b, 0.5)
+            color: Theme.withAlpha(Theme.surfaceBase, 0.5)
             radius: height / 2
             height: 40
             width: 40

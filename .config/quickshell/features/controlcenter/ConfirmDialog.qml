@@ -110,7 +110,7 @@ Item {
                     background: Rectangle {
                         radius: Settings.cardRadius
                         color: root.isDestructive
-                            ? (controlButton.containsMouse ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.2) : "transparent")
+                            ? (controlButton.containsMouse ? Theme.withAlpha(Theme.error, 0.2) : "transparent")
                             : (controlButton.containsMouse ? Theme.accentContainer : "transparent")
 
                         Behavior on color {

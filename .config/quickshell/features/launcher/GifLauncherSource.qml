@@ -20,6 +20,27 @@ QtObject {
     property string statusMessage: ""
     property string _lastQuery: ""
     property string _pendingQuery: ""
+    property var _searchXhr: null
+
+    // QML's XMLHttpRequest has no timeout; abort a stuck search after 10s
+    property var searchTimeout: Timer {
+        interval: 10000
+        onTriggered: if (root._searchXhr) root._searchXhr.abort()
+    }
+
+    // Plain GET via QML's built-in XMLHttpRequest; callback(err, body)
+    function httpGet(url, callback) {
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE || !callback)
+                return
+            const ok = xhr.status >= 200 && xhr.status < 300
+            callback(ok ? null : "HTTP " + (xhr.status || "request failed"), xhr.responseText)
+        }
+        xhr.open("GET", url)
+        xhr.send()
+        return xhr
+    }
 
     signal itemsUpdated()
 
@@ -157,10 +178,15 @@ QtObject {
         var endpoint = query ? "search" : "trending"
         var url = buildRequestUrl(endpoint, query)
 
-        HttpClient.get(url, function(err, body) {
+        if (_searchXhr)
+            _searchXhr.abort()
+        searchTimeout.restart()
+        _searchXhr = httpGet(url, function(err, body) {
             // A newer query superseded this one
             if (query !== root._lastQuery)
                 return
+            root.searchTimeout.stop()
+            root._searchXhr = null
 
             root.isLoading = false
 
@@ -237,7 +263,7 @@ QtObject {
         if (item.searchTerm)
             params.push("q=" + encodeURIComponent(item.searchTerm))
 
-        HttpClient.get("https://api.klipy.com/v2/registershare?" + params.join("&"))
+        httpGet("https://api.klipy.com/v2/registershare?" + params.join("&"))
     }
 
     function executeItem(item) {

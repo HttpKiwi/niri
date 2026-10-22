@@ -181,7 +181,7 @@ Item {
         const key = String(id);
         release(key);
         NotificationModel.removeById(key);
-        NotificationStore.dismissNotification(key);
+        Storage.dismissNotification(key);
     }
 
     function dismissOnly(id) {
