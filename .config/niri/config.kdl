@@ -144,7 +144,7 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
- spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export QML_IMPORT_PATH=\"$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell\"; qs -n -d"
+ spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export QML_IMPORT_PATH=\"$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell\"; export mesa_glthread=false; qs -n -d"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
