@@ -186,8 +186,8 @@ WlSessionLockSurface {
         anchors.fill: parent
         source: Settings.backgroundPosterPath || Settings.backgroundImagePath
         // Same size as Background's image → shares its pixmap-cache entry
-        sourceClipRect: Settings.wallpaperClipFor(root.width, root.height)
-        sourceSize: Settings.wallpaperSourceSizeFor(root.width, root.height)
+        sourceClipRect: Settings.wallpaperClipFor(root.width, root.height, source)
+        sourceSize: Settings.wallpaperSourceSizeFor(root.width, root.height, source)
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         cache: true

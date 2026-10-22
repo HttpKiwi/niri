@@ -22,6 +22,9 @@ PocketBottomPanel {
 
     property var wallpapers: []
     property string _lastScan: ""
+    // path → cached thumbnail (short side 260px) in ~/.cache/quickshell/wallpaper-thumbs
+    property var thumbs: ({})
+    readonly property string thumbCacheDir: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/quickshell/wallpaper-thumbs"
     property int selectedIndex: 0
     readonly property string wallpapersDir: Settings.wallpapersDir
 
@@ -121,6 +124,7 @@ PocketBottomPanel {
                         return { path: path, name: name, filename: filename };
                     });
                     root.selectCurrentWallpaper();
+                    root.ensureThumbs();
                 }
                 scannerOutput.collectedOutput = "";
             }
@@ -181,6 +185,43 @@ PocketBottomPanel {
         if (originalWallpaper && originalWallpaper !== "")
             MatugenRunner.run(originalWallpaper);
         isPreviewing = false;
+    }
+
+    // Small cached copies so opening the picker doesn't decode every (often 4K)
+    // original. Keyed by path + mtime, so edited files get a fresh thumbnail.
+    // ffmpeg takes the first frame, which also covers videos and animations.
+    readonly property string _thumbScript: `
+        dir="$1"; shift; mkdir -p "$dir"
+        for f in "$@"; do
+            m=$(stat -c %Y "$f" 2>/dev/null) || continue
+            t="$dir/$(printf '%s:%s' "$f" "$m" | md5sum | cut -c1-16).jpg"
+            if [ ! -s "$t" ]; then
+                ffmpeg -hide_banner -loglevel error -y -i "$f" -frames:v 1 \
+                    -vf "scale='if(gt(iw,ih),-2,260)':'if(gt(iw,ih),260,-2)'" -q:v 4 "$t" < /dev/null || continue
+            fi
+            printf '%s\t%s\n' "$f" "$t"
+        done
+    `
+
+    function ensureThumbs() {
+        if (thumbProc.running || wallpapers.length === 0)
+            return;
+        thumbProc.command = ["sh", "-c", _thumbScript, "sh", thumbCacheDir].concat(wallpapers.map(w => w.path));
+        thumbProc.running = true;
+    }
+
+    Process {
+        id: thumbProc
+        stdout: SplitParser {
+            onRead: line => {
+                const tab = line.indexOf("\t");
+                if (tab <= 0)
+                    return;
+                const map = Object.assign({}, root.thumbs);
+                map[line.slice(0, tab)] = line.slice(tab + 1);
+                root.thumbs = map;
+            }
+        }
     }
 
     // Highlight the applied wallpaper after a scan, unless the user already moved
@@ -408,6 +449,9 @@ PocketBottomPanel {
                                     id: thumbImage
                                     anchors.fill: parent
                                     source: {
+                                        const cached = root.thumbs[modelData.path];
+                                        if (cached)
+                                            return "file://" + cached;
                                         if (isVideo && posterPath)
                                             return "file://" + posterPath;
                                         if (isVideo)

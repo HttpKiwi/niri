@@ -117,30 +117,23 @@ Scope {
                 visible: !win.hasMedia
             }
 
-            // Static images
-            Image {
+            // Still wallpaper or video poster, crossfading on change. The poster
+            // stays under the Video so focus switches never flash empty.
+            CrossfadeImage {
                 anchors.fill: parent
-                source: win.showStaticImage ? win.mediaUrl : ""
-                sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
-                sourceSize: Settings.wallpaperSourceSizeFor(win.width, win.height)
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                cache: true
-                visible: win.showStaticImage
                 z: 0
-            }
-
-            // Video poster — stays under the Video so focus switches never flash empty
-            Image {
-                anchors.fill: parent
-                source: win.showPoster ? win.posterUrl : ""
-                sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
-                sourceSize: Settings.wallpaperSourceSizeFor(win.width, win.height)
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                cache: true
-                visible: win.showPoster
-                z: 0
+                readonly property string url: win.showStaticImage ? win.mediaUrl
+                    : win.showPoster ? win.posterUrl : ""
+                request: {
+                    if (!url)
+                        return null;
+                    const clip = Settings.wallpaperClipFor(win.width, win.height, url);
+                    return {
+                        url: url,
+                        clip: clip.width > 0 ? clip : null,
+                        size: Settings.wallpaperSourceSizeFor(win.width, win.height, url) ?? null
+                    };
+                }
             }
 
             // GIF / APNG / animated WebP
@@ -261,6 +254,7 @@ Scope {
 
     function probeStillSize() {
         Settings.wallpaperPixelSize = Qt.size(0, 0);
+        Settings.wallpaperPixelPath = "";
         if (!stillPath || bgUtil.getBackgroundType(stillPath) !== "image")
             return;
         sizeProbe.command = ["ffprobe", "-v", "error", "-select_streams", "v:0",
@@ -275,8 +269,10 @@ Scope {
         }
         onExited: code => {
             const m = sizeOut.text.trim().match(/^(\d+)x(\d+)/);
-            if (code === 0 && m)
+            if (code === 0 && m) {
                 Settings.wallpaperPixelSize = Qt.size(Number(m[1]), Number(m[2]));
+                Settings.wallpaperPixelPath = backgroundScope.stillPath;
+            }
         }
     }
 

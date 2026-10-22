@@ -32,6 +32,8 @@ QtObject {
     property string backgroundPosterPath: ""
     // Pixel size of the still wallpaper image (Background probes it with ffprobe)
     property size wallpaperPixelSize: Qt.size(0, 0)
+    // File the size above belongs to: never crop a new image with the old one's size
+    property string wallpaperPixelPath: ""
 
     // Centered crop of the wallpaper matching a w×h target, in source pixels.
     // Lets Image crop while decoding instead of scaling to cover and cropping
@@ -39,9 +41,10 @@ QtObject {
     // Null rect (no clip) until the size is known or when aspects already match.
     // Qt 6.12 renders sourceClipRect + sourceSize wrongly (black/offset), so
     // callers use wallpaperSourceSizeFor(), which drops sourceSize while clipping.
-    function wallpaperClipFor(w, h) {
+    function wallpaperClipFor(w, h, path) {
         const sw = wallpaperPixelSize.width, sh = wallpaperPixelSize.height;
-        if (sw <= 0 || sh <= 0 || w <= 0 || h <= 0)
+        const file = String(path || "").replace(/^file:\/\//, "");
+        if (!file || file !== wallpaperPixelPath || sw <= 0 || sh <= 0 || w <= 0 || h <= 0)
             return Qt.rect(0, 0, 0, 0);
         const target = w / h;
         if (Math.abs(sw / sh - target) / target < 0.02)
@@ -54,8 +57,8 @@ QtObject {
         return Qt.rect(0, Math.floor((sh - ch) / 2), sw, ch);
     }
 
-    function wallpaperSourceSizeFor(w, h) {
-        return wallpaperClipFor(w, h).width > 0 ? undefined : Qt.size(w, h);
+    function wallpaperSourceSizeFor(w, h, path) {
+        return wallpaperClipFor(w, h, path).width > 0 ? undefined : Qt.size(w, h);
     }
     // Decode/animate video & GIF wallpapers
     property bool animatedWallpapersEnabled: true
