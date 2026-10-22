@@ -9,6 +9,9 @@ import qs.config
  * image on screen is never reloaded (no flash). Each layer keeps its own
  * url/clip/size, so a later crop refinement of the same wallpaper just fades
  * the leaner decode over the old one and frees it.
+ *
+ * A request arriving mid-fade is queued (latest wins) until the fade ends:
+ * restarting the fading layer would briefly re-expose the previous wallpaper.
  */
 Item {
     id: root
@@ -21,8 +24,16 @@ Item {
     property Image _front: null
     property Image _pending: null
     property string _key: ""
+    property bool _queued: false
 
-    onRequestChanged: {
+    onRequestChanged: _apply()
+
+    function _apply() {
+        if (fadeIn.running) {
+            _queued = true;
+            return;
+        }
+        _queued = false;
         const r = request && request.url ? request : null;
         const key = r ? JSON.stringify([r.url, r.clip, r.size]) : "";
         if (key === _key)
@@ -62,6 +73,9 @@ Item {
         // Release the previous decode once it's fully covered
         if (old && old !== _front)
             old.req = null;
+        // Next turn: the animation may still report running inside onFinished
+        if (_queued)
+            Qt.callLater(_apply);
     }
 
     ParallelAnimation {
