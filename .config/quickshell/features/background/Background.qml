@@ -122,7 +122,7 @@ Scope {
                 anchors.fill: parent
                 source: win.showStaticImage ? win.mediaUrl : ""
                 sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
-                sourceSize: Qt.size(win.width, win.height)
+                sourceSize: Settings.wallpaperSourceSizeFor(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: true
@@ -135,7 +135,7 @@ Scope {
                 anchors.fill: parent
                 source: win.showPoster ? win.posterUrl : ""
                 sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
-                sourceSize: Qt.size(win.width, win.height)
+                sourceSize: Settings.wallpaperSourceSizeFor(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: true

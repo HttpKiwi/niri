@@ -36,18 +36,26 @@ QtObject {
     // Centered crop of the wallpaper matching a w×h target, in source pixels.
     // Lets Image crop while decoding instead of scaling to cover and cropping
     // at draw time (a 4K image on a 1080×1920 screen kept 3413×1920 = 26 MB).
-    // Null rect (whole image) until the size is known.
+    // Null rect (no clip) until the size is known or when aspects already match.
+    // Qt 6.12 renders sourceClipRect + sourceSize wrongly (black/offset), so
+    // callers use wallpaperSourceSizeFor(), which drops sourceSize while clipping.
     function wallpaperClipFor(w, h) {
         const sw = wallpaperPixelSize.width, sh = wallpaperPixelSize.height;
         if (sw <= 0 || sh <= 0 || w <= 0 || h <= 0)
             return Qt.rect(0, 0, 0, 0);
         const target = w / h;
+        if (Math.abs(sw / sh - target) / target < 0.02)
+            return Qt.rect(0, 0, 0, 0);
         if (sw / sh > target) {
             const cw = Math.round(sh * target);
             return Qt.rect(Math.floor((sw - cw) / 2), 0, cw, sh);
         }
         const ch = Math.round(sw / target);
         return Qt.rect(0, Math.floor((sh - ch) / 2), sw, ch);
+    }
+
+    function wallpaperSourceSizeFor(w, h) {
+        return wallpaperClipFor(w, h).width > 0 ? undefined : Qt.size(w, h);
     }
     // Decode/animate video & GIF wallpapers
     property bool animatedWallpapersEnabled: true
