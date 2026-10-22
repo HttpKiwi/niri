@@ -121,6 +121,7 @@ Scope {
             Image {
                 anchors.fill: parent
                 source: win.showStaticImage ? win.mediaUrl : ""
+                sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
                 sourceSize: Qt.size(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
@@ -133,6 +134,7 @@ Scope {
             Image {
                 anchors.fill: parent
                 source: win.showPoster ? win.posterUrl : ""
+                sourceClipRect: Settings.wallpaperClipFor(win.width, win.height)
                 sourceSize: Qt.size(win.width, win.height)
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
@@ -252,8 +254,35 @@ Scope {
         }
     }
 
+    // Pixel size of the still image actually shown (wallpaper or video poster)
+    readonly property string stillPath: bgUtil.normalizePath(
+        bgUtil.isVideo(Settings.backgroundImagePath) ? Settings.backgroundPosterPath : Settings.backgroundImagePath)
+    onStillPathChanged: probeStillSize()
+
+    function probeStillSize() {
+        Settings.wallpaperPixelSize = Qt.size(0, 0);
+        if (!stillPath || bgUtil.getBackgroundType(stillPath) !== "image")
+            return;
+        sizeProbe.command = ["ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", stillPath];
+        sizeProbe.running = true;
+    }
+
+    Process {
+        id: sizeProbe
+        stdout: StdioCollector {
+            id: sizeOut
+        }
+        onExited: code => {
+            const m = sizeOut.text.trim().match(/^(\d+)x(\d+)/);
+            if (code === 0 && m)
+                Settings.wallpaperPixelSize = Qt.size(Number(m[1]), Number(m[2]));
+        }
+    }
+
     Component.onCompleted: {
         console.log("Background initialized");
+        probeStillSize();
         if (bgUtil.isVideo(Settings.backgroundImagePath))
             posterEnsure.ensure(Settings.backgroundImagePath);
     }

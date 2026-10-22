@@ -688,6 +688,11 @@ PocketBottomPanel {
                             Image {
                                 anchors.fill: parent
                                 source: model.icon || ""
+                                // Decode at display size (2x for crispness): clipboard
+                                // screenshots were decoded and cached at full resolution
+                                sourceSize: root.isClipboard
+                                    ? Qt.size(root.clipboardThumbSize * 2, root.clipboardThumbSize * 2)
+                                    : Qt.size(48, 48)
                                 fillMode: root.isClipboard
                                     ? Image.PreserveAspectCrop
                                     : Image.PreserveAspectFit

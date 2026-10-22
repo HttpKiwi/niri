@@ -30,6 +30,25 @@ QtObject {
     property string backgroundImagePath: ""
     // First-frame JPEG for video wallpapers (matugen + lockscreen + inactive monitors)
     property string backgroundPosterPath: ""
+    // Pixel size of the still wallpaper image (Background probes it with ffprobe)
+    property size wallpaperPixelSize: Qt.size(0, 0)
+
+    // Centered crop of the wallpaper matching a w×h target, in source pixels.
+    // Lets Image crop while decoding instead of scaling to cover and cropping
+    // at draw time (a 4K image on a 1080×1920 screen kept 3413×1920 = 26 MB).
+    // Null rect (whole image) until the size is known.
+    function wallpaperClipFor(w, h) {
+        const sw = wallpaperPixelSize.width, sh = wallpaperPixelSize.height;
+        if (sw <= 0 || sh <= 0 || w <= 0 || h <= 0)
+            return Qt.rect(0, 0, 0, 0);
+        const target = w / h;
+        if (sw / sh > target) {
+            const cw = Math.round(sh * target);
+            return Qt.rect(Math.floor((sw - cw) / 2), 0, cw, sh);
+        }
+        const ch = Math.round(sw / target);
+        return Qt.rect(0, Math.floor((sh - ch) / 2), sw, ch);
+    }
     // Decode/animate video & GIF wallpapers
     property bool animatedWallpapersEnabled: true
 

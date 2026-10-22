@@ -58,8 +58,11 @@ Scope {
             }
 
             color: "transparent"
-            exclusionMode: ExclusionMode.Ignore
-            exclusiveZone: 0
+            // The bar window reserves the bar's space itself. A separate zero-size
+            // "exclusion" window did this before, but every layer window gets its
+            // own GL context + Mesa worker threads (~25–30 MB each).
+            exclusionMode: ExclusionMode.Normal
+            exclusiveZone: topBar.implicitHeight - 5
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
             WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings || window.panelState.calendar) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -77,28 +80,14 @@ Scope {
                 blurRadius: Settings.screenCornerRadius
             }
 
+            // Top-anchored (not bottom) so the exclusive zone applies to the top
+            // edge; full screen height for the pockets and frame
             anchors {
                 left: true
                 top: true
                 right: true
-                bottom: true
             }
-
-            // Inline Components
-            component Exclusion: PanelWindow {
-                property string name
-                implicitWidth: 0
-                implicitHeight: 0
-                WlrLayershell.namespace: `quickshell:${name}ExclusionZone`
-            }
-
-            // Exclusion Zone for top bar
-            Exclusion {
-                name: "top"
-                exclusiveZone: topBar.implicitHeight - 5
-                anchors.top: true
-                screen: window.screen
-            }
+            implicitHeight: window.screen?.height ?? 0
 
             // Top Bar — content overlay only; chrome fill comes from PocketFrame's top border
             Item {
