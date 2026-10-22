@@ -389,18 +389,13 @@ PocketEdgePanel {
                             required property var modelData
 
                             property bool isSelected: index === root.selectedIndex
-                            property int currentWidth: thumbnailSize
                             readonly property bool isVideo: bgUtil.isVideo(modelData.path)
                             readonly property string posterPath: bgUtil.posterPathFor(modelData.path)
 
-                            onIsSelectedChanged: {
-                                currentWidth = isSelected ? expandedWidth : thumbnailSize;
-                            }
-
-                            width: currentWidth
+                            width: isSelected ? expandedWidth : thumbnailSize
                             height: thumbnailSize
 
-                            Behavior on currentWidth {
+                            Behavior on width {
                                 NumberAnimation {
                                     duration: Settings.animationDurationMedium
                                     easing.type: Settings.easingStandard

@@ -12,8 +12,8 @@ import qs.config
 QtObject {
     id: root
 
+    // Seconds of ticking time; only advances while ticking, so phases resume smoothly
     property real time: 0
-    property real _epochMs: 0
 
     readonly property bool shouldTick: Settings.chromeShaderEnabled
         && !LockState.shellRetracted
@@ -24,18 +24,6 @@ QtObject {
         interval: Settings.chromeClockIntervalMs
         running: root.shouldTick
         repeat: true
-        onTriggered: {
-            if (root._epochMs <= 0)
-                root._epochMs = Date.now()
-            root.time = (Date.now() - root._epochMs) / 1000.0
-        }
+        onTriggered: root.time += interval / 1000
     }
-
-    // Keep timebase continuous across pause/resume so phases don't jump oddly
-    onShouldTickChanged: {
-        if (shouldTick && _epochMs > 0)
-            _epochMs = Date.now() - (time * 1000.0)
-    }
-
-    Component.onCompleted: root._epochMs = Date.now()
 }

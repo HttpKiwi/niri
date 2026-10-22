@@ -134,12 +134,10 @@ PocketEdgePanel {
                     }
 
                     IconButton {
-                        iconName: "go-previous"
                         fallbackIcon: "\ue5cb"
                         onClicked: root.prevMonth()
                     }
                     IconButton {
-                        iconName: "go-next"
                         fallbackIcon: "\ue5cc"
                         onClicked: root.nextMonth()
                     }
@@ -334,7 +332,6 @@ PocketEdgePanel {
 
     component IconButton: Rectangle {
         id: btn
-        property string iconName: ""
         property string fallbackIcon: "\ue5c4"
         signal clicked()
 

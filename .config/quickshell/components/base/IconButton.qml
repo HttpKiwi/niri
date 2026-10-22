@@ -14,9 +14,8 @@ Rectangle {
     property int buttonSize: 24
     property string iconFontFamily: Settings.fontFamilyIcons
     
-    // State
-    property bool isHovered: false
-    
+    readonly property bool isHovered: area.containsMouse
+
     // Signals
     signal clicked()
     
@@ -39,19 +38,13 @@ Rectangle {
     }
     
     MouseArea {
+        id: area
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        // Inside swipe-to-dismiss notifications: don't let the drag steal the click
         preventStealing: true
-        propagateComposedEvents: false
-        onEntered: root.isHovered = true
-        onExited: root.isHovered = false
-        onPressed: mouse.accepted = true
-        onReleased: mouse.accepted = true
-        onClicked: {
-            mouse.accepted = true
-            root.clicked()
-        }
+        onClicked: root.clicked()
     }
     
     Behavior on color {

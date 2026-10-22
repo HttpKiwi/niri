@@ -204,7 +204,7 @@ QtObject {
         }
     }
 
-    // App launcher usage (merged from legacy app_usage.json)
+    // App launcher usage counts
     function getAppUsageCount(appName) {
         if (!appName || !root._data.appUsage)
             return 0

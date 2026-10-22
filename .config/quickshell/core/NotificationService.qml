@@ -105,16 +105,7 @@ Item {
         let invoked = false;
 
         if (live && live.actions && live.actions.length > 0) {
-            let action = null;
-            for (let i = 0; i < live.actions.length; i++) {
-                const a = live.actions[i];
-                if (a && a.identifier === "default") {
-                    action = a;
-                    break;
-                }
-            }
-            if (!action)
-                action = live.actions[0];
+            const action = live.actions.find(a => a?.identifier === "default") ?? live.actions[0];
 
             if (action && action.invoke) {
                 try {

@@ -32,12 +32,7 @@ QtObject {
         if (!appItem || !appItem.name)
             return
         Storage.recordAppUsage(appItem.name)
-    }
-
-    function getUsageCountByItem(appItem) {
-        if (!appItem || !appItem.name)
-            return 0
-        return Storage.getAppUsageCount(appItem.name)
+        root.items = root.items.slice().sort(root.byUsage)
     }
 
     function loadItems() {
@@ -59,42 +54,27 @@ QtObject {
             uniqueApps.push(app)
         }
 
-        items = uniqueApps
+        items = uniqueApps.sort(root.byUsage)
         itemsLoaded = true
+    }
+
+    // Most-used first (counts are >= 0, so unused apps sort last)
+    function byUsage(a, b) {
+        return Storage.getAppUsageCount(b.name) - Storage.getAppUsageCount(a.name)
     }
 
     function filterItems(searchText) {
         loadItems()
 
-        if (!searchText || !searchText.trim()) {
-            var sortedItems = items.slice()
-            sortedItems.sort(function(a, b) {
-                var countA = Storage.getAppUsageCount(a.name)
-                var countB = Storage.getAppUsageCount(b.name)
-                if (countA > 0 && countB === 0)
-                    return -1
-                if (countB > 0 && countA === 0)
-                    return 1
-                return countB - countA
-            })
-            return sortedItems
-        }
+        // The launcher shows `items` directly for an empty search, so keep it sorted
+        if (!searchText || !searchText.trim())
+            return items
 
         var matched = FuzzyMatcher.filterAndSort(items, searchText, function(app) {
             return app.name || ""
         })
 
-        matched.sort(function(a, b) {
-            var countA = Storage.getAppUsageCount(a.name)
-            var countB = Storage.getAppUsageCount(b.name)
-            if (countA > 0 && countB === 0)
-                return -1
-            if (countB > 0 && countA === 0)
-                return 1
-            return countB - countA
-        })
-
-        return matched
+        return matched.sort(root.byUsage)
     }
 
     function getItemDisplay(item) {

@@ -9,7 +9,6 @@ CMakeFiles/
 
 # Runtime / legacy quickshell data
 shell.db
-.config/quickshell/app_usage.json
 .config/quickshell/secrets.env
 
 # GitHub Copilot
