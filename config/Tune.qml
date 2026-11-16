@@ -50,6 +50,10 @@ Singleton {
     readonly property int menuWidth: 640
     readonly property int menuHeight: 480
     readonly property int menuRows: 8
+    // The main search shows a few per category, not everything that matches
+    readonly property int limitAppsTools: 4
+    readonly property int limitWindows: 2
+    readonly property int limitPhone: 2
     readonly property real scrimOpacity: 0.3
 
     // Saved state and lists

@@ -67,21 +67,31 @@ Item {
     }
 
     // ---- matching ----
+    // Tight on purpose: the query has to START the title or one of its words
+    // ("code" → Visual Studio Code), match its initials ("gc" → Google Chrome), or
+    // (3+ letters) sit inside it. Letters scattered across a title no longer count.
     function score(text, q) {
         if (!q) return 1;
         const t = (text ?? "").toLowerCase();
-        if (t.startsWith(q)) return 100 - t.length * 0.05;
-        if (t.split(/[\s\-_.\/]+/).some(w => w.startsWith(q))) return 60;
-        if (t.includes(q)) return 40;
-        let i = 0;
-        for (const c of t) if (c === q[i]) i++;
-        return i === q.length ? 10 : 0;
+        if (!t) return 0;
+        if (t.startsWith(q)) return 100 - Math.min(t.length, 40) * 0.1;
+        const ws = t.split(/[^a-z0-9]+/).filter(w => w);
+        if (ws.some(w => w.startsWith(q))) return 70;
+        if (q.length >= 2 && ws.map(w => w[0]).join("").startsWith(q)) return 60;
+        if (q.length >= 3 && t.includes(q)) return 40;
+        return 0;
     }
     function ranked(items, q) {
         if (!q) return items;
-        return items.map(it => ({ it, s: Math.max(score(it.title, q), score(it.keys ?? "", q) * 0.9, score(it.sub, q) * 0.5) }))
+        return items.map(it => {
+            const base = Math.max(
+                score(it.title, q),
+                score(it.keys ?? "", q) >= 70 ? 55 : 0,     // keywords / id: word starts only
+                score(it.sub, q) >= 70 ? 28 : 0);           // description: word starts only, weakly
+            return { it, s: base > 0 ? base + Math.min(it.boost ?? 0, 20) * 0.4 : 0 };
+        })
             .filter(x => x.s > 0)
-            .sort((a, b) => b.s - a.s || (b.it.boost ?? 0) - (a.it.boost ?? 0))
+            .sort((a, b) => b.s - a.s)
             .map(x => x.it);
     }
 
@@ -97,7 +107,7 @@ Item {
     function apps() { return appItems; }
     function windows() {
         return Niri.windowList.map(w => ({
-            key: "win:" + w.id, title: w.title || w.app_id, sub: w.app_id, kind: "Window",
+            key: "win:" + w.id, title: w.title || w.app_id, sub: w.app_id, kind: "Window", focused: w.is_focused,
             icon: Quickshell.iconPath(w.app_id, true) || Quickshell.iconPath((w.app_id ?? "").toLowerCase(), true),
             act: () => Niri.focusWindow(w.id)
         }));
@@ -148,6 +158,26 @@ Item {
         ].map(s => Object.assign(s, { kind: "System" }));
     }
 
+    // The main view: a few per category, under a small heading each
+    function grouped(q) {
+        const out = [];
+        const add = (label, items) => {
+            if (!items.length) return;
+            out.push({ header: label, key: "h:" + label });
+            items.forEach(i => out.push(i));
+        };
+        if (!q) {
+            add("Apps & tools", apps().slice(0, Tune.limitAppsTools));
+            add("Windows", windows().filter(w => !w.focused).slice(0, Tune.limitWindows));
+            add("Phone", phone().slice(0, Tune.limitPhone));
+        } else {
+            add("Apps & tools", ranked(apps().concat(tools(), system()), q).slice(0, Tune.limitAppsTools));
+            add("Windows", ranked(windows(), q).slice(0, Tune.limitWindows));
+            add("Phone", ranked(phone(), q).slice(0, Tune.limitPhone));
+        }
+        return out;
+    }
+
     readonly property string q: query.trim().toLowerCase()
     readonly property bool calcShown: Tools.calcAnswer !== "" && Tools.looksLikeCalc(query)
     readonly property var results: {
@@ -162,14 +192,25 @@ Item {
         else if (s === "clipboard") list = ranked(clipboard(), q);
         else if (s === "inbox") list = ranked(inbox(), q);
         else if (s === "system") list = ranked(system(), q);
-        else if (!q) list = apps().slice(0, 4).concat(windows().slice(0, 2), inbox().slice(0, 2));
-        else list = ranked(apps().concat(windows(), tools(), phone(), system()), q);
+        else list = grouped(q);
         return list.slice(0, 60);
     }
-    onResultsChanged: if (sel >= results.length) sel = Math.max(0, results.length - 1)
+
+    // Headings aren't selectable: ↑↓ skip them
+    function stepSel(dir) {
+        let i = sel + dir;
+        while (i >= 0 && i < results.length && results[i].header) i += dir;
+        if (i >= 0 && i < results.length) sel = i;
+    }
+    function fixSel() {
+        if (results[sel] && !results[sel].header) return;
+        sel = Math.max(0, results.findIndex(r => !r.header));
+    }
+    onResultsChanged: fixSel()
+    onSelChanged: if (results.findIndex(r => !r.header) === sel) list.positionViewAtBeginning()
 
     function run(item) {
-        if (!item) return;
+        if (!item || item.header) return;
         if (item.confirm && confirmKey !== item.key) { confirmKey = item.key; return; }
         item.act();
         if (!item.stay) Ui.close();
@@ -212,9 +253,9 @@ Item {
                     if (event.key === Qt.Key_Escape) {
                         if (root.showQr) root.showQr = false; else Ui.close();
                     } else if (event.key === Qt.Key_Down) {
-                        root.sel = Math.min(n - 1, root.sel + 1);
+                        root.stepSel(1);
                     } else if (event.key === Qt.Key_Up) {
-                        root.sel = Math.max(0, root.sel - 1);
+                        root.stepSel(-1);
                     } else if (event.key === Qt.Key_Tab) {
                         root.cycle(1);
                     } else if (event.key === Qt.Key_Backtab) {
@@ -342,14 +383,28 @@ Item {
                 id: row
                 required property var modelData
                 required property int index
-                readonly property bool on: index === root.sel
+                readonly property bool isHeader: !!modelData.header
+                readonly property bool on: !isHeader && index === root.sel
                 width: ListView.view.width
-                height: 46
+                height: isHeader ? 26 : 46
                 radius: 14
                 color: on ? Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.08) : "transparent"
 
+                Text {
+                    visible: row.isHeader
+                    x: 12
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 3
+                    text: row.isHeader ? row.modelData.header.toUpperCase() : ""
+                    font.family: Tune.uiFont
+                    font.pixelSize: 10
+                    font.weight: Font.Bold
+                    font.letterSpacing: 1.3
+                    color: Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.75)
+                }
                 Rectangle {
                     id: ic
+                    visible: !row.isHeader
                     x: 8
                     anchors.verticalCenter: parent.verticalCenter
                     width: 30; height: 30
@@ -357,36 +412,37 @@ Item {
                     color: row.modelData.icon ? "transparent" : Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.16)
                     Image {
                         anchors.fill: parent
-                        source: row.modelData.icon ?? ""
+                        source: row.isHeader ? "" : (row.modelData.icon ?? "")
                         sourceSize: Qt.size(60, 60)
                         asynchronous: true
-                        visible: !!row.modelData.icon
+                        visible: !row.isHeader && !!row.modelData.icon
                     }
                     Text {
                         anchors.centerIn: parent
-                        visible: !row.modelData.icon
-                        text: row.modelData.glyph ?? "circle"
+                        visible: !row.isHeader && !row.modelData.icon
+                        text: row.isHeader ? "" : (row.modelData.glyph ?? "circle")
                         font.family: Tune.iconFont
                         font.pixelSize: 18
                         color: Tune.sun
                     }
                 }
                 Column {
+                    visible: !row.isHeader
                     x: 50
                     width: parent.width - x - kind.width - 22
                     anchors.verticalCenter: parent.verticalCenter
                     Text {
                         width: parent.width
-                        text: root.confirmKey === row.modelData.key ? "Press Enter again to " + row.modelData.title.toLowerCase() : row.modelData.title
+                        text: row.isHeader ? "" : root.confirmKey === row.modelData.key ? "Press Enter again to " + row.modelData.title.toLowerCase() : row.modelData.title
                         font.family: Tune.uiFont
                         font.pixelSize: 14
                         font.weight: Font.DemiBold
-                        color: root.confirmKey === row.modelData.key ? Tune.ember : Tune.parch
+                        color: !row.isHeader && root.confirmKey === row.modelData.key ? Tune.ember : Tune.parch
                         elide: Text.ElideRight
                     }
                     Text {
                         width: parent.width
-                        text: row.modelData.sub ?? ""
+                        text: row.isHeader ? "" : (row.modelData.sub ?? "")
                         visible: text.length > 0
                         font.family: Tune.uiFont
                         font.pixelSize: 11
@@ -396,17 +452,18 @@ Item {
                 }
                 Text {
                     id: kind
+                    visible: !row.isHeader
                     anchors.right: parent.right
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    text: row.modelData.kind ?? ""
+                    text: row.isHeader ? "" : (row.modelData.kind ?? "")
                     font.family: Tune.uiFont
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                     color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.4)
                 }
-                HoverHandler { onHoveredChanged: if (hovered) root.sel = row.index }
-                TapHandler { onTapped: root.run(row.modelData) }
+                HoverHandler { enabled: !row.isHeader; onHoveredChanged: if (hovered) root.sel = row.index }
+                TapHandler { enabled: !row.isHeader; onTapped: root.run(row.modelData) }
             }
 
             Text {
