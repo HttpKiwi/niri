@@ -176,13 +176,11 @@ Item {
             opacity: root.face === "menu" ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: root.face === "menu" ? 300 : 100 } }
         }
-        Menu {
-            locked: "inbox"
+        Inbox {
             width: Tune.inboxWidth
             height: Tune.inboxHeight
             anchors.bottom: parent.bottom
             open: root.face === "inbox"
-            output: root.output
             visible: opacity > 0
             opacity: root.face === "inbox" ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: root.face === "inbox" ? 300 : 100 } }

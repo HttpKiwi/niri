@@ -15,9 +15,7 @@ Item {
 
     required property bool open
     required property string output
-    // a pebble of its own for one section (the inbox): no tabs, no other sections
-    property string locked: ""
-    readonly property string section: locked || section
+    readonly property string section: Ui.section
 
     readonly property var sections: [
         { id: "apps", label: "Apps" },
@@ -40,12 +38,10 @@ Item {
         if (!open) return;
         input.text = "";
         resetSel();
-        expanded = ({});
         confirmKey = "";
         showQr = false;
         if (section === "clipboard") Tools.loadClips();
         if (section === "phone" || section === "all") Tools.loadPhoneApps();
-        if (section === "inbox") Notifs.markRead();
         focusTimer.restart();
     }
     Timer { id: focusTimer; interval: 60; onTriggered: input.forceActiveFocus() }
@@ -59,12 +55,10 @@ Item {
         function onSectionChanged() {
             swap.restart();
             root.resetSel();
-            root.expanded = ({});
             root.confirmKey = "";
             if (section === "clipboard") Tools.loadClips();
             if (section === "phone") Tools.loadPhoneApps();
-            if (section === "inbox") Notifs.markRead();
-        }
+            }
     }
     Connections {
         target: Tools
@@ -153,34 +147,6 @@ Item {
             act: () => Tools.pasteClip(c.id)
         }));
     }
-    function inbox() {
-        return Store.history.map((h, i) => ({
-            key: "n:" + h.time + i, index: i, app: h.app || "Other", title: h.summary || h.app,
-            sub: (h.body ?? "").replace(/\s+/g, " "),
-            kind: Qt.formatTime(new Date(h.time), "HH:mm"), glyph: "notifications",
-            act: () => { const n = Notifs.live(h.id); if (n) Notifs.activate(n); }
-        }));
-    }
-    // Grouped by app (most recently active first); a few per app until expanded
-    property var expanded: ({})
-    function inboxGroups(q) {
-        const groups = new Map();
-        for (const it of ranked(inbox(), q)) {
-            if (!groups.has(it.app)) groups.set(it.app, []);
-            groups.get(it.app).push(it);
-        }
-        const out = [];
-        for (const [app, list] of groups) {
-            out.push({ header: app + " · " + list.length, key: "h:" + app });
-            const shown = expanded[app] || q ? list : list.slice(0, Tune.limitInboxGroup);
-            shown.forEach(i => out.push(i));
-            if (shown.length < list.length) out.push({
-                key: "more:" + app, title: "Show " + (list.length - shown.length) + " more", sub: "", kind: "", glyph: "expand_more", stay: true,
-                act: () => { const e = Object.assign({}, expanded); e[app] = true; expanded = e; }
-            });
-        }
-        return out;
-    }
     function system() {
         return [
             { key: "s:suspend", title: "Suspend", sub: "Sleep now", glyph: "bedtime", keys: "sleep", act: () => Quickshell.execDetached(["systemctl", "suspend"]) },
@@ -222,7 +188,6 @@ Item {
         else if (s === "tools") list = ranked(tools(), q);
         else if (s === "phone") list = ranked(phone(), q);
         else if (s === "clipboard") list = ranked(clipboard(), q);
-        else if (s === "inbox") list = inboxGroups(q);
         else if (s === "system") list = ranked(system(), q);
         else list = grouped(q);
         return list.slice(0, 60);
@@ -264,7 +229,7 @@ Item {
             width: parent.width
             spacing: 12
             Text {
-                text: root.locked === "inbox" ? "notifications" : "eco"
+                text: "eco"
                 font.family: Tune.iconFont
                 font.pixelSize: 26
                 color: Ambience.phase === "night" ? Tune.ember : Tune.sun
@@ -281,7 +246,7 @@ Item {
                 clip: true
                 onTextChanged: { root.query = text; root.resetSel(); root.confirmKey = ""; root.showQr = false; Tools.calc(text); }
                 Text {
-                    text: root.locked === "inbox" ? "Search what you missed" : "What do you need?"
+                    text: "What do you need?"
                     visible: !input.text
                     font: input.font
                     color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.3)
@@ -301,9 +266,6 @@ Item {
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.calcShown) { Tools.copy(Tools.calcAnswer.replace(/^.*= */, "")); Ui.close(); }
                         else root.run(root.results[root.sel]);
-                    } else if (event.key === Qt.Key_Delete && section === "inbox" && root.results[root.sel]?.index !== undefined) {
-                        const it = root.results[root.sel];
-                        if (event.modifiers & Qt.ControlModifier) Store.forgetApp(it.app); else Store.forget(it.index);
                     } else {
                         return;
                     }
@@ -315,9 +277,8 @@ Item {
         // sections: a highlight that slides between them; click the lit one to clear the filter
         Item {
             id: tabs
-            visible: root.locked === ""
             width: parent.width
-            height: root.locked ? 0 : 26
+            height: 26
             property real hx: 0
             property real hw: 0
             readonly property bool anyOn: section !== "all"
@@ -351,7 +312,7 @@ Item {
                         Text {
                             id: tabText
                             anchors.centerIn: parent
-                            text: tab.modelData.label + (tab.modelData.id === "inbox" && Notifs.unread ? " · " + Notifs.unread : "")
+                            text: tab.modelData.label
                             font.family: Tune.uiFont
                             font.pixelSize: 12
                             font.weight: Font.DemiBold
@@ -523,8 +484,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
-        text: section === "inbox" ? "↑↓ move · Enter open · Delete forgets · Ctrl+Delete clears the app · Esc close"
-            : "↑↓ move · Enter open · Tab filters · Esc close"
+        text: "↑↓ move · Enter open · Tab filters · Esc close"
         font.family: Tune.uiFont
         font.pixelSize: 11
         color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.4)

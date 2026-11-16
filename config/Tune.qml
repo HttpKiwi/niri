@@ -60,8 +60,8 @@ Singleton {
 
     // Menu (the island grown into a pebble)
     readonly property int menuWidth: 640
-    readonly property int inboxWidth: 520
-    readonly property int inboxHeight: 520
+    readonly property int inboxWidth: 460
+    readonly property int inboxHeight: 580
     readonly property int wallWidth: 760
     readonly property int wallHeight: 330
     readonly property int menuHeight: 480
