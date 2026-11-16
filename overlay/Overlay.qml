@@ -28,13 +28,14 @@ PanelWindow {
     exclusiveZone: Tune.stripWidth
     anchors { top: true; bottom: true; left: true }
     // widens while the island shows a face; input still only lands on what's drawn
-    implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : Tune.stripSpan
+    implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : status.hovered ? 240 : Tune.stripSpan
     WlrLayershell.keyboardFocus: menuOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     color: "transparent"
 
     mask: Region {
         item: root.menuOpen ? scrim : root.fullscreen ? null : lights
         Region { item: root.fullscreen && !root.menuOpen ? null : island }
+        Region { item: root.menuOpen || root.fullscreen ? null : status }
     }
 
     // life clock for floating and breathing; stops when nothing is shown
@@ -114,6 +115,15 @@ PanelWindow {
             // pinned to the strip: the overlay widens for faces and the menu
             width: Tune.stripSpan
             anchors.verticalCenter: parent.verticalCenter
+        }
+
+        StatusLights {
+            id: status
+            t: root.t
+            y: parent.height - Tune.seedMargin - Tune.seedSize - 8 - height
+            opacity: root.menuOpen || island.wide ? 0 : 1
+            visible: opacity > 0
+            Behavior on opacity { NumberAnimation { duration: 250 } }
         }
 
         Island {

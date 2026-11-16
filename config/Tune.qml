@@ -37,6 +37,12 @@ Singleton {
     readonly property int niriGap: 12
     readonly property int stripSpan: stripWidth + niriGap
 
+    // Status lights above the seed: volume, headset battery, resources
+    readonly property int statusSize: 14
+    readonly property int statusSpacing: 22
+    readonly property int statusPoll: 4000      // ms, cpu/ram
+    readonly property int batteryPoll: 60000
+
     // Island seed (bottom-left)
     readonly property int seedSize: 24
     readonly property int seedMargin: 8
