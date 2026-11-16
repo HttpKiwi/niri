@@ -16,11 +16,17 @@ Singleton {
     property string path: Tune.fallbackWallpaper
     property var files: []          // image paths in Tune.wallpapersDir, newest first
 
+    property string saved: path     // what's on disk; `path` may differ while previewing
+
     function set(p) {
-        if (!p || p === path) return;
+        if (!p) return;
+        saved = p;
         path = p;
         file.setText(JSON.stringify({ path: p }) + "\n");
     }
+    // try one on without saving; revert() puts the saved one back
+    function preview(p) { if (p) path = p; }
+    function revert() { path = saved; }
     function load() { if (!lister.running) lister.running = true; }
     Process {
         id: lister
@@ -37,7 +43,7 @@ Singleton {
         onLoaded: {
             try {
                 const p = JSON.parse(text()).path;
-                if (p) root.path = p;
+                if (p) { root.path = p; root.saved = p; }
             } catch (e) {
                 console.warn("Wallpaper: unreadable", Tune.currentWallpaperFile, e);
             }

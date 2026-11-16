@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import qs.config
 import qs.services
@@ -35,7 +36,7 @@ Item {
     property bool showQr: false
 
     onOpenChanged: {
-        if (!open) return;
+        if (!open) { previewTimer.stop(); Wallpaper.revert(); return; }
         input.text = "";
         resetSel();
         expanded = ({});
@@ -62,7 +63,7 @@ Item {
             root.confirmKey = "";
             if (Ui.section === "clipboard") Tools.loadClips();
             if (Ui.section === "phone") Tools.loadPhoneApps();
-            if (Ui.section === "wallpapers") Wallpaper.load();
+            if (Ui.section === "wallpapers") Wallpaper.load(); else Wallpaper.revert();
             if (Ui.section === "inbox") Notifs.markRead();
         }
     }
@@ -135,7 +136,7 @@ Item {
     function wallpapers() {
         return Wallpaper.files.map(f => {
             const name = f.replace(/^.*\//, "").replace(/\.[^.]*$/, "");
-            return { key: "w:" + f, title: name, sub: f === Wallpaper.path ? "Current" : "", kind: "Wallpaper", icon: "file://" + f,
+            return { key: "w:" + f, path: f, title: name, sub: f === Wallpaper.path ? "Current" : "", kind: "Wallpaper", icon: "file://" + f,
                      keys: "wallpaper background", act: () => Wallpaper.set(f) };
         });
     }
@@ -252,7 +253,8 @@ Item {
         else list.positionViewAtIndex(sel, ListView.Contain);
     }
     onResultsChanged: { fixSel(); Qt.callLater(reveal); }
-    onSelChanged: reveal()
+    onSelChanged: { reveal(); if (open && Ui.section === "wallpapers") previewTimer.restart(); }
+    Timer { id: previewTimer; interval: 280; onTriggered: Wallpaper.preview(root.results[root.sel]?.path) }
 
     function run(item) {
         if (!item || item.header) return;
@@ -297,9 +299,9 @@ Item {
                     const n = root.results.length;
                     if (event.key === Qt.Key_Escape) {
                         if (root.showQr) root.showQr = false; else Ui.close();
-                    } else if (event.key === Qt.Key_Down) {
+                    } else if (event.key === Qt.Key_Down || (event.key === Qt.Key_Right && Ui.section === "wallpapers")) {
                         root.stepSel(1);
-                    } else if (event.key === Qt.Key_Up) {
+                    } else if (event.key === Qt.Key_Up || (event.key === Qt.Key_Left && Ui.section === "wallpapers")) {
                         root.stepSel(-1);
                     } else if (event.key === Qt.Key_Tab) {
                         root.cycle(1);
@@ -414,7 +416,7 @@ Item {
 
         ListView {
             id: list
-            visible: !root.showQr
+            visible: !root.showQr && Ui.section !== "wallpapers"
             width: parent.width
             height: parent.height - y
             clip: true
@@ -526,11 +528,89 @@ Item {
         }
     }
 
+    // wallpapers: a filmstrip, the chosen one opens up; moving over one previews it live
+    ListView {
+        id: strip
+        visible: Ui.section === "wallpapers" && !root.showQr
+        anchors { left: parent.left; right: parent.right; leftMargin: 22; rightMargin: 22 }
+        y: 130
+        height: 250
+        orientation: ListView.Horizontal
+        spacing: 10
+        clip: true
+        model: Ui.section === "wallpapers" ? root.results : []
+        currentIndex: root.sel
+        highlightMoveDuration: 220
+        highlightRangeMode: ListView.ApplyRange
+        preferredHighlightBegin: 40
+        preferredHighlightEnd: width - 260
+        boundsBehavior: Flickable.StopAtBounds
+
+        delegate: Item {
+            id: card
+            required property var modelData
+            required property int index
+            readonly property bool on: index === root.sel
+            width: on ? 270 : 120
+            height: strip.height
+            Behavior on width { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+
+            Image {
+                id: img
+                anchors.fill: frame
+                source: card.modelData.icon ?? ""
+                sourceSize: Qt.size(540, 500)
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                visible: false
+            }
+            Rectangle { id: msk; anchors.fill: frame; radius: 22; layer.enabled: true; visible: false }
+            Rectangle {
+                id: frame
+                anchors { fill: parent; topMargin: card.on ? 0 : 24; bottomMargin: card.on ? 0 : 24 }
+                radius: 22
+                color: Qt.rgba(0.07, 0.1, 0.09, 0.8)
+                Behavior on anchors.topMargin { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                Behavior on anchors.bottomMargin { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+            }
+            MultiEffect {
+                anchors.fill: frame
+                source: img
+                maskEnabled: true
+                maskSource: msk
+                opacity: card.on ? 1 : 0.7
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+            Rectangle {
+                anchors.fill: frame
+                radius: 22
+                color: "transparent"
+                border.width: card.on ? 2 : 0
+                border.color: Tune.sun
+            }
+            Text {
+                visible: card.on
+                anchors { left: frame.left; right: frame.right; bottom: frame.bottom; margins: 14 }
+                text: card.modelData.title + (card.modelData.sub ? "  ·  " + card.modelData.sub : "")
+                font.family: Tune.uiFont
+                font.pixelSize: 12
+                font.weight: Font.DemiBold
+                color: Tune.parch
+                elide: Text.ElideRight
+                style: Text.Outline
+                styleColor: Qt.rgba(0, 0, 0, 0.6)
+            }
+            HoverHandler { onHoveredChanged: if (hovered) root.sel = card.index }
+            TapHandler { onTapped: root.run(card.modelData) }
+        }
+    }
+
     Text {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forgets · Ctrl+Delete clears the app · Esc close"
+            : Ui.section === "wallpapers" ? "←→ browse · Enter keep · Esc put it back"
             : "↑↓ move · Enter open · Tab filters · Esc close"
         font.family: Tune.uiFont
         font.pixelSize: 11
