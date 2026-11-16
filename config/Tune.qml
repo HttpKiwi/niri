@@ -96,6 +96,9 @@ Singleton {
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
     readonly property int nightFps: 24        // while fireflies are out (they read choppy at 8)
 
+    // Eye comfort filter: warm amber veil
+    readonly property color eyeTint: Qt.rgba(1.0, 0.55, 0.18, 0.13)
+
     // Screen frame: rounded black corners
     readonly property int frameRadius: 16
 

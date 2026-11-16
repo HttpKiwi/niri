@@ -11,7 +11,9 @@ import qs.config
 Singleton {
     id: root
 
-    property string forcedPhase: ""
+    // "" follows the sun; the choice is remembered (Store.prefs.phase)
+    readonly property string forcedPhase: Store.prefs.phase ?? ""
+    function setPhase(p) { Store.setPref("phase", p === "auto" ? "" : p); }
     property string forcedWeather: ""
 
     readonly property date now: clock.date

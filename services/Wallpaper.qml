@@ -22,11 +22,19 @@ Singleton {
     property color tintTop: Qt.rgba(0.165, 0.227, 0.2, 0.94)
     property color tintBottom: Qt.rgba(0.094, 0.141, 0.122, 0.96)
 
+    // dark | light: what matugen themes the other apps with (Grove itself stays dark)
+    readonly property string mode: Store.prefs.mode ?? "dark"
+    function setMode(m) {
+        Store.setPref("mode", m);
+        Quickshell.execDetached(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", m === "light" ? "prefer-light" : "prefer-dark"]);
+        _theme(saved);
+    }
+
     property string _queued: ""
     function _theme(p) { _queued = p; if (!matugen.running) _runQueued(); }
     function _runQueued() {
         if (!_queued) return;
-        matugen.command = [Tune.matugenScript, _queued, "--scheme-type", "scheme-tonal-spot", "--mode", "dark", "--contrast", "0"];
+        matugen.command = [Tune.matugenScript, _queued, "--scheme-type", "scheme-tonal-spot", "--mode", root.mode, "--contrast", "0"];
         _queued = "";
         matugen.running = true;
     }
@@ -41,7 +49,8 @@ Singleton {
         onLoaded: {
             try {
                 const c = JSON.parse(text());
-                if (c.surface_container_high && c.surface_container) {
+                // the pebble keeps to dark surfaces: its text is light
+                if (root.mode === "dark" && c.surface_container_high && c.surface_container) {
                     const a = Qt.color(c.surface_container_high), b = Qt.color(c.surface_container);
                     root.tintTop = Qt.rgba(a.r, a.g, a.b, 0.94);
                     root.tintBottom = Qt.rgba(b.r, b.g, b.b, 0.96);

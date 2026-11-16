@@ -15,6 +15,7 @@ Singleton {
 
     property var usage: ({})      // desktop entry id -> launches
     property var history: []      // newest first: { id, app, summary, body, time }
+    property var prefs: ({})      // mode: dark|light, eye: bool, phase: ''|day|golden|night
     property bool loaded: false
 
     function bump(appId) {
@@ -33,6 +34,12 @@ Singleton {
         save();
     }
     function forgetApp(app) { history = history.filter(h => h.app !== app); save(); }
+    function setPref(key, value) {
+        const p = Object.assign({}, prefs);
+        p[key] = value;
+        prefs = p;
+        save();
+    }
     function forgetAll() { history = []; save(); }
 
     function save() {
@@ -42,7 +49,7 @@ Singleton {
     Timer {
         id: saveTimer
         interval: 400
-        onTriggered: file.setText(JSON.stringify({ usage: root.usage, history: root.history }))
+        onTriggered: file.setText(JSON.stringify({ usage: root.usage, history: root.history, prefs: root.prefs }))
     }
 
     FileView {
@@ -56,6 +63,7 @@ Singleton {
                 const d = JSON.parse(text());
                 root.usage = d.usage ?? {};
                 root.history = d.history ?? [];
+                root.prefs = d.prefs ?? {};
             } catch (e) {
                 console.warn("Store: unreadable state, starting fresh", e);
             }

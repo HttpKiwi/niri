@@ -38,6 +38,14 @@ ShellRoot {
         }
     }
 
+    Variants {
+        model: Quickshell.screens
+        Warmth {
+            required property var modelData
+            screen: modelData
+        }
+    }
+
     IpcHandler {
         target: "grove"
 
@@ -109,7 +117,7 @@ ShellRoot {
         target: "ambience"
 
         // day | golden | night | auto
-        function setPhase(phase: string): void { Ambience.forcedPhase = phase === "auto" ? "" : phase; }
+        function setPhase(phase: string): void { Ambience.setPhase(phase); }
         // clear | rain | auto
         function setWeather(weather: string): void { Ambience.forcedWeather = weather === "auto" ? "" : weather; }
         function get(): string { return Ambience.phase + " " + Ambience.weather + " sun " + Ambience.sun.rise.toFixed(2) + "-" + Ambience.sun.set.toFixed(2); }
