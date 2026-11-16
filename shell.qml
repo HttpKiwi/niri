@@ -78,10 +78,24 @@ ShellRoot {
     IpcHandler {
         target: "menu"
 
-        // all | apps | windows | tools | phone | clipboard | inbox | system
+        // all | apps | windows | tools | phone | clipboard | wallpapers | inbox | system
         function open(section: string): void { Ui.open(Niri.focusedOutput, section); }
         function toggle(section: string): void { Ui.toggle(Niri.focusedOutput, section); }
         function close(): void { Ui.close(); }
+    }
+
+    IpcHandler {
+        target: "wallpaper"
+
+        function set(path: string): void { Wallpaper.set(path); }
+        function get(): string { return Wallpaper.path; }
+    }
+
+    // v1's name for the picker
+    IpcHandler {
+        target: "wallpaperSelector"
+
+        function toggleSelector(): void { Ui.toggle(Niri.focusedOutput, "wallpapers"); }
     }
 
     IpcHandler {

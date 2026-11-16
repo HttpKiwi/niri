@@ -20,6 +20,7 @@ Item {
         { id: "apps", label: "Apps" },
         { id: "windows", label: "Windows" }, { id: "tools", label: "Tools" },
         { id: "phone", label: "Phone" }, { id: "clipboard", label: "Clipboard" },
+        { id: "wallpapers", label: "Wallpapers" },
         { id: "inbox", label: "Inbox" }, { id: "system", label: "System" }
     ]
     // Tab walks the sections and back to "all" (no tab lit): sections are filters on a search of everything
@@ -42,6 +43,7 @@ Item {
         showQr = false;
         if (Ui.section === "clipboard") Tools.loadClips();
         if (Ui.section === "phone" || Ui.section === "all") Tools.loadPhoneApps();
+        if (Ui.section === "wallpapers") Wallpaper.load();
         if (Ui.section === "inbox") Notifs.markRead();
         focusTimer.restart();
     }
@@ -60,6 +62,7 @@ Item {
             root.confirmKey = "";
             if (Ui.section === "clipboard") Tools.loadClips();
             if (Ui.section === "phone") Tools.loadPhoneApps();
+            if (Ui.section === "wallpapers") Wallpaper.load();
             if (Ui.section === "inbox") Notifs.markRead();
         }
     }
@@ -125,8 +128,16 @@ Item {
             { key: "t:qrmake", title: "Clipboard as QR", sub: "Big enough for the phone camera", kind: "Tool", glyph: "qr_code_2", keys: "qr make clipboard", stay: true, act: () => Tools.qrFromClipboard() },
             { key: "t:color", title: "Pick a colour", sub: "Copies the hex value", kind: "Tool", glyph: "colorize", keys: "color colour picker hex", act: () => Tools.pickColor() },
             { key: "t:rec", title: Recorder.recording ? "Stop recording" : "Record the screen", sub: Recorder.recording ? Recorder.elapsedText : "Super+Shift+R · on the Intel iGPU", kind: "Tool", glyph: Recorder.recording ? "stop_circle" : "screen_record", keys: "record video capture", act: () => Recorder.toggle(Niri.focusedOutput) },
+            { key: "t:wall", title: "Wallpapers", sub: "Pick a background", kind: "Tool", glyph: "wallpaper", keys: "wallpaper background change", stay: true, act: () => { Ui.section = "wallpapers"; } },
             { key: "t:recr", title: "Record a region", sub: "Drag to choose", kind: "Tool", glyph: "crop", keys: "record region video", act: () => Recorder.startRegion() }
         ];
+    }
+    function wallpapers() {
+        return Wallpaper.files.map(f => {
+            const name = f.replace(/^.*\//, "").replace(/\.[^.]*$/, "");
+            return { key: "w:" + f, title: name, sub: f === Wallpaper.path ? "Current" : "", kind: "Wallpaper", icon: "file://" + f,
+                     keys: "wallpaper background", act: () => Wallpaper.set(f) };
+        });
     }
     function phone() {
         const tasks = [
@@ -217,6 +228,7 @@ Item {
         else if (s === "tools") list = ranked(tools(), q);
         else if (s === "phone") list = ranked(phone(), q);
         else if (s === "clipboard") list = ranked(clipboard(), q);
+        else if (s === "wallpapers") list = ranked(wallpapers(), q);
         else if (s === "inbox") list = inboxGroups(q);
         else if (s === "system") list = ranked(system(), q);
         else list = grouped(q);
@@ -505,6 +517,7 @@ Item {
                 visible: list.count === 0 && !root.calcShown
                 text: Ui.section === "inbox" ? "Nothing new. The forest is quiet."
                     : Ui.section === "clipboard" ? "The clipboard history is empty."
+                    : Ui.section === "wallpapers" ? "No images in the wallpapers folder."
                     : "Nothing grew here. Try some maths, or another section."
                 font.family: Tune.uiFont
                 font.pixelSize: 13
