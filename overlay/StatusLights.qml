@@ -30,12 +30,13 @@ Item {
     height: entries.length * Tune.statusSpacing
 
     Repeater {
-        model: root.entries
+        model: root.entries.length
 
         Item {
             id: light
-            required property var modelData
             required property int index
+            // by index, so delegates (and their hover state) survive value updates
+            readonly property var modelData: root.entries[index] ?? ({})
             readonly property color tint: Qt.rgba(1 - 0.08 * modelData.alarm, 0.98 - 0.62 * modelData.alarm,
                                                   0.9 - 0.62 * modelData.alarm, 1)
             width: root.width
@@ -65,7 +66,7 @@ Item {
             // scroll the volume light to change the volume
             WheelHandler {
                 enabled: light.modelData.volume === true
-                onWheel: event => event.angleDelta.y > 0 ? Audio.raiseVolume() : Audio.lowerVolume()
+                onWheel: event =>  event.angleDelta.y > 0 ? Audio.raiseVolume() : Audio.lowerVolume()
             }
 
             // the number, beside the light
