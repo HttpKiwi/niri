@@ -24,7 +24,8 @@ PanelWindow {
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: Tune.stripWidth
     anchors { top: true; bottom: true; left: true }
-    implicitWidth: Tune.stripWidth
+    // widens while the island shows a face; input still only lands on what's drawn
+    implicitWidth: island.wide ? Tune.islandMaxWidth : Tune.stripWidth
     color: "transparent"
 
     mask: Region {
@@ -58,7 +59,10 @@ PanelWindow {
         Island {
             id: island
             t: root.t
-            x: (Tune.stripWidth - width) / 2
+            focusedScreen: Niri.focusedOutput === root.output
+            moteTarget: Qt.point(lights.x + lights.nextMote.x - x, lights.y + lights.nextMote.y - y)
+            // anchored at the seed's left edge; faces grow to the right
+            x: (Tune.stripWidth - Tune.seedSize) / 2
             y: parent.height - height - Tune.seedMargin
         }
     }

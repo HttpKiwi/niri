@@ -82,6 +82,7 @@ Only one shell can own the notification server and the session lock, so they swa
 | Grove phase 0 | 244–258 MB | ~155 MB | 30 |
 | Grove phase 1 (shader backdrop, life at 12 fps) | 316 MB (300 with life frozen) | 217 MB | 32 |
 | Grove phase 2 (+ overlay strip, lights, seed; life at 8 fps) | ~340 MB | — | 40 |
+| Grove phase 3 (+ notification server, Pipewire, island faces) | 354 MB | — | 41 |
 | v1 (fresh, for reference) | 375–470 MB | — | 51–52 |
 
 The first textured draw costs ~50 MB once per process regardless of image size
@@ -106,7 +107,10 @@ both windows per screen, < 1 % idle CPU, flat over a day.**
    input mask limited to the lights and the island. Check: clicks pass through everywhere else.
    Niri service reads `$NIRI_SOCKET` directly (v1's `Niri 0.1` plugin lives in v1's folder).
    Pause the backdrop's life timer while a fullscreen window covers that screen.
-3. **Island faces** — volume (Pipewire), recording (Recorder), message (grove becomes the
+3. **Island faces** ✓ — 0.8 % CPU, 354 MB. The overlay widens to 460 px only while a face shows.
+   niri volume keys now call `bin/grove ipc audio …` (works on v1 or v2). Notification history
+   is in memory only; persistence comes with the menu in phase 4.
+   Original scope: volume (Pipewire), recording (Recorder), message (grove becomes the
    notification daemon), mote drop into the lights, a queue so faces never overlap.
 4. **Menu** — island → pebble morph, blur via `BackgroundEffect.blurRegion` only while open
    (niri layer-rule for the `grove` namespace), keyboard grammar (type, ↑↓, Enter, Esc).

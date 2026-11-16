@@ -34,6 +34,35 @@ ShellRoot {
         function reload(): void { Quickshell.reload(true); }
     }
 
+    // Same targets and functions as v1, so `grove ipc` keybinds work on either shell
+    IpcHandler {
+        target: "audio"
+
+        function raiseVolume(): void { Audio.raiseVolume(); }
+        function lowerVolume(): void { Audio.lowerVolume(); }
+        function toggleMute(): void { Audio.toggleMute(); }
+        function toggleMicMute(): void { Audio.toggleMicMute(); }
+    }
+
+    IpcHandler {
+        target: "screenrecord"
+
+        function toggle(): void { Recorder.toggle(Niri.focusedOutput); }
+        function start(): void { Recorder.startScreen(Niri.focusedOutput); }
+        function startRegion(): void { Recorder.startRegion(); }
+        function stop(): void { Recorder.stop(); }
+        // showcase | clip
+        function setQuality(q: string): void { if (Recorder.presets[q] && !Recorder.recording) Recorder.quality = q; }
+        function isRecording(): bool { return Recorder.recording; }
+    }
+
+    IpcHandler {
+        target: "notifications"
+
+        function markRead(): void { Notifs.markRead(); }
+        function unread(): int { return Notifs.unread; }
+    }
+
     IpcHandler {
         target: "ambience"
 

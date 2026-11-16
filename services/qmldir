@@ -2,3 +2,6 @@ module qs.services
 singleton Wallpaper 1.0 Wallpaper.qml
 singleton Ambience 1.0 Ambience.qml
 singleton Niri 1.0 Niri.qml
+singleton Audio 1.0 Audio.qml
+singleton Recorder 1.0 Recorder.qml
+singleton Notifs 1.0 Notifs.qml

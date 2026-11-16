@@ -14,6 +14,7 @@ Singleton {
     property var workspaces: []   // sorted by output, then idx
     property var windows: ({})    // id -> window
     property bool overview: false
+    readonly property string focusedOutput: workspaces.find(w => w.is_focused)?.output ?? ""
 
     // Workspaces worth a light on `output`: anything with windows, plus the active one
     function workspacesOn(output) {

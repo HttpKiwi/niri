@@ -14,8 +14,10 @@ Singleton {
     readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
     readonly property string fallbackWallpaper: wallpapersDir + "/wallhaven-exjy6w_1920x1080.png"
 
-    // Type (Fraunces is the design face; Noto Serif until it's installed)
+    // Type (Fraunces / Nunito are the design faces; Noto until they're installed)
     readonly property string displayFont: "Noto Serif"
+    readonly property string uiFont: "Noto Sans"
+    readonly property string iconFont: "Material Symbols Rounded"
 
     // Palette (sampled from the forest mockup; matugen takes over later)
     readonly property color sun: "#c9dc7c"      // lime of a sunlit clearing
@@ -35,6 +37,19 @@ Singleton {
     // Island seed (bottom-left)
     readonly property int seedSize: 28
     readonly property int seedMargin: 8
+
+    // Island faces (grow right from the seed)
+    readonly property int pillHeight: 36
+    readonly property int islandMaxWidth: 460   // overlay widens to this while a face shows
+    readonly property int volumeHold: 1800      // ms
+    readonly property int messageHold: 4200
+    readonly property int urgentHold: 9000
+    readonly property int maxMotes: 5
+
+    // Recording: capture with wf-recorder, encode on the Intel iGPU, never the RX 580 (VCE hangs it)
+    readonly property string encodeDevice: "/dev/dri/by-path/pci-0000:00:02.0-render"
+    readonly property string recordingsDir: home + "/Videos/Recordings"
+    readonly property int recordFps: 60
 
     // Motion
     readonly property int fadeSlow: 700

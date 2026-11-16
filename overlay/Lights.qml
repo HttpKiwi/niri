@@ -16,7 +16,13 @@ Item {
     readonly property var model: Niri.workspacesOn(output)
     readonly property bool night: Ambience.phase === "night"
 
-    height: Math.max(1, model.length) * Tune.lightSpacing + Tune.lightActive
+    // unread notifications: small amber motes under the lights (landed ones only)
+    readonly property int motes: Math.max(0, Math.min(Tune.maxMotes, Notifs.unread - Notifs.inFlight))
+    readonly property real motesTop: Math.max(1, model.length) * Tune.lightSpacing + Tune.lightActive / 2
+    // where the next mote lands (centre), for the island's flyer
+    readonly property point nextMote: Qt.point(width / 2, motesTop + Math.min(motes, Tune.maxMotes - 1) * 16 + 8)
+
+    height: motesTop + Tune.maxMotes * 16 + 8
 
     // a loose column: each light sits a little off the line
     readonly property var offsets: [1, -2, 3, -1, 2, -3, 1]
@@ -56,6 +62,20 @@ Item {
 
             HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }
             TapHandler { onTapped: Niri.focusWorkspace(light.modelData.id) }
+        }
+    }
+
+    Repeater {
+        model: root.motes
+        Glow {
+            required property int index
+            width: 13; height: 13
+            x: (root.width - width) / 2 + Math.sin(root.t * 0.6 + index * 2.1) * 2
+            y: root.motesTop + index * 16 + Math.cos(root.t * 0.5 + index) * 2
+            opacity: 0.75 + 0.25 * Math.sin(root.t * 1.3 + index * 1.7)
+            core: "#fff1c4"
+            halo: Tune.ember
+            coreSize: 0.18
         }
     }
 }
