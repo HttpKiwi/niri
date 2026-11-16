@@ -36,7 +36,7 @@ Item {
     onOpenChanged: {
         if (!open) return;
         input.text = "";
-        sel = 0;
+        resetSel();
         confirmKey = "";
         showQr = false;
         if (Ui.section === "clipboard") Tools.loadClips();
@@ -54,7 +54,7 @@ Item {
         target: Ui
         function onSectionChanged() {
             swap.restart();
-            root.sel = 0;
+            root.resetSel();
             root.confirmKey = "";
             if (Ui.section === "clipboard") Tools.loadClips();
             if (Ui.section === "phone") Tools.loadPhoneApps();
@@ -83,15 +83,18 @@ Item {
     }
     function ranked(items, q) {
         if (!q) return items;
-        return items.map(it => {
+        return items.map((it, i) => {
+            const ids = it.ids ?? [];
             const base = Math.max(
+                ids.some(x => x === q) ? 98 : 0,            // typed the command: "code", "zen"
+                ids.some(x => x.startsWith(q)) ? 75 : 0,
                 score(it.title, q),
                 score(it.keys ?? "", q) >= 70 ? 55 : 0,     // keywords / id: word starts only
                 score(it.sub, q) >= 70 ? 28 : 0);           // description: word starts only, weakly
-            return { it, s: base > 0 ? base + Math.min(it.boost ?? 0, 20) * 0.4 : 0 };
+            return { it, i, s: base > 0 ? base + Math.min(it.boost ?? 0, 20) * 0.4 : 0 };
         })
             .filter(x => x.s > 0)
-            .sort((a, b) => b.s - a.s)
+            .sort((a, b) => b.s - a.s || a.i - b.i)      // ties keep source order: apps before tools
             .map(x => x.it);
     }
 
@@ -101,6 +104,7 @@ Item {
     readonly property var appItems: DesktopEntries.applications.values.filter(e => !e.noDisplay).map(e => ({
             key: "app:" + e.id, title: e.name, sub: e.genericName || e.comment || "", kind: "App",
             icon: Quickshell.iconPath(e.icon, true), keys: (e.keywords ?? []).join(" ") + " " + e.id,
+            ids: [e.id.toLowerCase().replace(/\.desktop$/, ""), (e.command?.[0] ?? "").split("/").pop().toLowerCase()].filter(x => x),
             boost: Store.usage[e.id] ?? 0,
             act: () => { Store.bump(e.id); e.execute(); }
         })).sort((a, b) => b.boost - a.boost || a.title.localeCompare(b.title))
@@ -202,6 +206,7 @@ Item {
         while (i >= 0 && i < results.length && results[i].header) i += dir;
         if (i >= 0 && i < results.length) sel = i;
     }
+    function resetSel() { sel = 0; fixSel(); }
     function fixSel() {
         if (results[sel] && !results[sel].header) return;
         sel = Math.max(0, results.findIndex(r => !r.header));
@@ -241,7 +246,7 @@ Item {
                 color: Tune.parch
                 selectionColor: Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.35)
                 clip: true
-                onTextChanged: { root.query = text; root.sel = 0; root.confirmKey = ""; root.showQr = false; Tools.calc(text); }
+                onTextChanged: { root.query = text; root.resetSel(); root.confirmKey = ""; root.showQr = false; Tools.calc(text); }
                 Text {
                     text: "What do you need?"
                     visible: !input.text
