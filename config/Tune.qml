@@ -26,16 +26,16 @@ Singleton {
     readonly property color moss: "#1b2824"     // chrome surface
 
     // Workspace lights (left edge)
-    readonly property int lightSize: 20         // idle workspace
-    readonly property int lightActive: 40       // where you are
-    readonly property int lightSpacing: 40
-    readonly property real lightDrift: 3        // px of float
+    readonly property int lightSize: 16         // idle workspace
+    readonly property int lightActive: 26       // where you are
+    readonly property int lightSpacing: 34
+    readonly property real lightDrift: 1.5        // px of float
 
     // The left strip: reserved (windows never go under it) and the overlay's width at rest
-    readonly property int stripWidth: 44
+    readonly property int stripWidth: 30
 
     // Island seed (bottom-left)
-    readonly property int seedSize: 28
+    readonly property int seedSize: 24
     readonly property int seedMargin: 8
 
     // Island faces (grow right from the seed)
@@ -69,7 +69,7 @@ Singleton {
     readonly property int recordFps: 60
 
     // Vignette over the wallpaper (helps the lights and island stand out)
-    readonly property real vignette: 10
+    readonly property real vignette: 1.0
     readonly property int vignetteLeftPx: 170
 
     // Motion

@@ -97,7 +97,7 @@ PanelWindow {
                     horizontalAlignment: Text.AlignHCenter
                     text: modelData
                     font.family: Tune.displayFont
-                    font.pixelSize: 19
+                    font.pixelSize: 16
                     font.weight: index === 0 ? Font.DemiBold : Font.Normal
                     color: Ambience.phase === "night" ? Tune.ember : Tune.parch
                     opacity: index === 0 ? 0.95 : 0.7

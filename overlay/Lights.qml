@@ -25,7 +25,7 @@ Item {
     height: motesTop + Tune.maxMotes * 16 + 8
 
     // a loose column: each light sits a little off the line
-    readonly property var offsets: [1, -2, 3, -1, 2, -3, 1]
+    readonly property var offsets: [0.5, -1, 1.5, -0.5, 1, -1.5, 0.5]
 
     // Count, not the array: delegates survive workspace updates, so size changes animate
     Repeater {
@@ -69,7 +69,7 @@ Item {
         model: root.motes
         Glow {
             required property int index
-            width: 13; height: 13
+            width: 11; height: 11
             x: (root.width - width) / 2 + Math.sin(root.t * 0.6 + index * 2.1) * 2
             y: root.motesTop + index * 16 + Math.cos(root.t * 0.5 + index) * 2
             opacity: 0.75 + 0.25 * Math.sin(root.t * 1.3 + index * 1.7)
