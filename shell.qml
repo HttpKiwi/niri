@@ -30,6 +30,14 @@ ShellRoot {
         }
     }
 
+    Variants {
+        model: Quickshell.screens
+        Frame {
+            required property var modelData
+            screen: modelData
+        }
+    }
+
     IpcHandler {
         target: "grove"
 

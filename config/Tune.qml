@@ -81,6 +81,13 @@ Singleton {
     readonly property int gradeFade: 2500     // time-of-day transitions
     readonly property int busyFps: 30         // while the island is out of its seed
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
+    readonly property int nightFps: 24        // while fireflies are out (they read choppy at 8)
+
+    // Screen frame: black rim whose edge drifts, never smaller than ~2px
+    readonly property int frameRadius: 16
+    readonly property real frameInset: 1.2
+    readonly property real frameAmp: 1.6
+    readonly property int frameFps: 12
 
     // Where the sun is (Bogotá; the system timezone is America/Bogota). Phases follow it.
     readonly property real latitude: 4.71
