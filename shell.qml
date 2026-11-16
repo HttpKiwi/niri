@@ -13,6 +13,9 @@ import qs.services
  * from phase 2, Overlay (lights, island, menu). See PLAN.md.
  */
 ShellRoot {
+    // singletons that only act in the background are created here
+    Component.onCompleted: Eye.toString()
+
     Lock { id: lock }
 
     Variants {
@@ -33,14 +36,6 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
         Frame {
-            required property var modelData
-            screen: modelData
-        }
-    }
-
-    Variants {
-        model: Quickshell.screens
-        Warmth {
             required property var modelData
             screen: modelData
         }
