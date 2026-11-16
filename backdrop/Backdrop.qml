@@ -129,6 +129,18 @@ PanelWindow {
         sourceItem: clockItem
         hideSource: true
         visible: false
+        // re-render only when the minute changes, not on every life tick
+        live: false
+    }
+    Connections {
+        target: Ambience
+        function onNowChanged() { clockTexSrc.scheduleUpdate(); }
+    }
+    // first paint, and whenever the clock's size changes (screen, font)
+    Connections {
+        target: clockItem
+        function onWidthChanged() { clockTexSrc.scheduleUpdate(); }
+        function onHeightChanged() { clockTexSrc.scheduleUpdate(); }
     }
 
     // ---- life clock: only ticks while something on screen moves ----
@@ -137,7 +149,8 @@ PanelWindow {
     Timer {
         interval: Math.round(1000 / Tune.lifeFps)
         repeat: true
-        running: root.alive && root.visible
+        // windows cover the scene: keep the still grade, stop the life
+        running: root.alive && root.visible && !Niri.backdropHiddenOn(root.screen?.name ?? "")
         onTriggered: world.t = (Date.now() - root.startMs) / 1000
     }
 

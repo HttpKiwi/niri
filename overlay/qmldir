@@ -1,0 +1,5 @@
+module qs.overlay
+Overlay 1.0 Overlay.qml
+Lights 1.0 Lights.qml
+Island 1.0 Island.qml
+Glow 1.0 Glow.qml

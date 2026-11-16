@@ -1,3 +1,4 @@
 module qs.services
 singleton Wallpaper 1.0 Wallpaper.qml
 singleton Ambience 1.0 Ambience.qml
+singleton Niri 1.0 Niri.qml

@@ -81,6 +81,7 @@ Only one shell can own the notification server and the session lock, so they swa
 | + one wallpaper image per screen | 224–253 MB | 121–149 MB | 29 |
 | Grove phase 0 | 244–258 MB | ~155 MB | 30 |
 | Grove phase 1 (shader backdrop, life at 12 fps) | 316 MB (300 with life frozen) | 217 MB | 32 |
+| Grove phase 2 (+ overlay strip, lights, seed; life at 8 fps) | ~340 MB | — | 40 |
 | v1 (fresh, for reference) | 375–470 MB | — | 51–52 |
 
 The first textured draw costs ~50 MB once per process regardless of image size
@@ -96,7 +97,12 @@ both windows per screen, < 1 % idle CPU, flat over a day.**
 1. **Backdrop** ✓ — crossfading wallpaper, blended world clock, day / golden / night grade,
    light shafts, procedural pollen / fireflies / rain, all one shader pass (`shaders/world.frag`)
    ticking at `Tune.lifeFps` = 12. Measured 0.9 % CPU, 316 MB. Fullscreen pause → phase 2.
-2. **Overlay skeleton** — Lights from the Niri workspace stream, unread motes, island seed,
+2. **Overlay skeleton** ✓ — 0.6 % CPU with windows open. Lessons: a full-screen transparent
+   overlay repainting at 12 fps cost ~4 % (every tick repaints the whole buffer), so at rest the
+   overlay is a 112 px strip; backdrop life pauses while the active workspace has windows
+   (niri also throttles hidden surfaces, which made phase 1's 0.9 % look better than it was);
+   the clock texture re-renders once a minute (`live: false`). Unread motes move to phase 3.
+   Original scope: Lights from the Niri workspace stream, unread motes, island seed,
    input mask limited to the lights and the island. Check: clicks pass through everywhere else.
    Niri service reads `$NIRI_SOCKET` directly (v1's `Niri 0.1` plugin lives in v1's folder).
    Pause the backdrop's life timer while a fullscreen window covers that screen.

@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.backdrop
+import qs.overlay
 import qs.services
 
 /**
@@ -14,6 +15,13 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
         Backdrop {
+            required property var modelData
+            screen: modelData
+        }
+    }
+    Variants {
+        model: Quickshell.screens
+        Overlay {
             required property var modelData
             screen: modelData
         }

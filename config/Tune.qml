@@ -17,10 +17,29 @@ Singleton {
     // Type (Fraunces is the design face; Noto Serif until it's installed)
     readonly property string displayFont: "Noto Serif"
 
+    // Palette (sampled from the forest mockup; matugen takes over later)
+    readonly property color sun: "#c9dc7c"      // lime of a sunlit clearing
+    readonly property color ember: "#f0c36a"    // fireflies, night accent
+    readonly property color parch: "#ece6d3"    // warm light text
+    readonly property color moss: "#1b2824"     // chrome surface
+
+    // Workspace lights (left edge)
+    readonly property int lightSize: 34         // idle workspace
+    readonly property int lightActive: 70       // where you are
+    readonly property int lightSpacing: 58
+    readonly property real lightDrift: 7        // px of float
+
+    readonly property int overlayRestWidth: 112  // lights + seed; the overlay window's width at rest
+
+    // Island seed (bottom-left)
+    readonly property int seedSize: 44
+    readonly property int seedMargin: 26
+
     // Motion
     readonly property int fadeSlow: 700
+    readonly property int settle: 650           // springy size/position changes
     readonly property int gradeFade: 2500     // time-of-day transitions
-    readonly property int lifeFps: 12         // shafts, pollen, fireflies, rain
+    readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
 
     // Time of day until phase 6 computes sunrise/sunset (Colombia: ~6:00 / ~18:00 all year)
     readonly property real goldenFrom: 16.75  // hours
