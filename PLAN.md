@@ -67,6 +67,8 @@ Only one shell can own the notification server and the session lock, so they swa
 
 - `bin/grove on` — `qs kill` v1, start v2 with `qs -p ~/Projects/grove/shell.qml` (same env as niri's spawn line).
 - `bin/grove off` — kill v2, start v1 again.
+- niri needs `place-within-backdrop` for namespace `grove:backdrop` (in v1's `config.kdl`),
+  or the wallpaper slides with workspaces and the overview has no backdrop.
 - niri binds stay pointed at a `grove ipc …` wrapper that forwards to whichever shell runs,
   so keybinds survive the swap.
 
