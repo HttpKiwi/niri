@@ -17,11 +17,11 @@ Item {
     // 0 = calm .. 1 = alarm
     function alarm(v) { return Math.max(0, Math.min(1, (v - 0.5) / 0.4)); }
     readonly property var entries: {
-        const out = [{ alarm: Audio.muted ? 0 : alarm(Audio.volume), dim: Audio.muted,
+        const out = [{ volume: true, alarm: 0, level: Audio.muted ? 0.12 : 0.25 + 0.75 * Math.min(1, Audio.volume),
                        text: Audio.muted ? "Volume muted" : "Volume " + Math.round(Audio.volume * 100) + "%" }];
         if (Status.battery >= 0)
-            out.push({ alarm: alarm(1 - Status.battery / 100), dim: false, text: "Headset " + Status.battery + "%" });
-        out.push({ alarm: alarm(Math.max(Status.cpu, Status.ram)), dim: false,
+            out.push({ alarm: alarm(1 - Status.battery / 100), level: 0.9, text: "Headset " + Status.battery + "%" });
+        out.push({ alarm: alarm(Math.max(Status.cpu, Status.ram)), level: 0.9,
                    text: "CPU " + Math.round(Status.cpu * 100) + "% · RAM " + Math.round(Status.ram * 100) + "%" });
         return out;
     }
@@ -48,7 +48,8 @@ Item {
                 y: (light.height - height) / 2 + Math.cos(root.t * 0.4 + light.index) * 0.8
                 scale: hover.hovered ? 1.25 : 1
                 Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                opacity: light.modelData.dim ? 0.3 : 0.9
+                opacity: light.modelData.level
+                Behavior on opacity { NumberAnimation { duration: 200 } }
                 core: light.tint
                 halo: light.tint
                 coreSize: 0.2
@@ -59,6 +60,12 @@ Item {
                     if (hovered) root.hoverIndex = light.index;
                     else if (root.hoverIndex === light.index) root.hoverIndex = -1;
                 }
+            }
+
+            // scroll the volume light to change the volume
+            WheelHandler {
+                enabled: light.modelData.volume === true
+                onWheel: event => event.angleDelta.y > 0 ? Audio.raiseVolume() : Audio.lowerVolume()
             }
 
             // the number, beside the light

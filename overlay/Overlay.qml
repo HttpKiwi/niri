@@ -121,7 +121,7 @@ PanelWindow {
             id: status
             t: root.t
             y: parent.height - Tune.seedMargin - Tune.seedSize - 8 - height
-            opacity: root.menuOpen || island.wide ? 0 : 1
+            opacity: root.menuOpen ? 0 : 1
             visible: opacity > 0
             Behavior on opacity { NumberAnimation { duration: 250 } }
         }
