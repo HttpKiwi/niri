@@ -32,7 +32,7 @@ v1 stays untouched in `~/Projects/niri/.config/quickshell` (stowed to `~/.config
 | C++ blob plugin | Out-of-tree build, RPATH, Qt-version rebuilds | No plugins. Organic shapes from one `pebble.frag` ShaderEffect (SDF + grain) |
 | Wallpaper scaling | Qt ignores `sourceSize` with a clip rect; portrait walls had gaps | `sourceSize` + `PreserveAspectCrop`, never both clip and size. ffprobe decides still vs video |
 | Reload gotchas | qs watches inodes; `sed -i`/`git checkout` broke the watch | Dev runs with `qs -p ~/Projects/grove/shell.qml`; `bin/grove reload` forces a reload |
-| Memory creep | 343 MB heap / 84 threads before fixes; v1 fresh 375–470 MB RSS, 51 threads | Budget: **< 300 MB RSS, < 1 % idle CPU** on a fresh start, no growth over a day; checked every phase |
+| Memory creep | 343 MB heap / 84 threads before fixes; v1 fresh 375–470 MB RSS, 51 threads | Budget: **< 375 MB RSS (v1's best fresh), < 1 % idle CPU**, no growth over a day; checked every phase |
 
 Keep from v1 as-is: `mesa_glthread=false` in the spawn env; the recording pipeline
 (wf-recorder → ffmpeg `h264_vaapi` on the **Intel iGPU only — never the RX 580's VCE**);
@@ -78,21 +78,26 @@ Only one shell can own the notification server and the session lock, so they swa
 | Two bare layer windows | 175 MB | 74 MB | 22 |
 | + one wallpaper image per screen | 224–253 MB | 121–149 MB | 29 |
 | Grove phase 0 | 244–258 MB | ~155 MB | 30 |
+| Grove phase 1 (shader backdrop, life at 12 fps) | 316 MB (300 with life frozen) | 217 MB | 32 |
 | v1 (fresh, for reference) | 375–470 MB | — | 51–52 |
 
 The first textured draw costs ~50 MB once per process regardless of image size
 (a 1080p PNG cost more than the 4K JPEG; `cache: false` and malloc tuning changed
-nothing), so text and images make it unavoidable. Hence the 300 MB budget.
+nothing), so text and images make it unavoidable. The custom shader pipeline adds ~50 MB
+more whether or not it animates (phase 1). Budget: **stay below v1's fresh 375 MB with
+both windows per screen, < 1 % idle CPU, flat over a day.**
 
 ## Phases (each ends with a commit and the budget check)
 
 0. **Scaffold** — repo, `shell.qml`, `Tune.qml`, `bin/grove`, Backdrop with the wallpaper only.
    Check: swap on/off works; baseline RSS and thread count recorded.
-1. **Backdrop** — crossfading wallpaper, blended world clock, `grade.frag` with day / golden /
-   night, light shafts, `Life` with QtQuick.Particles (pollen, fireflies, rain), pause on fullscreen.
-   Check: idle CPU < 1 %; the grade follows a forced time-of-day IPC.
+1. **Backdrop** ✓ — crossfading wallpaper, blended world clock, day / golden / night grade,
+   light shafts, procedural pollen / fireflies / rain, all one shader pass (`shaders/world.frag`)
+   ticking at `Tune.lifeFps` = 12. Measured 0.9 % CPU, 316 MB. Fullscreen pause → phase 2.
 2. **Overlay skeleton** — Lights from the Niri workspace stream, unread motes, island seed,
    input mask limited to the lights and the island. Check: clicks pass through everywhere else.
+   Niri service reads `$NIRI_SOCKET` directly (v1's `Niri 0.1` plugin lives in v1's folder).
+   Pause the backdrop's life timer while a fullscreen window covers that screen.
 3. **Island faces** — volume (Pipewire), recording (Recorder), message (grove becomes the
    notification daemon), mote drop into the lights, a queue so faces never overlap.
 4. **Menu** — island → pebble morph, blur via `BackgroundEffect.blurRegion` only while open
