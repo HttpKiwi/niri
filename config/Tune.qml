@@ -24,16 +24,17 @@ Singleton {
     readonly property color moss: "#1b2824"     // chrome surface
 
     // Workspace lights (left edge)
-    readonly property int lightSize: 34         // idle workspace
-    readonly property int lightActive: 70       // where you are
-    readonly property int lightSpacing: 58
-    readonly property real lightDrift: 7        // px of float
+    readonly property int lightSize: 20         // idle workspace
+    readonly property int lightActive: 40       // where you are
+    readonly property int lightSpacing: 40
+    readonly property real lightDrift: 3        // px of float
 
-    readonly property int overlayRestWidth: 112  // lights + seed; the overlay window's width at rest
+    // The left strip: reserved (windows never go under it) and the overlay's width at rest
+    readonly property int stripWidth: 44
 
     // Island seed (bottom-left)
-    readonly property int seedSize: 44
-    readonly property int seedMargin: 26
+    readonly property int seedSize: 28
+    readonly property int seedMargin: 8
 
     // Motion
     readonly property int fadeSlow: 700

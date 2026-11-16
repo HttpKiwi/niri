@@ -16,11 +16,10 @@ Item {
     readonly property var model: Niri.workspacesOn(output)
     readonly property bool night: Ambience.phase === "night"
 
-    width: Tune.lightActive + Tune.lightDrift * 4
     height: Math.max(1, model.length) * Tune.lightSpacing + Tune.lightActive
 
     // a loose column: each light sits a little off the line
-    readonly property var offsets: [10, 0, 16, 5, 12, 2, 14]
+    readonly property var offsets: [1, -2, 3, -1, 2, -3, 1]
 
     // Count, not the array: delegates survive workspace updates, so size changes animate
     Repeater {
@@ -36,7 +35,7 @@ Item {
 
             width: size
             height: size
-            x: root.offsets[index % root.offsets.length] + (Tune.lightActive - size) / 2
+            x: (root.width - size) / 2 + root.offsets[index % root.offsets.length]
                + Math.sin(root.t * 0.5 + phase) * Tune.lightDrift
             y: index * Tune.lightSpacing + (Tune.lightActive - size) / 2
                + Math.cos(root.t * 0.37 + phase * 1.3) * Tune.lightDrift * 1.3

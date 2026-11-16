@@ -18,11 +18,13 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "grove:overlay"
-    exclusionMode: ExclusionMode.Ignore
-    // Only as wide as what's drawn: the whole buffer repaints on every life tick,
-    // so a full-screen overlay cost ~4% CPU for a few small lights.
+    // A reserved strip: windows tile beside it, never under it. Only as wide as
+    // what's drawn: the whole buffer repaints on every life tick, so a
+    // full-screen overlay cost ~4% CPU for a few small lights.
+    exclusionMode: ExclusionMode.Normal
+    exclusiveZone: Tune.stripWidth
     anchors { top: true; bottom: true; left: true }
-    implicitWidth: Tune.overlayRestWidth
+    implicitWidth: Tune.stripWidth
     color: "transparent"
 
     mask: Region {
@@ -49,14 +51,14 @@ PanelWindow {
             id: lights
             output: root.output
             t: root.t
-            x: 2
+            width: parent.width
             anchors.verticalCenter: parent.verticalCenter
         }
 
         Island {
             id: island
             t: root.t
-            x: Tune.seedMargin
+            x: (Tune.stripWidth - width) / 2
             y: parent.height - height - Tune.seedMargin
         }
     }
