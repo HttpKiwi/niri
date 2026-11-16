@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.backdrop
+import qs.lock
 import qs.overlay
 import qs.services
 
@@ -12,6 +13,8 @@ import qs.services
  * from phase 2, Overlay (lights, island, menu). See PLAN.md.
  */
 ShellRoot {
+    Lock { id: lock }
+
     Variants {
         model: Quickshell.screens
         Backdrop {
@@ -89,4 +92,12 @@ ShellRoot {
         function setWeather(weather: string): void { Ambience.forcedWeather = weather === "auto" ? "" : weather; }
         function get(): string { return Ambience.phase + " " + Ambience.weather; }
     }
+
+    IpcHandler {
+        target: "lock"
+
+        function lockSession(): void { lock.lockNow(); }
+        function isLocked(): bool { return lock.locked; }
+    }
 }
+
