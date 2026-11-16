@@ -60,6 +60,10 @@ Singleton {
 
     // Menu (the island grown into a pebble)
     readonly property int menuWidth: 640
+    readonly property int inboxWidth: 520
+    readonly property int inboxHeight: 520
+    readonly property int wallWidth: 760
+    readonly property int wallHeight: 330
     readonly property int menuHeight: 480
     readonly property int menuRows: 8
     // The main search shows a few per category, not everything that matches

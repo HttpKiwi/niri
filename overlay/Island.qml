@@ -32,20 +32,24 @@ Item {
 
     signal moteLanded()
 
+    // the tool entries hop between pebbles while the menu stays open
+    Connections { target: Ui; function onKindChanged() { if (root.menuOpen) root.face = Ui.kind; } }
+    readonly property bool panel: face === "menu" || face === "wall" || face === "inbox"
+
     onMenuOpenChanged: {
         if (menuOpen) {
             // the menu has the inbox: waiting messages don't replay after it closes
             hold.stop();
             Notifs.inFlight = Math.max(0, Notifs.inFlight - queue.length - (face === "msg" ? 1 : 0));
             queue = [];
-            face = "menu";
+            face = Ui.kind;
         } else {
             next();
         }
     }
 
     function next() {
-        if (menuOpen) { face = "menu"; return; }
+        if (menuOpen) { face = Ui.kind; return; }
         // drop notifications closed while they waited
         while (queue.length && !queue[0]) { queue = queue.slice(1); Notifs.inFlight = Math.max(0, Notifs.inFlight - 1); }
         if (queue.length) {
@@ -69,17 +73,17 @@ Item {
         target: Notifs
         enabled: root.focusedScreen
         function onArrived(n) {
-            if (root.face === "menu") return;   // it's in the inbox already
+            if (root.panel) return;   // it's in the inbox already
             Notifs.inFlight++;
             root.queue = root.queue.concat([n]);
-            if (root.face !== "msg" && root.face !== "vol" && root.face !== "menu") root.next();
+            if (root.face !== "msg" && root.face !== "vol" && !root.panel) root.next();
         }
     }
     Connections {
         target: Audio
         enabled: root.focusedScreen
         function onChanged() {
-            if (root.face === "menu") return;
+            if (root.panel) return;
             // a message being shown goes back to the front of the queue
             if (root.face === "msg" && root.msg) root.queue = [root.msg].concat(root.queue);
             root.face = "vol";
@@ -94,22 +98,24 @@ Item {
 
     // ---- shape ----
     readonly property real faceWidth: face === "menu" ? Tune.menuWidth
+        : face === "inbox" ? Tune.inboxWidth
+        : face === "wall" ? Tune.wallWidth
         : face === "vol" ? 230
         : face === "rec" ? 112
         : face === "msg" ? Math.min(Tune.islandMaxWidth - 16, msgRow.implicitWidth + 28)
         : Tune.seedSize
     width: faceWidth
-    height: face === "menu" ? Tune.menuHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
+    height: face === "menu" ? Tune.menuHeight : face === "inbox" ? Tune.inboxHeight : face === "wall" ? Tune.wallHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
     Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
     Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
 
     // Pond-surface body: pills are round, the menu is a pebble tighter in the corner it
     // grew from, and the edge never stops drifting (shaders/pebble.frag)
-    readonly property bool pebble: face === "menu"
+    readonly property bool pebble: panel
     Pebble {
         t: root.t
         seed: 1.3
-        amp: root.face === "menu" ? 4.5 : root.face === "seed" ? 1.1 : 1.8
+        amp: root.panel ? 4.5 : root.face === "seed" ? 1.1 : 1.8
         rtl: root.pebble ? 34 : root.height / 2
         rtr: root.pebble ? 40 : root.height / 2
         rbr: root.pebble ? 36 : root.height / 2
@@ -169,6 +175,26 @@ Item {
             visible: opacity > 0
             opacity: root.face === "menu" ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: root.face === "menu" ? 300 : 100 } }
+        }
+        Menu {
+            locked: "inbox"
+            width: Tune.inboxWidth
+            height: Tune.inboxHeight
+            anchors.bottom: parent.bottom
+            open: root.face === "inbox"
+            output: root.output
+            visible: opacity > 0
+            opacity: root.face === "inbox" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: root.face === "inbox" ? 300 : 100 } }
+        }
+        WallPicker {
+            width: Tune.wallWidth
+            height: Tune.wallHeight
+            anchors.bottom: parent.bottom
+            open: root.face === "wall"
+            visible: opacity > 0
+            opacity: root.face === "wall" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: root.face === "wall" ? 300 : 100 } }
         }
 
         Face {

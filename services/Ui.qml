@@ -10,7 +10,10 @@ Singleton {
     id: root
 
     property string menuOn: ""          // output name, "" when closed
-    property string section: "all"      // all | apps | windows | tools | phone | clipboard | inbox | system
+    property string section: "all"      // all | apps | windows | tools | phone | clipboard | system | wallpapers | inbox
+
+    // which pebble opens: the launcher, the wallpaper picker or the inbox
+    readonly property string kind: section === "wallpapers" ? "wall" : section === "inbox" ? "inbox" : "menu"
 
     function open(output, sec) {
         section = sec || "all";

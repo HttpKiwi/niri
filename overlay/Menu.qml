@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Effects
 import Quickshell
 import qs.config
 import qs.services
@@ -16,17 +15,19 @@ Item {
 
     required property bool open
     required property string output
+    // a pebble of its own for one section (the inbox): no tabs, no other sections
+    property string locked: ""
+    readonly property string section: locked || section
 
     readonly property var sections: [
         { id: "apps", label: "Apps" },
         { id: "windows", label: "Windows" }, { id: "tools", label: "Tools" },
         { id: "phone", label: "Phone" }, { id: "clipboard", label: "Clipboard" },
-        { id: "wallpapers", label: "Wallpapers" },
-        { id: "inbox", label: "Inbox" }, { id: "system", label: "System" }
+        { id: "system", label: "System" }
     ]
     // Tab walks the sections and back to "all" (no tab lit): sections are filters on a search of everything
     function cycle(dir) {
-        const idx = sections.findIndex(s => s.id === Ui.section);
+        const idx = sections.findIndex(s => s.id === section);
         const next = idx + dir;
         Ui.section = next < 0 || next >= sections.length ? (idx === -1 && dir < 0 ? sections[sections.length - 1].id : "all") : sections[next].id;
     }
@@ -36,16 +37,15 @@ Item {
     property bool showQr: false
 
     onOpenChanged: {
-        if (!open) { previewTimer.stop(); Wallpaper.revert(); return; }
+        if (!open) return;
         input.text = "";
         resetSel();
         expanded = ({});
         confirmKey = "";
         showQr = false;
-        if (Ui.section === "clipboard") Tools.loadClips();
-        if (Ui.section === "phone" || Ui.section === "all") Tools.loadPhoneApps();
-        if (Ui.section === "wallpapers") Wallpaper.load();
-        if (Ui.section === "inbox") Notifs.markRead();
+        if (section === "clipboard") Tools.loadClips();
+        if (section === "phone" || section === "all") Tools.loadPhoneApps();
+        if (section === "inbox") Notifs.markRead();
         focusTimer.restart();
     }
     Timer { id: focusTimer; interval: 60; onTriggered: input.forceActiveFocus() }
@@ -61,10 +61,9 @@ Item {
             root.resetSel();
             root.expanded = ({});
             root.confirmKey = "";
-            if (Ui.section === "clipboard") Tools.loadClips();
-            if (Ui.section === "phone") Tools.loadPhoneApps();
-            if (Ui.section === "wallpapers") Wallpaper.load(); else Wallpaper.revert();
-            if (Ui.section === "inbox") Notifs.markRead();
+            if (section === "clipboard") Tools.loadClips();
+            if (section === "phone") Tools.loadPhoneApps();
+            if (section === "inbox") Notifs.markRead();
         }
     }
     Connections {
@@ -129,16 +128,10 @@ Item {
             { key: "t:qrmake", title: "Clipboard as QR", sub: "Big enough for the phone camera", kind: "Tool", glyph: "qr_code_2", keys: "qr make clipboard", stay: true, act: () => Tools.qrFromClipboard() },
             { key: "t:color", title: "Pick a colour", sub: "Copies the hex value", kind: "Tool", glyph: "colorize", keys: "color colour picker hex", act: () => Tools.pickColor() },
             { key: "t:rec", title: Recorder.recording ? "Stop recording" : "Record the screen", sub: Recorder.recording ? Recorder.elapsedText : "Super+Shift+R · on the Intel iGPU", kind: "Tool", glyph: Recorder.recording ? "stop_circle" : "screen_record", keys: "record video capture", act: () => Recorder.toggle(Niri.focusedOutput) },
-            { key: "t:wall", title: "Wallpapers", sub: "Pick a background", kind: "Tool", glyph: "wallpaper", keys: "wallpaper background change", stay: true, act: () => { Ui.section = "wallpapers"; } },
+            { key: "t:wall", title: "Wallpapers", sub: "Pick a background", kind: "Tool", glyph: "wallpaper", keys: "wallpaper background change", stay: true, act: () => Ui.open(Niri.focusedOutput, "wallpapers") },
+            { key: "t:inbox", title: "Notifications", sub: "What you missed", kind: "Tool", glyph: "notifications", keys: "inbox notifications messages", stay: true, act: () => Ui.open(Niri.focusedOutput, "inbox") },
             { key: "t:recr", title: "Record a region", sub: "Drag to choose", kind: "Tool", glyph: "crop", keys: "record region video", act: () => Recorder.startRegion() }
         ];
-    }
-    function wallpapers() {
-        return Wallpaper.files.map(f => {
-            const name = f.replace(/^.*\//, "").replace(/\.[^.]*$/, "");
-            return { key: "w:" + f, path: f, title: name, sub: f === Wallpaper.path ? "Current" : "", kind: "Wallpaper", icon: "file://" + f,
-                     keys: "wallpaper background", act: () => Wallpaper.set(f) };
-        });
     }
     function phone() {
         const tasks = [
@@ -222,14 +215,13 @@ Item {
     readonly property var results: {
         // keep the list while the menu fades out; only drop it once hidden
         if (!visible) return [];
-        const s = Ui.section;
+        const s = section;
         let list;
         if (s === "apps") list = ranked(apps(), q);
         else if (s === "windows") list = ranked(windows(), q);
         else if (s === "tools") list = ranked(tools(), q);
         else if (s === "phone") list = ranked(phone(), q);
         else if (s === "clipboard") list = ranked(clipboard(), q);
-        else if (s === "wallpapers") list = ranked(wallpapers(), q);
         else if (s === "inbox") list = inboxGroups(q);
         else if (s === "system") list = ranked(system(), q);
         else list = grouped(q);
@@ -253,8 +245,7 @@ Item {
         else list.positionViewAtIndex(sel, ListView.Contain);
     }
     onResultsChanged: { fixSel(); Qt.callLater(reveal); }
-    onSelChanged: { reveal(); if (open && Ui.section === "wallpapers") previewTimer.restart(); }
-    Timer { id: previewTimer; interval: 280; onTriggered: Wallpaper.preview(root.results[root.sel]?.path) }
+    onSelChanged: reveal()
 
     function run(item) {
         if (!item || item.header) return;
@@ -273,7 +264,7 @@ Item {
             width: parent.width
             spacing: 12
             Text {
-                text: "eco"
+                text: root.locked === "inbox" ? "notifications" : "eco"
                 font.family: Tune.iconFont
                 font.pixelSize: 26
                 color: Ambience.phase === "night" ? Tune.ember : Tune.sun
@@ -290,7 +281,7 @@ Item {
                 clip: true
                 onTextChanged: { root.query = text; root.resetSel(); root.confirmKey = ""; root.showQr = false; Tools.calc(text); }
                 Text {
-                    text: "What do you need?"
+                    text: root.locked === "inbox" ? "Search what you missed" : "What do you need?"
                     visible: !input.text
                     font: input.font
                     color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.3)
@@ -299,9 +290,9 @@ Item {
                     const n = root.results.length;
                     if (event.key === Qt.Key_Escape) {
                         if (root.showQr) root.showQr = false; else Ui.close();
-                    } else if (event.key === Qt.Key_Down || (event.key === Qt.Key_Right && Ui.section === "wallpapers")) {
+                    } else if (event.key === Qt.Key_Down) {
                         root.stepSel(1);
-                    } else if (event.key === Qt.Key_Up || (event.key === Qt.Key_Left && Ui.section === "wallpapers")) {
+                    } else if (event.key === Qt.Key_Up) {
                         root.stepSel(-1);
                     } else if (event.key === Qt.Key_Tab) {
                         root.cycle(1);
@@ -310,7 +301,7 @@ Item {
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.calcShown) { Tools.copy(Tools.calcAnswer.replace(/^.*= */, "")); Ui.close(); }
                         else root.run(root.results[root.sel]);
-                    } else if (event.key === Qt.Key_Delete && Ui.section === "inbox" && root.results[root.sel]?.index !== undefined) {
+                    } else if (event.key === Qt.Key_Delete && section === "inbox" && root.results[root.sel]?.index !== undefined) {
                         const it = root.results[root.sel];
                         if (event.modifiers & Qt.ControlModifier) Store.forgetApp(it.app); else Store.forget(it.index);
                     } else {
@@ -324,11 +315,12 @@ Item {
         // sections: a highlight that slides between them; click the lit one to clear the filter
         Item {
             id: tabs
+            visible: root.locked === ""
             width: parent.width
-            height: 26
+            height: root.locked ? 0 : 26
             property real hx: 0
             property real hw: 0
-            readonly property bool anyOn: Ui.section !== "all"
+            readonly property bool anyOn: section !== "all"
 
             Rectangle {
                 height: 26
@@ -348,7 +340,7 @@ Item {
                     Item {
                         id: tab
                         required property var modelData
-                        readonly property bool on: Ui.section === modelData.id
+                        readonly property bool on: section === modelData.id
                         width: tabText.implicitWidth + 22
                         height: 26
                         function sync() { if (on) { tabs.hx = x; tabs.hw = width; } }
@@ -416,7 +408,7 @@ Item {
 
         ListView {
             id: list
-            visible: !root.showQr && Ui.section !== "wallpapers"
+            visible: !root.showQr
             width: parent.width
             height: parent.height - y
             clip: true
@@ -517,9 +509,8 @@ Item {
             Text {
                 anchors.centerIn: parent
                 visible: list.count === 0 && !root.calcShown
-                text: Ui.section === "inbox" ? "Nothing new. The forest is quiet."
-                    : Ui.section === "clipboard" ? "The clipboard history is empty."
-                    : Ui.section === "wallpapers" ? "No images in the wallpapers folder."
+                text: section === "inbox" ? "Nothing new. The forest is quiet."
+                    : section === "clipboard" ? "The clipboard history is empty."
                     : "Nothing grew here. Try some maths, or another section."
                 font.family: Tune.uiFont
                 font.pixelSize: 13
@@ -528,89 +519,11 @@ Item {
         }
     }
 
-    // wallpapers: a filmstrip, the chosen one opens up; moving over one previews it live
-    ListView {
-        id: strip
-        visible: Ui.section === "wallpapers" && !root.showQr
-        anchors { left: parent.left; right: parent.right; leftMargin: 22; rightMargin: 22 }
-        y: 130
-        height: 250
-        orientation: ListView.Horizontal
-        spacing: 10
-        clip: true
-        model: Ui.section === "wallpapers" ? root.results : []
-        currentIndex: root.sel
-        highlightMoveDuration: 220
-        highlightRangeMode: ListView.ApplyRange
-        preferredHighlightBegin: 40
-        preferredHighlightEnd: width - 260
-        boundsBehavior: Flickable.StopAtBounds
-
-        delegate: Item {
-            id: card
-            required property var modelData
-            required property int index
-            readonly property bool on: index === root.sel
-            width: on ? 270 : 120
-            height: strip.height
-            Behavior on width { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
-
-            Image {
-                id: img
-                anchors.fill: frame
-                source: card.modelData.icon ?? ""
-                sourceSize: Qt.size(540, 500)
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                visible: false
-            }
-            Rectangle { id: msk; anchors.fill: frame; radius: 22; layer.enabled: true; visible: false }
-            Rectangle {
-                id: frame
-                anchors { fill: parent; topMargin: card.on ? 0 : 24; bottomMargin: card.on ? 0 : 24 }
-                radius: 22
-                color: Qt.rgba(0.07, 0.1, 0.09, 0.8)
-                Behavior on anchors.topMargin { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
-                Behavior on anchors.bottomMargin { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
-            }
-            MultiEffect {
-                anchors.fill: frame
-                source: img
-                maskEnabled: true
-                maskSource: msk
-                opacity: card.on ? 1 : 0.7
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-            }
-            Rectangle {
-                anchors.fill: frame
-                radius: 22
-                color: "transparent"
-                border.width: card.on ? 2 : 0
-                border.color: Tune.sun
-            }
-            Text {
-                visible: card.on
-                anchors { left: frame.left; right: frame.right; bottom: frame.bottom; margins: 14 }
-                text: card.modelData.title + (card.modelData.sub ? "  ·  " + card.modelData.sub : "")
-                font.family: Tune.uiFont
-                font.pixelSize: 12
-                font.weight: Font.DemiBold
-                color: Tune.parch
-                elide: Text.ElideRight
-                style: Text.Outline
-                styleColor: Qt.rgba(0, 0, 0, 0.6)
-            }
-            HoverHandler { onHoveredChanged: if (hovered) root.sel = card.index }
-            TapHandler { onTapped: root.run(card.modelData) }
-        }
-    }
-
     Text {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
-        text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forgets · Ctrl+Delete clears the app · Esc close"
-            : Ui.section === "wallpapers" ? "←→ browse · Enter keep · Esc put it back"
+        text: section === "inbox" ? "↑↓ move · Enter open · Delete forgets · Ctrl+Delete clears the app · Esc close"
             : "↑↓ move · Enter open · Tab filters · Esc close"
         font.family: Tune.uiFont
         font.pixelSize: 11
