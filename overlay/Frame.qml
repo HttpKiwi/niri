@@ -7,9 +7,9 @@ import qs.config
 import qs.services
 
 /**
- * Frame - the screen's black rim, alive: four click-through edge strips draw
- * one drifting rounded rectangle (shaders/frame.frag). Only ~14px strips
- * repaint, slowly; hidden under fullscreen windows.
+ * Frame - the screen's rounded black corners: four small click-through windows
+ * drawn once by shaders/frame.frag (it can also drift: pass amp > 0 and tick t).
+ * Hidden under fullscreen windows.
  */
 Scope {
     id: root
@@ -17,26 +17,16 @@ Scope {
     required property var screen
     readonly property string output: screen?.name ?? ""
     readonly property bool fullscreen: Niri.fullscreenOn(output, screen?.width ?? 0, screen?.height ?? 0)
-    readonly property int thick: Tune.frameRadius + 4
-
-    property real t: 0
-    readonly property real startMs: Date.now()
-    Timer {
-        interval: Math.round(1000 / Tune.frameFps)
-        repeat: true
-        running: !root.fullscreen
-        onTriggered: root.t = (Date.now() - root.startMs) / 1000
-    }
+    readonly property int size: Tune.frameRadius + 2
 
     Variants {
-        model: ["top", "bottom", "left", "right"]
+        model: ["tl", "tr", "bl", "br"]
 
         PanelWindow {
             id: win
             required property string modelData
-            readonly property bool horizontal: modelData === "top" || modelData === "bottom"
-            readonly property real sw: root.screen.width
-            readonly property real sh: root.screen.height
+            readonly property bool right: modelData[1] === "r"
+            readonly property bool bottom: modelData[0] === "b"
 
             screen: root.screen
             visible: !root.fullscreen
@@ -45,34 +35,24 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
             color: "transparent"
             mask: Region {}
-            anchors {
-                top: modelData !== "bottom"
-                bottom: modelData !== "top"
-                left: modelData !== "right"
-                right: modelData !== "left"
-            }
-            // left/right strips sit between the top and bottom ones
-            margins {
-                top: horizontal ? 0 : root.thick
-                bottom: horizontal ? 0 : root.thick
-            }
-            implicitWidth: horizontal ? 0 : root.thick
-            implicitHeight: horizontal ? root.thick : 0
+            anchors { top: !bottom; bottom: bottom; left: !right; right: right }
+            implicitWidth: root.size
+            implicitHeight: root.size
 
             ShaderEffect {
                 anchors.fill: parent
                 blending: true
-                property vector2d screenSize: Qt.vector2d(win.sw, win.sh)
-                property vector2d origin: Qt.vector2d(
-                    win.modelData === "right" ? win.sw - root.thick : 0,
-                    win.modelData === "bottom" ? win.sh - root.thick : win.modelData === "top" ? 0 : root.thick)
+                property vector2d screenSize: Qt.vector2d(root.screen.width, root.screen.height)
+                property vector2d origin: Qt.vector2d(win.right ? root.screen.width - root.size : 0,
+                                                       win.bottom ? root.screen.height - root.size : 0)
                 property vector2d stripSize: Qt.vector2d(width, height)
                 property real radius: Tune.frameRadius
-                property real inset: Tune.frameInset
-                property real amp: Tune.frameAmp
-                property real t: root.t
+                property real inset: 0
+                property real amp: 0
+                property real t: 0
                 fragmentShader: Qt.resolvedUrl("../shaders/frame.frag.qsb")
             }
         }
     }
 }
+
