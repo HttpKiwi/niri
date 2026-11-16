@@ -13,10 +13,10 @@ V2="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/shell.qml"
 
 # Same environment niri's spawn line gives v1 (minus its plugin import path)
 ENV='export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export mesa_glthread=false;'
-V1_START='set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; '"$ENV"' export QML_IMPORT_PATH="$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell"; qs -n -d'
-V2_START="$ENV qs -p '$V2' -n -d"
+V1_START='set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; '"$ENV"' export QML_IMPORT_PATH="$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell"; exec qs -n -d'
+V2_START="$ENV exec qs -p '$V2' -n -d"
 
-v2_pid() { pgrep -f -- "qs -p $V2" | head -n1 || true; }
+v2_pid() { pgrep -x qs -a | grep -- "-p $V2" | awk '{print $1}' | head -n1 || true; }
 v1_pid() { pgrep -x qs -a | grep -v -- "-p $V2" | awk '{print $1}' | head -n1 || true; }
 
 spawn() { niri msg action spawn -- bash -c "$1"; }

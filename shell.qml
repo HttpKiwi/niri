@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.backdrop
+import qs.services
 
 /**
  * Grove - Quickshell v2. Two windows per screen: Backdrop (world) and,
@@ -23,5 +24,15 @@ ShellRoot {
 
         function ping(): string { return "grove"; }
         function reload(): void { Quickshell.reload(true); }
+    }
+
+    IpcHandler {
+        target: "ambience"
+
+        // day | golden | night | auto
+        function setPhase(phase: string): void { Ambience.forcedPhase = phase === "auto" ? "" : phase; }
+        // clear | rain | auto
+        function setWeather(weather: string): void { Ambience.forcedWeather = weather === "auto" ? "" : weather; }
+        function get(): string { return Ambience.phase + " " + Ambience.weather; }
     }
 }
