@@ -64,9 +64,11 @@ Item {
             }
 
             // scroll the volume light to change the volume
-            WheelHandler {
+            MouseArea {
+                anchors.fill: parent
                 enabled: light.modelData.volume === true
-                onWheel: event =>  event.angleDelta.y > 0 ? Audio.raiseVolume() : Audio.lowerVolume()
+                acceptedButtons: Qt.NoButton
+                onWheel: wheel => wheel.angleDelta.y > 0 ? Audio.raiseVolume() : Audio.lowerVolume()
             }
 
             // the number, beside the light
