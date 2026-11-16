@@ -100,8 +100,8 @@ Item {
         : Tune.seedSize
     width: faceWidth
     height: face === "menu" ? Tune.menuHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
-    Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
-    Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
+    Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
+    Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
 
     // Pond-surface body: pills are round, the menu is a pebble tighter in the corner it
     // grew from, and the edge never stops drifting (shaders/pebble.frag)
