@@ -28,7 +28,7 @@ PanelWindow {
     exclusiveZone: Tune.stripWidth
     anchors { top: true; bottom: true; left: true }
     // widens while the island shows a face; input still only lands on what's drawn
-    implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : Tune.stripWidth
+    implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : Tune.stripSpan
     WlrLayershell.keyboardFocus: menuOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     color: "transparent"
 
@@ -86,14 +86,14 @@ PanelWindow {
         Column {
             x: 0
             y: 16
-            width: Tune.stripWidth
+            width: Tune.stripSpan
             spacing: -2
             Repeater {
                 model: [Qt.formatTime(Ambience.now, "HH"), Qt.formatTime(Ambience.now, "mm")]
                 Text {
                     required property string modelData
                     required property int index
-                    width: Tune.stripWidth
+                    width: Tune.stripSpan
                     horizontalAlignment: Text.AlignHCenter
                     text: modelData
                     font.family: Tune.displayFont
@@ -112,7 +112,7 @@ PanelWindow {
             output: root.output
             t: root.t
             // pinned to the strip: the overlay widens for faces and the menu
-            width: Tune.stripWidth
+            width: Tune.stripSpan
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -124,7 +124,7 @@ PanelWindow {
             output: root.output
             moteTarget: Qt.point(lights.x + lights.nextMote.x - x, lights.y + lights.nextMote.y - y)
             // anchored at the seed's left edge; faces grow to the right
-            x: (Tune.stripWidth - Tune.seedSize) / 2
+            x: (Tune.stripSpan - Tune.seedSize) / 2
             y: parent.height - height - Tune.seedMargin
         }
     }

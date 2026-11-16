@@ -33,6 +33,9 @@ Singleton {
 
     // The left strip: reserved (windows never go under it) and the overlay's width at rest
     readonly property int stripWidth: 30
+    // the gap niri leaves beside the strip counts as empty space too: centre things in strip + gap
+    readonly property int niriGap: 12
+    readonly property int stripSpan: stripWidth + niriGap
 
     // Island seed (bottom-left)
     readonly property int seedSize: 24
