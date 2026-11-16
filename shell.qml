@@ -56,6 +56,23 @@ ShellRoot {
         function isRecording(): bool { return Recorder.recording; }
     }
 
+    // v1's names, so Super+Space / Super+V work on either shell through `grove ipc`
+    IpcHandler {
+        target: "appLauncher"
+
+        function toggleLauncher(): void { Ui.toggle(Niri.focusedOutput, "all"); }
+        function toggleClipboard(): void { Ui.toggle(Niri.focusedOutput, "clipboard"); }
+    }
+
+    IpcHandler {
+        target: "menu"
+
+        // all | apps | windows | tools | phone | clipboard | inbox | system
+        function open(section: string): void { Ui.open(Niri.focusedOutput, section); }
+        function toggle(section: string): void { Ui.toggle(Niri.focusedOutput, section); }
+        function close(): void { Ui.close(); }
+    }
+
     IpcHandler {
         target: "notifications"
 

@@ -18,9 +18,11 @@ Item {
 
     required property real t
     required property bool focusedScreen
+    required property bool menuOpen
+    required property string output
     readonly property bool night: Ambience.phase === "night"
 
-    property string face: "seed"          // seed | vol | rec | msg
+    property string face: "seed"          // seed | vol | rec | msg | menu
     property var queue: []
     property Notification msg: null
     readonly property string restFace: Recorder.recording ? "rec" : "seed"
@@ -30,7 +32,18 @@ Item {
 
     signal moteLanded()
 
+    onMenuOpenChanged: {
+        if (menuOpen) {
+            hold.stop();
+            if (face === "msg" && msg) queue = [msg].concat(queue);
+            face = "menu";
+        } else {
+            next();
+        }
+    }
+
     function next() {
+        if (menuOpen) { face = "menu"; return; }
         // drop notifications closed while they waited
         while (queue.length && !queue[0]) { queue = queue.slice(1); Notifs.inFlight = Math.max(0, Notifs.inFlight - 1); }
         if (queue.length) {
@@ -56,13 +69,14 @@ Item {
         function onArrived(n) {
             Notifs.inFlight++;
             root.queue = root.queue.concat([n]);
-            if (root.face !== "msg" && root.face !== "vol") root.next();
+            if (root.face !== "msg" && root.face !== "vol" && root.face !== "menu") root.next();
         }
     }
     Connections {
         target: Audio
         enabled: root.focusedScreen
         function onChanged() {
+            if (root.face === "menu") return;
             // a message being shown goes back to the front of the queue
             if (root.face === "msg" && root.msg) root.queue = [root.msg].concat(root.queue);
             root.face = "vol";
@@ -76,18 +90,28 @@ Item {
     }
 
     // ---- shape ----
-    readonly property real faceWidth: face === "vol" ? 230
+    readonly property real faceWidth: face === "menu" ? Tune.menuWidth
+        : face === "vol" ? 230
         : face === "rec" ? 112
         : face === "msg" ? Math.min(Tune.islandMaxWidth - 16, msgRow.implicitWidth + 28)
         : Tune.seedSize
     width: faceWidth
-    height: face === "seed" ? Tune.seedSize : Tune.pillHeight
+    height: face === "menu" ? Tune.menuHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
     Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
     Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
 
+    // pills are round; the menu is a pebble, tighter in the corner it grew from
+    readonly property bool pebble: face === "menu"
     Rectangle {
         anchors.fill: parent
-        radius: height / 2
+        topLeftRadius: root.pebble ? 34 : height / 2
+        topRightRadius: root.pebble ? 40 : height / 2
+        bottomRightRadius: root.pebble ? 36 : height / 2
+        bottomLeftRadius: root.pebble ? 18 : height / 2
+        Behavior on topLeftRadius { NumberAnimation { duration: Tune.settle } }
+        Behavior on topRightRadius { NumberAnimation { duration: Tune.settle } }
+        Behavior on bottomRightRadius { NumberAnimation { duration: Tune.settle } }
+        Behavior on bottomLeftRadius { NumberAnimation { duration: Tune.settle } }
         opacity: root.face === "seed" ? 0.72 : 0.96
         Behavior on opacity { NumberAnimation { duration: 300 } }
         gradient: Gradient {
@@ -139,6 +163,17 @@ Item {
     Item {
         anchors.fill: parent
         clip: true
+
+        Menu {
+            width: Tune.menuWidth
+            height: Tune.menuHeight
+            anchors.bottom: parent.bottom
+            open: root.face === "menu"
+            output: root.output
+            visible: opacity > 0
+            opacity: root.face === "menu" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: root.face === "menu" ? 300 : 100 } }
+        }
 
         Face {
             name: "vol"
@@ -207,7 +242,7 @@ Item {
                 hold.stop();
                 root.finishMessage();
             } else if (root.face === "seed") {
-                Notifs.markRead();   // phase 4: opens the menu
+                Ui.open(root.output, Notifs.unread ? "inbox" : "all");
             }
         }
     }

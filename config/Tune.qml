@@ -46,6 +46,18 @@ Singleton {
     readonly property int urgentHold: 9000
     readonly property int maxMotes: 5
 
+    // Menu (the island grown into a pebble)
+    readonly property int menuWidth: 640
+    readonly property int menuHeight: 480
+    readonly property int menuRows: 8
+    readonly property real scrimOpacity: 0.3
+
+    // Saved state and lists
+    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/grove/state.json"
+    readonly property int historyMax: 60
+    readonly property int clipMax: 60
+    readonly property string nectarlinkData: home + "/.local/share/Nectarlink"
+
     // Recording: capture with wf-recorder, encode on the Intel iGPU, never the RX 580 (VCE hangs it)
     readonly property string encodeDevice: "/dev/dri/by-path/pci-0000:00:02.0-render"
     readonly property string recordingsDir: home + "/Videos/Recordings"

@@ -15,6 +15,9 @@ PanelWindow {
 
     readonly property string output: screen?.name ?? ""
     readonly property bool fullscreen: Niri.fullscreenOn(output, screen?.width ?? 0, screen?.height ?? 0)
+    readonly property bool menuOpen: Ui.menuOn === output
+    // full width while the menu is open or still shrinking back
+    readonly property bool full: menuOpen || island.width > Tune.islandMaxWidth
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "grove:overlay"
@@ -25,12 +28,16 @@ PanelWindow {
     exclusiveZone: Tune.stripWidth
     anchors { top: true; bottom: true; left: true }
     // widens while the island shows a face; input still only lands on what's drawn
-    implicitWidth: island.wide ? Tune.islandMaxWidth : Tune.stripWidth
+    implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : Tune.stripWidth
+    WlrLayershell.keyboardFocus: menuOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    // the desktop blurs behind the menu (niri layer-rule: background-effect for grove:overlay)
+    BackgroundEffect.blurRegion: menuOpen ? scrimRegion : null
+    Region { id: scrimRegion; item: scrim }
     color: "transparent"
 
     mask: Region {
-        item: root.fullscreen ? null : lights
-        Region { item: root.fullscreen ? null : island }
+        item: root.menuOpen ? scrim : root.fullscreen ? null : lights
+        Region { item: root.fullscreen && !root.menuOpen ? null : island }
     }
 
     // life clock for floating and breathing; stops when nothing is shown
@@ -43,9 +50,20 @@ PanelWindow {
         onTriggered: root.t = (Date.now() - root.startMs) / 1000
     }
 
+    // dims the desktop behind the menu; clicking it closes the menu
+    Rectangle {
+        id: scrim
+        anchors.fill: parent
+        color: "black"
+        opacity: root.menuOpen ? Tune.scrimOpacity : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 300 } }
+        TapHandler { onTapped: Ui.close() }
+    }
+
     Item {
         anchors.fill: parent
-        opacity: root.fullscreen ? 0 : 1
+        opacity: root.fullscreen && !root.menuOpen ? 0 : 1
         Behavior on opacity { NumberAnimation { duration: 400 } }
 
         Lights {
@@ -60,6 +78,8 @@ PanelWindow {
             id: island
             t: root.t
             focusedScreen: Niri.focusedOutput === root.output
+            menuOpen: root.menuOpen
+            output: root.output
             moteTarget: Qt.point(lights.x + lights.nextMote.x - x, lights.y + lights.nextMote.y - y)
             // anchored at the seed's left edge; faces grow to the right
             x: (Tune.stripWidth - Tune.seedSize) / 2

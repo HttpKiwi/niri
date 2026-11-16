@@ -37,6 +37,14 @@ Singleton {
         return !!ws && ws.windows > 0;
     }
 
+    function focusWindow(id) {
+        request({ Action: { FocusWindow: { id: id } } });
+    }
+    // most recently focused first
+    readonly property var windowList: Object.values(windows)
+        .sort((a, b) => (b.focus_timestamp?.secs ?? 0) - (a.focus_timestamp?.secs ?? 0)
+                      || (b.focus_timestamp?.nanos ?? 0) - (a.focus_timestamp?.nanos ?? 0))
+
     function focusWorkspace(id) {
         request({ Action: { FocusWorkspace: { reference: { Id: id } } } });
     }

@@ -83,6 +83,7 @@ Only one shell can own the notification server and the session lock, so they swa
 | Grove phase 1 (shader backdrop, life at 12 fps) | 316 MB (300 with life frozen) | 217 MB | 32 |
 | Grove phase 2 (+ overlay strip, lights, seed; life at 8 fps) | ~340 MB | — | 40 |
 | Grove phase 3 (+ notification server, Pipewire, island faces) | 354 MB | — | 41 |
+| Grove phase 4 (+ menu, store, tools) | 356 MB | — | 41 |
 | v1 (fresh, for reference) | 375–470 MB | — | 51–52 |
 
 The first textured draw costs ~50 MB once per process regardless of image size
@@ -112,7 +113,11 @@ both windows per screen, < 1 % idle CPU, flat over a day.**
    is in memory only; persistence comes with the menu in phase 4.
    Original scope: volume (Pipewire), recording (Recorder), message (grove becomes the
    notification daemon), mote drop into the lights, a queue so faces never overlap.
-4. **Menu** — island → pebble morph, blur via `BackgroundEffect.blurRegion` only while open
+4. **Menu** ✓ — 0.7 % CPU at rest, opens in < 0.25 s (app list cached; rebuilding it per
+   keystroke made the first open take ~2 s). niri blurs only the wallpaper behind the scrim
+   (xray), so windows disappear while it's open. Emoji skipped: no emoji data installed
+   (`unicode-emoji`). Super+Space / Super+V / Super+Shift+R go through `bin/grove ipc`.
+   Original scope: island → pebble morph, blur via `BackgroundEffect.blurRegion` only while open
    (niri layer-rule for the `grove` namespace), keyboard grammar (type, ↑↓, Enter, Esc).
    Sources: apps, windows, calc/units (`qalc`), clipboard, OCR, QR scan/make, color
    (`niri msg pick-color`), emoji, phone, system.
