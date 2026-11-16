@@ -32,6 +32,7 @@ Singleton {
         history = history.filter((_, i) => i !== index);
         save();
     }
+    function forgetApp(app) { history = history.filter(h => h.app !== app); save(); }
     function forgetAll() { history = []; save(); }
 
     function save() {

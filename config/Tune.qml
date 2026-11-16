@@ -54,6 +54,7 @@ Singleton {
     readonly property int limitAppsTools: 4
     readonly property int limitWindows: 2
     readonly property int limitPhone: 2
+    readonly property int limitInboxGroup: 3   // per app in the inbox, until you expand it
     readonly property real scrimOpacity: 0.3
 
     // Saved state and lists

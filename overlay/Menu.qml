@@ -37,6 +37,7 @@ Item {
         if (!open) return;
         input.text = "";
         resetSel();
+        expanded = ({});
         confirmKey = "";
         showQr = false;
         if (Ui.section === "clipboard") Tools.loadClips();
@@ -55,6 +56,7 @@ Item {
         function onSectionChanged() {
             swap.restart();
             root.resetSel();
+            root.expanded = ({});
             root.confirmKey = "";
             if (Ui.section === "clipboard") Tools.loadClips();
             if (Ui.section === "phone") Tools.loadPhoneApps();
@@ -148,10 +150,31 @@ Item {
     }
     function inbox() {
         return Store.history.map((h, i) => ({
-            key: "n:" + h.time + i, index: i, title: h.summary || h.app, sub: [h.app, (h.body ?? "").replace(/\s+/g, " ")].filter(x => x).join(" · "),
+            key: "n:" + h.time + i, index: i, app: h.app || "Other", title: h.summary || h.app,
+            sub: (h.body ?? "").replace(/\s+/g, " "),
             kind: Qt.formatTime(new Date(h.time), "HH:mm"), glyph: "notifications",
             act: () => { const n = Notifs.live(h.id); if (n) Notifs.activate(n); }
         }));
+    }
+    // Grouped by app (most recently active first); a few per app until expanded
+    property var expanded: ({})
+    function inboxGroups(q) {
+        const groups = new Map();
+        for (const it of ranked(inbox(), q)) {
+            if (!groups.has(it.app)) groups.set(it.app, []);
+            groups.get(it.app).push(it);
+        }
+        const out = [];
+        for (const [app, list] of groups) {
+            out.push({ header: app + " · " + list.length, key: "h:" + app });
+            const shown = expanded[app] || q ? list : list.slice(0, Tune.limitInboxGroup);
+            shown.forEach(i => out.push(i));
+            if (shown.length < list.length) out.push({
+                key: "more:" + app, title: "Show " + (list.length - shown.length) + " more", sub: "", kind: "", glyph: "expand_more", stay: true,
+                act: () => { const e = Object.assign({}, expanded); e[app] = true; expanded = e; }
+            });
+        }
+        return out;
     }
     function system() {
         return [
@@ -194,7 +217,7 @@ Item {
         else if (s === "tools") list = ranked(tools(), q);
         else if (s === "phone") list = ranked(phone(), q);
         else if (s === "clipboard") list = ranked(clipboard(), q);
-        else if (s === "inbox") list = ranked(inbox(), q);
+        else if (s === "inbox") list = inboxGroups(q);
         else if (s === "system") list = ranked(system(), q);
         else list = grouped(q);
         return list.slice(0, 60);
@@ -211,8 +234,13 @@ Item {
         if (results[sel] && !results[sel].header) return;
         sel = Math.max(0, results.findIndex(r => !r.header));
     }
-    onResultsChanged: fixSel()
-    onSelChanged: if (results.findIndex(r => !r.header) === sel) list.positionViewAtBeginning()
+    // Keep the selection in view: at the very top show the heading above it too
+    function reveal() {
+        if (results.findIndex(r => !r.header) === sel) list.positionViewAtBeginning();
+        else list.positionViewAtIndex(sel, ListView.Contain);
+    }
+    onResultsChanged: { fixSel(); Qt.callLater(reveal); }
+    onSelChanged: reveal()
 
     function run(item) {
         if (!item || item.header) return;
@@ -268,8 +296,9 @@ Item {
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.calcShown) { Tools.copy(Tools.calcAnswer.replace(/^.*= */, "")); Ui.close(); }
                         else root.run(root.results[root.sel]);
-                    } else if (event.key === Qt.Key_Delete && Ui.section === "inbox" && root.results[root.sel]) {
-                        Store.forget(root.results[root.sel].index);
+                    } else if (event.key === Qt.Key_Delete && Ui.section === "inbox" && root.results[root.sel]?.index !== undefined) {
+                        const it = root.results[root.sel];
+                        if (event.modifiers & Qt.ControlModifier) Store.forgetApp(it.app); else Store.forget(it.index);
                     } else {
                         return;
                     }
@@ -488,7 +517,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
-        text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forget · Tab filters · Esc close"
+        text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forgets · Ctrl+Delete clears the app · Esc close"
             : "↑↓ move · Enter open · Tab filters · Esc close"
         font.family: Tune.uiFont
         font.pixelSize: 11
