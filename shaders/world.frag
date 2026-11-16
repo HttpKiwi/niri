@@ -24,6 +24,8 @@ layout(std140, binding = 0) uniform buf {
     float rain;         // 0..1
     vec4 clockRect;     // x, y, w, h in 0..1
     float clockNight;   // 0 = overlay cream, 1 = plain ember
+    float vignette;     // 0..1: corners, and a band down the left edge under the strip
+    float vigLeftPx;    // width of that band
 };
 layout(binding = 1) uniform sampler2D wallA;
 layout(binding = 2) uniform sampler2D wallB;
@@ -68,6 +70,15 @@ void main() {
     // time of day
     col = mix(col, softLight(col, warmColor.rgb), warmAmt * (1.0 - 0.5 * uv.y));
     col = mix(col, col * coolColor.rgb, coolAmt);
+
+    // vignette: darkens towards the corners and down the left edge, where the lights
+    // and the island sit, toward deep moss rather than black
+    if (vignette > 0.0) {
+        float corner = smoothstep(0.42, 1.0, length((uv - 0.5) * vec2(1.0, 0.85) * 1.45));
+        float band = 1.0 - smoothstep(0.0, vigLeftPx, uv.x * res.x);
+        float dark = vignette * (0.5 * corner + 0.5 * band * (0.75 + 0.25 * uv.y));
+        col = mix(col, col * vec3(0.36, 0.5, 0.45), clamp(dark, 0.0, 0.9));
+    }
 
     vec2 a = vec2(res.x / res.y, 1.0);
     float seed;

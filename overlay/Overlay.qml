@@ -40,8 +40,10 @@ PanelWindow {
     // life clock for floating and breathing; stops when nothing is shown
     property real t: 0
     readonly property real startMs: Date.now()
+    // smooth while the island moves; slow at rest
+    readonly property bool busy: island.wide || menuOpen
     Timer {
-        interval: Math.round(1000 / Tune.lifeFps)
+        interval: Math.round(1000 / (root.busy ? Tune.busyFps : Tune.lifeFps))
         repeat: true
         running: !root.fullscreen && root.visible
         onTriggered: root.t = (Date.now() - root.startMs) / 1000
@@ -79,6 +81,31 @@ PanelWindow {
         anchors.fill: parent
         opacity: root.fullscreen && !root.menuOpen ? 0 : 1
         Behavior on opacity { NumberAnimation { duration: 400 } }
+
+        // the clock that's always there: hours over minutes, top of the strip
+        Column {
+            x: 0
+            y: 16
+            width: Tune.stripWidth
+            spacing: -2
+            Repeater {
+                model: [Qt.formatTime(Ambience.now, "HH"), Qt.formatTime(Ambience.now, "mm")]
+                Text {
+                    required property string modelData
+                    required property int index
+                    width: Tune.stripWidth
+                    horizontalAlignment: Text.AlignHCenter
+                    text: modelData
+                    font.family: Tune.displayFont
+                    font.pixelSize: 19
+                    font.weight: index === 0 ? Font.DemiBold : Font.Normal
+                    color: Ambience.phase === "night" ? Tune.ember : Tune.parch
+                    opacity: index === 0 ? 0.95 : 0.7
+                    style: Text.Outline
+                    styleColor: Qt.rgba(0.05, 0.08, 0.07, 0.55)
+                }
+            }
+        }
 
         Lights {
             id: lights

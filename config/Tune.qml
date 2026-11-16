@@ -63,10 +63,15 @@ Singleton {
     readonly property string recordingsDir: home + "/Videos/Recordings"
     readonly property int recordFps: 60
 
+    // Vignette over the wallpaper (helps the lights and island stand out)
+    readonly property real vignette: 0.85
+    readonly property int vignetteLeftPx: 170
+
     // Motion
     readonly property int fadeSlow: 700
     readonly property int settle: 650           // springy size/position changes
     readonly property int gradeFade: 2500     // time-of-day transitions
+    readonly property int busyFps: 30         // while the island is out of its seed
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
 
     // Time of day until phase 6 computes sunrise/sunset (Colombia: ~6:00 / ~18:00 all year)

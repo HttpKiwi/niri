@@ -178,6 +178,8 @@ PanelWindow {
         property real fireflies: Ambience.grade.fireflies
         property real rain: Ambience.weather === "rain" ? 1 : 0
         property real clockNight: Ambience.grade.clockNight
+        property real vignette: Tune.vignette
+        property real vigLeftPx: Tune.vignetteLeftPx
 
         Behavior on warmColor { ColorAnimation { duration: Tune.gradeFade } }
         Behavior on coolColor { ColorAnimation { duration: Tune.gradeFade } }

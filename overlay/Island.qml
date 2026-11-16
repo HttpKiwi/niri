@@ -103,26 +103,19 @@ Item {
     Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
     Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.1 } }
 
-    // pills are round; the menu is a pebble, tighter in the corner it grew from
+    // Pond-surface body: pills are round, the menu is a pebble tighter in the corner it
+    // grew from, and the edge never stops drifting (shaders/pebble.frag)
     readonly property bool pebble: face === "menu"
-    Rectangle {
-        anchors.fill: parent
-        topLeftRadius: root.pebble ? 34 : height / 2
-        topRightRadius: root.pebble ? 40 : height / 2
-        bottomRightRadius: root.pebble ? 36 : height / 2
-        bottomLeftRadius: root.pebble ? 18 : height / 2
-        Behavior on topLeftRadius { NumberAnimation { duration: Tune.settle } }
-        Behavior on topRightRadius { NumberAnimation { duration: Tune.settle } }
-        Behavior on bottomRightRadius { NumberAnimation { duration: Tune.settle } }
-        Behavior on bottomLeftRadius { NumberAnimation { duration: Tune.settle } }
+    Pebble {
+        t: root.t
+        seed: 1.3
+        amp: root.face === "menu" ? 4.5 : root.face === "seed" ? 1.1 : 1.8
+        rtl: root.pebble ? 34 : root.height / 2
+        rtr: root.pebble ? 40 : root.height / 2
+        rbr: root.pebble ? 36 : root.height / 2
+        rbl: root.pebble ? 18 : root.height / 2
         opacity: root.face === "seed" ? 0.72 : 0.96
         Behavior on opacity { NumberAnimation { duration: 300 } }
-        gradient: Gradient {
-            GradientStop { position: 0; color: Qt.rgba(0.165, 0.227, 0.2, 0.94) }
-            GradientStop { position: 1; color: Qt.rgba(0.094, 0.141, 0.122, 0.96) }
-        }
-        border.width: 1
-        border.color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.08)
     }
 
     // seed: breathing light

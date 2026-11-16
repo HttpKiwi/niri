@@ -17,11 +17,17 @@ Item {
     required property string output
 
     readonly property var sections: [
-        { id: "all", label: "Everything" }, { id: "apps", label: "Apps" },
+        { id: "apps", label: "Apps" },
         { id: "windows", label: "Windows" }, { id: "tools", label: "Tools" },
         { id: "phone", label: "Phone" }, { id: "clipboard", label: "Clipboard" },
         { id: "inbox", label: "Inbox" }, { id: "system", label: "System" }
     ]
+    // Tab walks the sections and back to "all" (no tab lit): sections are filters on a search of everything
+    function cycle(dir) {
+        const idx = sections.findIndex(s => s.id === Ui.section);
+        const next = idx + dir;
+        Ui.section = next < 0 || next >= sections.length ? (idx === -1 && dir < 0 ? sections[sections.length - 1].id : "all") : sections[next].id;
+    }
     property string query: ""
     property int sel: 0
     property string confirmKey: ""     // a dangerous item waiting for a second Enter
@@ -39,9 +45,15 @@ Item {
         focusTimer.restart();
     }
     Timer { id: focusTimer; interval: 60; onTriggered: input.forceActiveFocus() }
+    ParallelAnimation {
+        id: swap
+        NumberAnimation { target: list; property: "opacity"; from: 0; to: 1; duration: 260; easing.type: Easing.OutCubic }
+        NumberAnimation { target: listShift; property: "y"; from: 10; to: 0; duration: 360; easing.type: Easing.OutBack; easing.overshoot: 1.3 }
+    }
     Connections {
         target: Ui
         function onSectionChanged() {
+            swap.restart();
             root.sel = 0;
             root.confirmKey = "";
             if (Ui.section === "clipboard") Tools.loadClips();
@@ -197,7 +209,6 @@ Item {
                 }
                 Keys.onPressed: event => {
                     const n = root.results.length;
-                    const idx = root.sections.findIndex(s => s.id === Ui.section);
                     if (event.key === Qt.Key_Escape) {
                         if (root.showQr) root.showQr = false; else Ui.close();
                     } else if (event.key === Qt.Key_Down) {
@@ -205,9 +216,9 @@ Item {
                     } else if (event.key === Qt.Key_Up) {
                         root.sel = Math.max(0, root.sel - 1);
                     } else if (event.key === Qt.Key_Tab) {
-                        Ui.section = root.sections[(idx + 1) % root.sections.length].id;
+                        root.cycle(1);
                     } else if (event.key === Qt.Key_Backtab) {
-                        Ui.section = root.sections[(idx - 1 + root.sections.length) % root.sections.length].id;
+                        root.cycle(-1);
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.calcShown) { Tools.copy(Tools.calcAnswer.replace(/^.*= */, "")); Ui.close(); }
                         else root.run(root.results[root.sel]);
@@ -221,30 +232,53 @@ Item {
             }
         }
 
-        // sections
-        Flow {
+        // sections: a highlight that slides between them; click the lit one to clear the filter
+        Item {
+            id: tabs
             width: parent.width
-            spacing: 6
-            Repeater {
-                model: root.sections
-                Rectangle {
-                    id: tab
-                    required property var modelData
-                    readonly property bool on: Ui.section === modelData.id
-                    width: tabText.implicitWidth + 22
-                    height: 26
-                    radius: 13
-                    color: on ? Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.18) : Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.05)
-                    Text {
-                        id: tabText
-                        anchors.centerIn: parent
-                        text: tab.modelData.label + (tab.modelData.id === "inbox" && Notifs.unread ? " · " + Notifs.unread : "")
-                        font.family: Tune.uiFont
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
-                        color: tab.on ? Tune.sun : Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.6)
+            height: 26
+            property real hx: 0
+            property real hw: 0
+            readonly property bool anyOn: Ui.section !== "all"
+
+            Rectangle {
+                height: 26
+                radius: 13
+                x: tabs.hx
+                width: tabs.hw
+                opacity: tabs.anyOn ? 1 : 0
+                color: Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.2)
+                Behavior on x { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+                Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+            Row {
+                spacing: 6
+                Repeater {
+                    model: root.sections
+                    Item {
+                        id: tab
+                        required property var modelData
+                        readonly property bool on: Ui.section === modelData.id
+                        width: tabText.implicitWidth + 22
+                        height: 26
+                        function sync() { if (on) { tabs.hx = x; tabs.hw = width; } }
+                        onOnChanged: sync()
+                        onXChanged: sync()
+                        onWidthChanged: sync()
+                        Component.onCompleted: sync()
+                        Text {
+                            id: tabText
+                            anchors.centerIn: parent
+                            text: tab.modelData.label + (tab.modelData.id === "inbox" && Notifs.unread ? " · " + Notifs.unread : "")
+                            font.family: Tune.uiFont
+                            font.pixelSize: 12
+                            font.weight: Font.DemiBold
+                            color: tab.on ? Tune.sun : Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.6)
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                        }
+                        TapHandler { onTapped: { Ui.section = tab.on ? "all" : tab.modelData.id; input.forceActiveFocus(); } }
                     }
-                    TapHandler { onTapped: { Ui.section = tab.modelData.id; input.forceActiveFocus(); } }
                 }
             }
         }
@@ -302,6 +336,7 @@ Item {
             highlightMoveDuration: 120
             boundsBehavior: Flickable.StopAtBounds
             spacing: 2
+            transform: Translate { id: listShift }
 
             delegate: Rectangle {
                 id: row
@@ -391,8 +426,8 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
-        text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forget · Tab section · Esc close"
-            : "↑↓ move · Enter open · Tab section · Esc close"
+        text: Ui.section === "inbox" ? "↑↓ move · Enter open · Delete forget · Tab filters · Esc close"
+            : "↑↓ move · Enter open · Tab filters · Esc close"
         font.family: Tune.uiFont
         font.pixelSize: 11
         color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.4)
