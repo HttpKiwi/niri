@@ -12,6 +12,9 @@ Singleton {
     // Wallpaper: shared with v1 so both shells show the same one
     readonly property string wallpapersDir: home + "/Pictures/Wallpapers"
     readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
+    // Other apps follow the wallpaper through v1's matugen cache script (also tints the pebble)
+    readonly property string matugenScript: home + "/.config/quickshell/scripts/matugen-cache.sh"
+    readonly property string matugenColors: home + "/.config/quickshell/common/Colors.json"
     readonly property string fallbackWallpaper: wallpapersDir + "/wallhaven-exjy6w_1920x1080.png"
 
     // Type (Fraunces / Nunito are the design faces; Noto until they're installed)
