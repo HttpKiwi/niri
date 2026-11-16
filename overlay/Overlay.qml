@@ -30,9 +30,6 @@ PanelWindow {
     // widens while the island shows a face; input still only lands on what's drawn
     implicitWidth: full ? (screen?.width ?? 1920) : island.wide ? Tune.islandMaxWidth : Tune.stripWidth
     WlrLayershell.keyboardFocus: menuOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    // the desktop blurs behind the menu (niri layer-rule: background-effect for grove:overlay)
-    BackgroundEffect.blurRegion: menuOpen ? scrimRegion : null
-    Region { id: scrimRegion; item: scrim }
     color: "transparent"
 
     mask: Region {
@@ -50,14 +47,31 @@ PanelWindow {
         onTriggered: root.t = (Date.now() - root.startMs) / 1000
     }
 
-    // dims the desktop behind the menu; clicking it closes the menu
-    Rectangle {
+    // Shade rising from the island's corner: the menu stands out, windows stay
+    // visible behind it. (Compositor blur was dropped: niri blurred the whole
+    // surface whenever the overlay widened, and xray hid the windows.)
+    Item {
         id: scrim
         anchors.fill: parent
-        color: "black"
-        opacity: root.menuOpen ? Tune.scrimOpacity : 0
+        opacity: root.menuOpen ? 1 : 0
         visible: opacity > 0
-        Behavior on opacity { NumberAnimation { duration: 300 } }
+        Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+        Rectangle {
+            anchors.fill: parent
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Qt.rgba(0.07, 0.10, 0.09, Tune.scrimOpacity + 0.45) }
+                GradientStop { position: 0.4; color: Qt.rgba(0.07, 0.10, 0.09, Tune.scrimOpacity) }
+                GradientStop { position: 0.85; color: Qt.rgba(0.07, 0.10, 0.09, 0) }
+            }
+        }
+        Rectangle {
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0.35; color: Qt.rgba(0.07, 0.10, 0.09, 0) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.07, 0.10, 0.09, 0.55) }
+            }
+        }
         TapHandler { onTapped: Ui.close() }
     }
 
@@ -70,7 +84,8 @@ PanelWindow {
             id: lights
             output: root.output
             t: root.t
-            width: parent.width
+            // pinned to the strip: the overlay widens for faces and the menu
+            width: Tune.stripWidth
             anchors.verticalCenter: parent.verticalCenter
         }
 

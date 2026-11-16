@@ -139,7 +139,8 @@ Item {
     readonly property string q: query.trim().toLowerCase()
     readonly property bool calcShown: Tools.calcAnswer !== "" && Tools.looksLikeCalc(query)
     readonly property var results: {
-        if (!open) return [];
+        // keep the list while the menu fades out; only drop it once hidden
+        if (!visible) return [];
         const s = Ui.section;
         let list;
         if (s === "apps") list = ranked(apps(), q);

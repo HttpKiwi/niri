@@ -34,8 +34,10 @@ Item {
 
     onMenuOpenChanged: {
         if (menuOpen) {
+            // the menu has the inbox: waiting messages don't replay after it closes
             hold.stop();
-            if (face === "msg" && msg) queue = [msg].concat(queue);
+            Notifs.inFlight = Math.max(0, Notifs.inFlight - queue.length - (face === "msg" ? 1 : 0));
+            queue = [];
             face = "menu";
         } else {
             next();
@@ -67,6 +69,7 @@ Item {
         target: Notifs
         enabled: root.focusedScreen
         function onArrived(n) {
+            if (root.face === "menu") return;   // it's in the inbox already
             Notifs.inFlight++;
             root.queue = root.queue.concat([n]);
             if (root.face !== "msg" && root.face !== "vol" && root.face !== "menu") root.next();
