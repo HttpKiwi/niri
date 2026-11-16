@@ -69,7 +69,7 @@ Singleton {
     readonly property int recordFps: 60
 
     // Vignette over the wallpaper (helps the lights and island stand out)
-    readonly property real vignette: 0.85
+    readonly property real vignette: 10
     readonly property int vignetteLeftPx: 170
 
     // Motion
@@ -79,10 +79,12 @@ Singleton {
     readonly property int busyFps: 30         // while the island is out of its seed
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
 
-    // Time of day until phase 6 computes sunrise/sunset (Colombia: ~6:00 / ~18:00 all year)
-    readonly property real goldenFrom: 16.75  // hours
-    readonly property real nightFrom: 18.4
-    readonly property real dayFrom: 5.9
+    // Where the sun is (Bogotá; the system timezone is America/Bogota). Phases follow it.
+    readonly property real latitude: 4.71
+    readonly property real longitude: -74.07
+    readonly property real goldenBefore: 1.25  // hours of golden light before sunset
+    readonly property real nightAfter: 0.4     // night starts this long after sunset
+    readonly property real dayBefore: 0.1      // day starts this long before sunrise
 
     // What each time of day looks like
     readonly property var grades: ({
