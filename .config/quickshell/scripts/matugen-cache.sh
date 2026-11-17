@@ -326,6 +326,15 @@ run_post_hooks() {
         log "  Fuzzel reload signal sent (SIGUSR1)"
     fi
 
+    # Millennium (Steam) watches quick.css by inode: a replaced file silently ends the
+    # watch, so rewrite it in place to make the running Steam reload it
+    local qcss="${CONFIG_HOME}/millennium/quick.css"
+    if [ -f "$qcss" ]; then
+        cat "$qcss" > "$qcss.tmp" && cat "$qcss.tmp" > "$qcss"
+        rm -f "$qcss.tmp"
+        log "  Steam quick.css nudged"
+    fi
+
     log "Post-hooks completed"
 }
 
