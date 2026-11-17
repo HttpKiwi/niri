@@ -94,6 +94,7 @@ Singleton {
     readonly property int gradeFade: 2500     // time-of-day transitions
     readonly property int busyFps: 30         // while the island is out of its seed
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
+    readonly property int gapFps: 5           // windows open: the backdrop only shows in the gaps
     readonly property int nightFps: 24        // while fireflies are out (they read choppy at 8)
 
     // Idle: lock after this many seconds, suspend this many seconds after locking

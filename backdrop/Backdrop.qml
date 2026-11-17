@@ -149,10 +149,10 @@ PanelWindow {
     readonly property bool alive: world.shafts > 0.01 || world.pollen > 0.01 || world.fireflies > 0.01 || world.rain > 0.01
     readonly property real startMs: Date.now()
     Timer {
-        interval: Math.round(1000 / (world.fireflies > 0.5 ? Tune.nightFps : Tune.lifeFps))
+        interval: Math.round(1000 / (Niri.backdropPartlyOn(root.screen?.name ?? "") ? Tune.gapFps : world.fireflies > 0.5 ? Tune.nightFps : Tune.lifeFps))
         repeat: true
-        // windows cover the scene: keep the still grade, stop the life
-        running: root.alive && root.visible && !Niri.backdropHiddenOn(root.screen?.name ?? "")
+        // a window fills the screen: keep the still grade, stop the life; partly covered: drift slowly
+        running: root.alive && root.visible && !Niri.backdropHiddenOn(root.screen?.name ?? "", root.width, root.height)
         onTriggered: world.t = (Date.now() - root.startMs) / 1000
     }
 

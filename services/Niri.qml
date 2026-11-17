@@ -30,8 +30,12 @@ Singleton {
         return !!size && size[0] >= width && size[1] >= height;
     }
 
-    // Windows cover this screen's backdrop (life is pointless) unless the overview shows it
-    function backdropHiddenOn(output) {
+    // A window fills the whole screen (life is pointless), unless the overview shows the backdrop
+    function backdropHiddenOn(output, width, height) {
+        return !overview && fullscreenOn(output, width, height);
+    }
+    // Some windows are open: the backdrop only shows in the gaps, so life can run slowly
+    function backdropPartlyOn(output) {
         if (overview) return false;
         const ws = workspaces.find(w => w.output === output && w.is_active);
         return !!ws && ws.windows > 0;
