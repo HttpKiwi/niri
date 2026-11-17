@@ -124,8 +124,9 @@ FocusScope {
                 anchors.centerIn: parent
                 text: cell.modelData.c
                 font.family: "Noto Color Emoji"
-                font.pixelSize: 28
-                scale: cell.on ? 1.18 : 1
+                // drawn at the big size and shrunk when idle: scaling a bitmap glyph up is what pixelates it
+                font.pixelSize: 34
+                scale: cell.on ? 1 : 0.84
                 Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
             }
             HoverHandler { onHoveredChanged: if (hovered) root.sel = cell.index }
