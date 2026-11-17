@@ -38,3 +38,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Added by Antigravity CLI installer
 set -gx PATH "/home/httpkiwi/.local/bin" $PATH
+
+# kimi-code
+fish_add_path -g "/home/httpkiwi/.kimi-code/bin"
