@@ -48,6 +48,7 @@ declare -A CACHE_FILES=(
 
     # Apps
     ["${CONFIG_HOME}/feishin/custom.css"]="feishin.css"
+    ["${CONFIG_HOME}/millennium/quick.css"]="steam.css"
     ["${CONFIG_HOME}/equibop/themes/HyprLuna.css"]="equibop.css"
     ["${CONFIG_HOME}/equibop/themes/HyprLuna-Acrylic.css"]="equibop-acrylic.css"
     ["${CONFIG_HOME}/Equicord/themes/HyprLuna.css"]="equicord.css"
@@ -85,6 +86,7 @@ REQUIRED_CACHE_FILES=(
     "Colors.json"
     "equibop.css"
     "feishin.css"
+    "steam.css"
 )
 
 # Check if cache exists and is valid

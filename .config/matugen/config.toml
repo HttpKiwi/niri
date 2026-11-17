@@ -74,6 +74,11 @@ output_path = "~/.config/equibop/themes/HyprLuna-Acrylic.css"
 input_path = "~/.config/matugen/templates/feishin.css"
 output_path = "~/.config/feishin/custom.css"
 
+# Steam: Glass Dusk's colours through Millennium's live-watched quick CSS
+[templates.steam]
+input_path = "~/.config/matugen/templates/steam.css"
+output_path = "~/.config/millennium/quick.css"
+
 # Equicord (Discord + Equicord asar) — same themes as Equibop
 [templates.equicord]
 input_path = "~/.config/matugen/templates/discord.css"
