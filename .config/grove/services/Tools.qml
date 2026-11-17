@@ -65,6 +65,8 @@ Singleton {
         }
     }
 
+    // types into whichever window gets focus back once the menu closes
+    function type(text) { Quickshell.execDetached(["sh", "-c", 'sleep 0.18; wtype -- "$1"', "sh", text]); }
     function copy(text) { Quickshell.execDetached(["wl-copy", "--", text]); }
     function notify(summary, body) { Quickshell.execDetached(["notify-send", "-a", "Grove", summary, body ?? ""]); }
 

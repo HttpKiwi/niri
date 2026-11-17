@@ -49,10 +49,12 @@ FocusScope {
     onCellsChanged: sel = Math.min(sel, Math.max(0, cells.length - 1))
     onSelChanged: grid.positionViewAtIndex(sel, GridView.Contain)
 
-    function pick(i) {
+    // Enter types it into the window you came from (and leaves it on the clipboard); Ctrl+Enter only copies
+    function pick(i, copyOnly) {
         const e = cells[i];
         if (!e) return;
         Tools.copy(e.c);
+        if (!copyOnly) Tools.type(e.c);
         const r = [e.c].concat((Store.prefs.emojiRecent ?? []).filter(c => c !== e.c)).slice(0, 18);
         Store.setPref("emojiRecent", r);
         Ui.close();
@@ -92,7 +94,7 @@ FocusScope {
                 else if (event.key === Qt.Key_Left) root.sel = Math.max(0, root.sel - 1);
                 else if (event.key === Qt.Key_Down) root.sel = Math.min(n - 1, root.sel + root.cols);
                 else if (event.key === Qt.Key_Up) root.sel = Math.max(0, root.sel - root.cols);
-                else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) root.pick(root.sel);
+                else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) root.pick(root.sel, event.modifiers & Qt.ControlModifier);
                 else return;
                 event.accepted = true;
             }
@@ -148,7 +150,7 @@ FocusScope {
         width: parent.width - 40
         horizontalAlignment: Text.AlignHCenter
         elide: Text.ElideRight
-        text: root.cells[root.sel] ? root.cells[root.sel].n + "  ·  Enter copies" : "type to search"
+        text: root.cells[root.sel] ? root.cells[root.sel].n + "  ·  Enter types it · Ctrl+Enter copies" : "type to search"
         font.family: Tune.uiFont
         font.pixelSize: 11
         color: Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.5)
