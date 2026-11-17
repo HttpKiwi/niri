@@ -326,13 +326,10 @@ run_post_hooks() {
         log "  Fuzzel reload signal sent (SIGUSR1)"
     fi
 
-    # Millennium (Steam) watches quick.css by inode: a replaced file silently ends the
-    # watch, so rewrite it in place to make the running Steam reload it
-    local qcss="${CONFIG_HOME}/millennium/quick.css"
-    if [ -f "$qcss" ]; then
-        cat "$qcss" > "$qcss.tmp" && cat "$qcss.tmp" > "$qcss"
-        rm -f "$qcss.tmp"
-        log "  Steam quick.css nudged"
+    # Steam: Millennium only reloads quick.css when its editor is open, so push it through
+    # Steam's CEF debug port (needs ~/.steam/steam/.cef-enable-remote-debugging)
+    if [ -f "${CONFIG_HOME}/millennium/quick.css" ]; then
+        python3 "$(dirname "$(readlink -f "$0")")/steam-push-css.py" "${CONFIG_HOME}/millennium/quick.css" 2>&1 | sed 's/^/[matugen-cache]   /' || true
     fi
 
     log "Post-hooks completed"
