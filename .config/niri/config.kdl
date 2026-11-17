@@ -144,7 +144,10 @@ screenshot-path "~/Screenshots"
 // ============================================================================
 // Run a command upon window opening. This is useful for doing window-specific setup.
 // spawn-at-startup "touch" "/tmp/niri-started"
- spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export QML_IMPORT_PATH=\"$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell\"; export mesa_glthread=false; qs -n -d"
+// v1 shell (rollback: swap this line back in, or run `grove off`)
+// spawn-at-startup "bash" "-c" "set -a; [ -f ~/.config/quickshell/secrets.env ] && . ~/.config/quickshell/secrets.env; set +a; export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export QML_IMPORT_PATH=\"$HOME/.config/quickshell/qml:/usr/lib/qt6/bin/:$HOME/.config/quickshell\"; export mesa_glthread=false; qs -n -d"
+// Grove (v2)
+spawn-at-startup "bash" "-c" "export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export mesa_glthread=false; exec qs -p /home/httpkiwi/.config/grove/shell.qml -n -d"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "bash" "-c" "xrdb -merge ~/.Xresources"
@@ -215,6 +218,20 @@ window-rule {
   opacity 1.0
 }
 
+// NectarLink mirror + phone-app windows: a phone-shaped column
+window-rule {
+    match app-id="^nectarlink$"
+    exclude title="^NectarLink$"
+    opacity 1.0
+    default-column-width { fixed 476; }
+}
+
+// Feishin: translucent (the compositor blurs what shows through); matugen colours it
+window-rule {
+    match app-id="^feishin$"
+    opacity 0.88
+}
+
 window-rule {
     match app-id="^zen$"
     default-column-width { proportion 1.0; }
@@ -228,6 +245,8 @@ window-rule {
 
 layer-rule {
     match namespace="overview"
+    // Grove (v2) backdrop: wallpaper stays put on workspace switches and fills the overview
+    match namespace="^grove:backdrop$"
     place-within-backdrop true
 }
 
@@ -258,7 +277,7 @@ binds {
     // ========================================================================
     // COMPOSITOR CONTROLS
     // ========================================================================
-    Mod+Escape { spawn "qs" "ipc" "call" "lock" "lockSession"; }
+    Mod+Escape { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "lock" "lockSession"; }
     Mod+Shift+Slash { show-hotkey-overlay; }
     Mod+O { toggle-overview; }
     Mod+Shift+E { quit; }
@@ -267,12 +286,13 @@ binds {
     // ========================================================================
     
     Mod+Return { spawn "kitty"; }
-    Super+Space hotkey-overlay-title="Open Application Launcher" { spawn "bash" "-c" "OUTPUT=$(niri msg focused-output | head -1 | sed 's/Output \"//' | sed 's/\".*//'); export NIRI_FOCUSED_OUTPUT=\"$OUTPUT\"; qs ipc call appLauncher toggleLauncher";  }
-    Super+N hotkey-overlay-title="Open Control Center" { spawn "qs" "ipc" "call" "controlCenter" "toggleControlCenter";  }
-    Super+V hotkey-overlay-title="Open the Clipboard History" { spawn "qs" "ipc" "call" "appLauncher" "toggleClipboard"; } 
+    Super+Space hotkey-overlay-title="Open Application Launcher" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "appLauncher" "toggleLauncher"; }
+    Super+N hotkey-overlay-title="Open Notifications" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "menu" "toggle" "inbox"; }
+    Super+P hotkey-overlay-title="Open Phone Panel" { spawn "qs" "ipc" "call" "phone" "toggle"; }
+    Super+V hotkey-overlay-title="Open the Clipboard History" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "appLauncher" "toggleClipboard"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Super+B {spawn "zen-browser"; }
-    Super+Shift+W { spawn "qs" "ipc" "call" "wallpaperSelector" "toggleSelector";  }
+    Super+Shift+W { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "wallpaperSelector" "toggleSelector";  }
     Super+I hotkey-overlay-title="Open Settings" { spawn "qs" "ipc" "call" "settings" "toggle"; }
     Super+Shift+D hotkey-overlay-title="Dismiss notification" { spawn "qs" "ipc" "call" "notifications" "dismissFocused"; }
     Mod+Q { close-window; }
@@ -375,7 +395,8 @@ binds {
     
     Mod+Shift+Q { close-window; }
     Mod+R       { switch-preset-column-width; }
-    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R  { switch-preset-window-height; }
+    Mod+Shift+R hotkey-overlay-title="Start/stop screen recording" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "screenrecord" "toggle"; }
     Mod+M      { maximize-column; }
     Mod+F { fullscreen-window; }
     Mod+C       { center-column; }
@@ -399,10 +420,10 @@ binds {
     // MEDIA KEYS & SPECIAL FUNCTIONS
     // ========================================================================
     
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "raiseVolume"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "lowerVolume"; }
-    XF86AudioMute        allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "toggleMute"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn "qs" "ipc" "call" "audio" "toggleMicMute"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "audio" "raiseVolume"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "audio" "lowerVolume"; }
+    XF86AudioMute        allow-when-locked=true { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "audio" "toggleMute"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "audio" "toggleMicMute"; }
     XF86MonBrightnessUp   allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 + 10"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "sh" "-c" "ddcutil setvcp 10 - 10"; }
     XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }

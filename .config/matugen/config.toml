@@ -69,6 +69,11 @@ output_path = "~/.config/equibop/themes/HyprLuna.css"
 input_path = "~/.config/matugen/templates/discord.css"
 output_path = "~/.config/equibop/themes/HyprLuna-Acrylic.css"
 
+# Feishin (live-watched custom.css; enable Custom CSS in its settings once)
+[templates.feishin]
+input_path = "~/.config/matugen/templates/feishin.css"
+output_path = "~/.config/feishin/custom.css"
+
 # Equicord (Discord + Equicord asar) — same themes as Equibop
 [templates.equicord]
 input_path = "~/.config/matugen/templates/discord.css"

@@ -47,6 +47,7 @@ declare -A CACHE_FILES=(
     ["${HOME}/.cache/ags/user/generated/kitty-colors.conf"]="kitty-colors.conf"
 
     # Apps
+    ["${CONFIG_HOME}/feishin/custom.css"]="feishin.css"
     ["${CONFIG_HOME}/equibop/themes/HyprLuna.css"]="equibop.css"
     ["${CONFIG_HOME}/equibop/themes/HyprLuna-Acrylic.css"]="equibop-acrylic.css"
     ["${CONFIG_HOME}/Equicord/themes/HyprLuna.css"]="equicord.css"
@@ -83,6 +84,7 @@ get_cache_dir() {
 REQUIRED_CACHE_FILES=(
     "Colors.json"
     "equibop.css"
+    "feishin.css"
 )
 
 # Check if cache exists and is valid
