@@ -86,6 +86,8 @@ PanelWindow {
         onFinished: {
             root.frontIsA = world.mixAB < 0.5;
             root.fading = false;
+            // the faded-out image is dead weight until the next change: let go of it
+            (root.frontIsA ? imgB : imgA).source = "";
             if (root.pending) {
                 const p = root.pending;
                 root.pending = "";
