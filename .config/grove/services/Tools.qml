@@ -125,4 +125,11 @@ Singleton {
     function phoneIcon(pkg) {
         return "file://" + Tune.nectarlinkData + "/cache/icons/" + pkg.replace(/[^A-Za-z0-9._]/g, "_") + ".png";
     }
+
+    // an image source for a notification's icon: its own, else the app's desktop entry
+    function iconUrl(icon, app) {
+        if (icon) return icon.startsWith("/") ? "file://" + icon : icon.startsWith("file:") ? icon : "image://icon/" + icon;
+        const e = app ? DesktopEntries.heuristicLookup(app) : null;
+        return e?.icon ? "image://icon/" + e.icon : "";
+    }
 }

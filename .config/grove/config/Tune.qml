@@ -62,6 +62,10 @@ Singleton {
     readonly property int menuWidth: 640
     readonly property int inboxWidth: 460
     readonly property int inboxHeight: 580
+    readonly property int phoneWidth: 560
+    readonly property int phoneHeight: 480
+    readonly property int emojiWidth: 520
+    readonly property int emojiHeight: 440
     readonly property int wallWidth: 760
     readonly property int wallHeight: 330
     readonly property int menuHeight: 480

@@ -34,7 +34,7 @@ Item {
 
     // the tool entries hop between pebbles while the menu stays open
     Connections { target: Ui; function onKindChanged() { if (root.menuOpen) root.face = Ui.kind; } }
-    readonly property bool panel: face === "menu" || face === "wall" || face === "inbox"
+    readonly property bool panel: face === "menu" || face === "wall" || face === "inbox" || face === "phone" || face === "emoji"
 
     onMenuOpenChanged: {
         if (menuOpen) {
@@ -100,12 +100,14 @@ Item {
     readonly property real faceWidth: face === "menu" ? Tune.menuWidth
         : face === "inbox" ? Tune.inboxWidth
         : face === "wall" ? Tune.wallWidth
+        : face === "phone" ? Tune.phoneWidth
+        : face === "emoji" ? Tune.emojiWidth
         : face === "vol" ? 230
         : face === "rec" ? 112
         : face === "msg" ? Math.min(Tune.islandMaxWidth - 16, msgRow.implicitWidth + 28)
         : Tune.seedSize
     width: faceWidth
-    height: face === "menu" ? Tune.menuHeight : face === "inbox" ? Tune.inboxHeight : face === "wall" ? Tune.wallHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
+    height: face === "menu" ? Tune.menuHeight : face === "inbox" ? Tune.inboxHeight : face === "wall" ? Tune.wallHeight : face === "phone" ? Tune.phoneHeight : face === "emoji" ? Tune.emojiHeight : face === "seed" ? Tune.seedSize : Tune.pillHeight
     Behavior on width { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
     Behavior on height { NumberAnimation { duration: Tune.settle; easing.type: Easing.OutBack; easing.overshoot: 0.35 } }
 
@@ -184,6 +186,24 @@ Item {
             visible: opacity > 0
             opacity: root.face === "inbox" ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: root.face === "inbox" ? 300 : 100 } }
+        }
+        Phone {
+            width: Tune.phoneWidth
+            height: Tune.phoneHeight
+            anchors.bottom: parent.bottom
+            open: root.face === "phone"
+            visible: opacity > 0
+            opacity: root.face === "phone" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: root.face === "phone" ? 300 : 100 } }
+        }
+        Emoji {
+            width: Tune.emojiWidth
+            height: Tune.emojiHeight
+            anchors.bottom: parent.bottom
+            open: root.face === "emoji"
+            visible: opacity > 0
+            opacity: root.face === "emoji" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: root.face === "emoji" ? 300 : 100 } }
         }
         WallPicker {
             width: Tune.wallWidth

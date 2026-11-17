@@ -20,7 +20,7 @@ Item {
     readonly property var sections: [
         { id: "apps", label: "Apps" },
         { id: "windows", label: "Windows" }, { id: "tools", label: "Tools" },
-        { id: "phone", label: "Phone" }, { id: "clipboard", label: "Clipboard" },
+        { id: "clipboard", label: "Clipboard" },
         { id: "system", label: "System" }
     ]
     // Tab walks the sections and back to "all" (no tab lit): sections are filters on a search of everything
@@ -41,7 +41,6 @@ Item {
         confirmKey = "";
         showQr = false;
         if (section === "clipboard") Tools.loadClips();
-        if (section === "phone" || section === "all") Tools.loadPhoneApps();
         focusTimer.restart();
     }
     Timer { id: focusTimer; interval: 60; onTriggered: input.forceActiveFocus() }
@@ -57,7 +56,6 @@ Item {
             root.resetSel();
             root.confirmKey = "";
             if (section === "clipboard") Tools.loadClips();
-            if (section === "phone") Tools.loadPhoneApps();
             }
     }
     Connections {
@@ -129,24 +127,12 @@ Item {
             { key: "t:ph:golden", title: "Wallpaper: golden hour", toggle: Ambience.forcedPhase === "golden", sub: "Warm, low sun", kind: "Tool", glyph: "wb_twilight", keys: "mood atmosphere time of day sunset", act: () => Ambience.setPhase("golden") },
             { key: "t:ph:night", title: "Wallpaper: evening", toggle: Ambience.forcedPhase === "night", sub: "Dark, fireflies out", kind: "Tool", glyph: "bedtime", keys: "mood atmosphere time of day night", act: () => Ambience.setPhase("night") },
             { key: "t:ph:auto", title: "Wallpaper: follow the sun", toggle: Ambience.forcedPhase === "", sub: Ambience.forcedPhase === "" ? "Now " + Ambience.phase : "Back to sunrise and sunset", kind: "Tool", glyph: "schedule", keys: "mood atmosphere time of day automatic", act: () => Ambience.setPhase("auto") },
+            { key: "t:phone", title: "Phone", sub: "Mirror, ring, send, and its apps", kind: "Tool", glyph: "smartphone", keys: "android mirror nectarlink", stay: true, act: () => Ui.open(Niri.focusedOutput, "phone") },
+            { key: "t:emoji", title: "Emoji", sub: "Find one and copy it", kind: "Tool", glyph: "mood", keys: "emoticon smiley", stay: true, act: () => Ui.open(Niri.focusedOutput, "emoji") },
             { key: "t:wall", title: "Wallpapers", sub: "Pick a background", kind: "Tool", glyph: "wallpaper", keys: "wallpaper background change", stay: true, act: () => Ui.open(Niri.focusedOutput, "wallpapers") },
             { key: "t:inbox", title: "Notifications", sub: "What you missed", kind: "Tool", glyph: "notifications", keys: "inbox notifications messages", stay: true, act: () => Ui.open(Niri.focusedOutput, "inbox") },
             { key: "t:recr", title: "Record a region", sub: "Drag to choose", kind: "Tool", glyph: "crop", keys: "record region video", act: () => Recorder.startRegion() }
         ];
-    }
-    function phone() {
-        const tasks = [
-            { key: "p:mirror", title: "Mirror phone", sub: "NectarLink", glyph: "cast", task: "mirror", keys: "screen" },
-            { key: "p:ring", title: "Ring phone", sub: "Find it", glyph: "vibration", task: "find-phone", keys: "find" },
-            { key: "p:clip", title: "Send clipboard to phone", sub: "", glyph: "content_paste_go", task: "send-clipboard" },
-            { key: "p:photo", title: "Take a photo with the phone", sub: "Lands on the clipboard", glyph: "photo_camera", task: "take-photo", keys: "camera" },
-            { key: "p:files", title: "Send files to phone", sub: "", glyph: "upload_file", task: "send-files" }
-        ].map(t => Object.assign(t, { kind: "Phone", act: () => Tools.phone(t.task) }));
-        const apps = Tools.phoneApps.map(a => ({
-            key: "pa:" + a.pkg, title: a.label, sub: "Phone app", kind: "Phone", icon: Tools.phoneIcon(a.pkg), keys: a.pkg,
-            act: () => Tools.phone("open-app:" + a.pkg)
-        }));
-        return tasks.concat(apps);
     }
     function clipboard() {
         return Tools.clips.map(c => ({
@@ -176,11 +162,9 @@ Item {
         if (!q) {
             add("Apps & tools", apps().slice(0, Tune.limitAppsTools));
             add("Windows", windows().filter(w => !w.focused).slice(0, Tune.limitWindows));
-            add("Phone", phone().slice(0, Tune.limitPhone));
         } else {
             add("Apps & tools", ranked(apps().concat(tools(), system()), q).slice(0, Tune.limitAppsTools));
             add("Windows", ranked(windows(), q).slice(0, Tune.limitWindows));
-            add("Phone", ranked(phone(), q).slice(0, Tune.limitPhone));
         }
         return out;
     }
@@ -195,7 +179,6 @@ Item {
         if (s === "apps") list = ranked(apps(), q);
         else if (s === "windows") list = ranked(windows(), q);
         else if (s === "tools") list = ranked(tools(), q);
-        else if (s === "phone") list = ranked(phone(), q);
         else if (s === "clipboard") list = ranked(clipboard(), q);
         else if (s === "system") list = ranked(system(), q);
         else list = grouped(q);

@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# Builds data/emoji.json from the Noto Color Emoji font's coverage and Unicode names.
+# Single code points only (no skin tones or ZWJ sequences). Run once; the file is committed.
+import json, subprocess, sys, unicodedata, os
+
+font = "/usr/share/fonts/noto/NotoColorEmoji.ttf"
+charset = subprocess.check_output(["fc-query", "-f", "%{charset}", font], text=True).split()
+cps = set()
+for part in charset:
+    a, _, b = part.partition("-")
+    for cp in range(int(a, 16), int(b or a, 16) + 1):
+        cps.add(cp)
+
+# words people type that the Unicode names don't contain
+alias = {"face with tears of joy": "lol haha laugh funny", "loudly crying face": "sad cry sob", "smiling face with smiling eyes": "happy smile",
+         "grinning face": "happy smile", "red heart": "love", "fire": "lit hot flame", "party popper": "party celebrate congrats",
+         "thumbs up sign": "like yes good ok", "thumbs down sign": "dislike no bad", "folded hands": "please thanks pray",
+         "pile of poo": "poop shit", "eyes": "look see", "sparkles": "magic shiny", "skull": "dead die rip",
+         "clapping hands": "applause bravo", "rocket": "launch ship", "face with rolling eyes": "whatever ugh",
+         "thinking face": "hmm think", "white heavy check mark": "done yes ok tick", "cross mark": "no wrong x"}
+
+# faces and gestures first, the arrows-and-symbols block last
+def rank(cp):
+    for i, (a, b) in enumerate([(0x1F600, 0x1F64F), (0x1F910, 0x1F9FF), (0x1F440, 0x1F4FF), (0x1F300, 0x1F43F), (0x1F680, 0x1F6FF)]):
+        if a <= cp <= b: return i
+    return 9
+
+out = []
+for cp in sorted(cps, key=lambda c: (rank(c), c)):
+    if cp < 0x231A or 0x1F1E6 <= cp <= 0x1F1FF or 0x1F3FB <= cp <= 0x1F3FF or cp >= 0xE0000:
+        continue
+    ch = chr(cp)
+    if unicodedata.category(ch) not in ("So", "Sk"):
+        continue
+    name = unicodedata.name(ch, "").lower()
+    out.append({"c": ch + ("\ufe0f" if cp < 0x1F000 else ""), "n": (name + " " + alias[name]) if name in alias else name})
+dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "emoji.json")
+json.dump(out, open(dest, "w"), ensure_ascii=False, separators=(",", ":"))
+print(len(out), "emoji", file=sys.stderr)

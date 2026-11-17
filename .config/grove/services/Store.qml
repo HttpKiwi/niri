@@ -25,7 +25,7 @@ Singleton {
         save();
     }
     function remember(n) {
-        history = [{ id: n.id, app: n.appName, summary: n.summary, body: n.body, time: Date.now() }]
+        history = [{ id: n.id, app: n.appName, icon: n.appIcon, summary: n.summary, body: n.body, time: Date.now() }]
             .concat(history).slice(0, Tune.historyMax);
         save();
     }

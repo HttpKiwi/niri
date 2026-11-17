@@ -288,7 +288,8 @@ binds {
     Mod+Return { spawn "kitty"; }
     Super+Space hotkey-overlay-title="Open Application Launcher" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "appLauncher" "toggleLauncher"; }
     Super+N hotkey-overlay-title="Open Notifications" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "menu" "toggle" "inbox"; }
-    Super+P hotkey-overlay-title="Open Phone Panel" { spawn "qs" "ipc" "call" "phone" "toggle"; }
+    Super+P hotkey-overlay-title="Open Phone" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "menu" "toggle" "phone"; }
+    Super+Period hotkey-overlay-title="Emoji" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "menu" "toggle" "emoji"; }
     Super+V hotkey-overlay-title="Open the Clipboard History" { spawn "/home/httpkiwi/.config/grove/bin/grove" "ipc" "appLauncher" "toggleClipboard"; } 
     Super+E {spawn "bash" "-c" "BEMOJI_PICKER_CMD=\"fuzzel -d\" bemoji";}
     Super+B {spawn "zen-browser"; }

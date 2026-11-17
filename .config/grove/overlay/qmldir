@@ -9,3 +9,5 @@ Frame 1.0 Frame.qml
 StatusLights 1.0 StatusLights.qml
 WallPicker 1.0 WallPicker.qml
 Inbox 1.0 Inbox.qml
+Phone 1.0 Phone.qml
+Emoji 1.0 Emoji.qml

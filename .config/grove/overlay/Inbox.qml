@@ -22,7 +22,7 @@ FocusScope {
         Store.history.forEach((h, i) => {
             const app = h.app || "Other";
             if (!m.has(app)) m.set(app, []);
-            m.get(app).push({ app, index: i, id: h.id, title: h.summary || app,
+            m.get(app).push({ app, index: i, id: h.id, icon: Tools.iconUrl(h.icon, app), title: h.summary || app,
                               body: (h.body ?? "").replace(/\s+/g, " "), time: h.time });
         });
         return m;
@@ -37,6 +37,7 @@ FocusScope {
         return out;
     }
     function total(app) { return groups.get(app)?.length ?? 0; }
+    function appIcon(app) { return groups.get(app)?.find(n => n.icon)?.icon ?? ""; }
 
     onOpenChanged: {
         if (!open) return;
@@ -126,8 +127,18 @@ FocusScope {
             required property string section
             width: ListView.view.width
             height: 34
-            Text {
+            Image {
+                id: headIcon
                 x: 12
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 4
+                width: 16; height: 16
+                source: root.appIcon(head.section)
+                sourceSize: Qt.size(32, 32)
+                visible: status === Image.Ready
+            }
+            Text {
+                x: headIcon.visible ? 34 : 12
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 5
                 text: head.section.toUpperCase() + " · " + root.total(head.section)
@@ -149,10 +160,36 @@ FocusScope {
             radius: 14
             color: on ? Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.09) : "transparent"
 
+            // the app's icon, or a bell
+            Rectangle {
+                id: rowIcon
+                visible: !row.modelData.more
+                x: 12
+                anchors.verticalCenter: parent.verticalCenter
+                width: 34; height: 34
+                topLeftRadius: 13; topRightRadius: 16; bottomRightRadius: 14; bottomLeftRadius: 15
+                color: img.status === Image.Ready ? "transparent" : Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.16)
+                Image {
+                    id: img
+                    anchors.fill: parent
+                    source: row.modelData.icon ?? ""
+                    sourceSize: Qt.size(68, 68)
+                    asynchronous: true
+                    visible: status === Image.Ready
+                }
+                Text {
+                    anchors.centerIn: parent
+                    visible: img.status !== Image.Ready
+                    text: "notifications"
+                    font.family: Tune.iconFont
+                    font.pixelSize: 18
+                    color: Tune.sun
+                }
+            }
             // a notification
             Column {
                 visible: !row.modelData.more
-                x: 14
+                x: 56
                 width: parent.width - x - time.width - 24
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 1
@@ -187,7 +224,7 @@ FocusScope {
             // "show more"
             Text {
                 visible: !!row.modelData.more
-                x: 14
+                x: 56
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Show " + row.modelData.more + " more"
                 font.family: Tune.uiFont
