@@ -123,6 +123,7 @@ Item {
             { key: "t:color", title: "Pick a colour", sub: "Copies the hex value", kind: "Tool", glyph: "colorize", keys: "color colour picker hex", act: () => Tools.pickColor() },
             { key: "t:rec", title: Recorder.recording ? "Stop recording" : "Record the screen", sub: Recorder.recording ? Recorder.elapsedText : "Super+Shift+R · on the Intel iGPU", kind: "Tool", glyph: Recorder.recording ? "stop_circle" : "screen_record", keys: "record video capture", act: () => Recorder.toggle(Niri.focusedOutput) },
             { key: "t:mode", title: Wallpaper.mode === "dark" ? "Switch to light mode" : "Switch to dark mode", sub: "Other apps follow, through matugen", kind: "Tool", glyph: Wallpaper.mode === "dark" ? "light_mode" : "dark_mode", keys: "theme light dark mode appearance", act: () => Wallpaper.setMode(Wallpaper.mode === "dark" ? "light" : "dark") },
+            { key: "t:caf", title: Caffeine.enabled ? "Keep awake: turn off" : "Keep awake: turn on", sub: Caffeine.enabled ? "Never locking or sleeping" : "Stop the auto-lock and suspend", kind: "Tool", glyph: "coffee", keys: "caffeine awake idle inhibit sleep lock", act: () => Caffeine.toggle() },
             { key: "t:eye", title: Store.prefs.eye ? "Eye comfort: turn off" : "Eye comfort: turn on", sub: "Warm screen colour (wlsunset)", kind: "Tool", glyph: "visibility", keys: "eye strain night light warm filter blue", act: () => Store.setPref("eye", !Store.prefs.eye) },
             { key: "t:ph:day", title: "Wallpaper: day", sub: Ambience.forcedPhase === "day" ? "Chosen" : "Bright, pollen in the light", kind: "Tool", glyph: "wb_sunny", keys: "mood atmosphere time of day light", act: () => Ambience.setPhase("day") },
             { key: "t:ph:golden", title: "Wallpaper: golden hour", sub: Ambience.forcedPhase === "golden" ? "Chosen" : "Warm, low sun", kind: "Tool", glyph: "wb_twilight", keys: "mood atmosphere time of day sunset", act: () => Ambience.setPhase("golden") },
@@ -155,6 +156,8 @@ Item {
     }
     function system() {
         return [
+            { key: "s:win", title: "Reboot to Windows", sub: "Next boot only, then back to Linux", glyph: "desktop_windows", keys: "windows dual boot restart", confirm: true, act: () => Quickshell.execDetached(["sh", "-c",
+                'n=$(efibootmgr | sed -n "s/^Boot\\([0-9A-Fa-f]*\\)\\*\\? Windows Boot Manager.*/\\1/p" | head -n1); [ -n "$n" ] && pkexec efibootmgr -n "$n" && systemctl reboot']) },
             { key: "s:suspend", title: "Suspend", sub: "Sleep now", glyph: "bedtime", keys: "sleep", act: () => Quickshell.execDetached(["systemctl", "suspend"]) },
             { key: "s:logout", title: "Log out", sub: "Quit niri", glyph: "logout", keys: "exit quit", confirm: true, act: () => Quickshell.execDetached(["niri", "msg", "action", "quit", "--skip-confirmation"]) },
             { key: "s:reboot", title: "Restart", sub: "", glyph: "restart_alt", keys: "reboot", confirm: true, act: () => Quickshell.execDetached(["systemctl", "reboot"]) },

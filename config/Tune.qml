@@ -96,6 +96,10 @@ Singleton {
     readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
     readonly property int nightFps: 24        // while fireflies are out (they read choppy at 8)
 
+    // Idle: lock after this many seconds, suspend this many seconds after locking
+    readonly property int idleLock: 300
+    readonly property int idleSleep: 600
+
     // Eye comfort filter: wlsunset's warm temperature, kelvin (lower = warmer)
     readonly property int eyeTemp: 4000
 

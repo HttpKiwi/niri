@@ -10,3 +10,4 @@ singleton Ui 1.0 Ui.qml
 singleton Tools 1.0 Tools.qml
 singleton Status 1.0 Status.qml
 singleton Eye 1.0 Eye.qml
+singleton Caffeine 1.0 Caffeine.qml

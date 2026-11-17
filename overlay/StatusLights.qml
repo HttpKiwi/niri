@@ -23,6 +23,7 @@ Item {
             out.push({ alarm: alarm(1 - Status.battery / 100), level: 0.9, text: "Headset " + Status.battery + "%" });
         out.push({ alarm: alarm(Math.max(Status.cpu, Status.ram)), level: 0.9,
                    text: "CPU " + Math.round(Status.cpu * 100) + "% · RAM " + Math.round(Status.ram * 100) + "%" });
+        if (Caffeine.enabled) out.push({ amber: true, alarm: 0, level: 0.95, text: "Keeping awake" });
         return out;
     }
 
@@ -37,7 +38,7 @@ Item {
             required property int index
             // by index, so delegates (and their hover state) survive value updates
             readonly property var modelData: root.entries[index] ?? ({})
-            readonly property color tint: Qt.rgba(1 - 0.08 * modelData.alarm, 0.98 - 0.62 * modelData.alarm,
+            readonly property color tint: modelData.amber ? Tune.ember : Qt.rgba(1 - 0.08 * modelData.alarm, 0.98 - 0.62 * modelData.alarm,
                                                   0.9 - 0.62 * modelData.alarm, 1)
             width: root.width
             height: Tune.statusSpacing

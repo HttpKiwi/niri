@@ -17,6 +17,7 @@ ShellRoot {
     Component.onCompleted: Eye.toString()
 
     Lock { id: lock }
+    Awake { lock: lock }
 
     Variants {
         model: Quickshell.screens
@@ -116,6 +117,15 @@ ShellRoot {
         // clear | rain | auto
         function setWeather(weather: string): void { Ambience.forcedWeather = weather === "auto" ? "" : weather; }
         function get(): string { return Ambience.phase + " " + Ambience.weather + " sun " + Ambience.sun.rise.toFixed(2) + "-" + Ambience.sun.set.toFixed(2); }
+    }
+
+    IpcHandler {
+        target: "caffeine"
+
+        function toggle(): void { Caffeine.toggle(); }
+        function enable(): void { Caffeine.enabled = true; }
+        function disable(): void { Caffeine.enabled = false; }
+        function isEnabled(): bool { return Caffeine.enabled; }
     }
 
     IpcHandler {
