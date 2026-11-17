@@ -11,6 +11,7 @@ import qs.components.base
 import qs.components.indicators
 import qs.features.notifications
 import qs.features.osd
+import qs.features.phone
 import qs.features.wallpaper
 import qs.features.controlcenter
 import qs.features.settings
@@ -65,7 +66,7 @@ Scope {
             exclusiveZone: topBar.implicitHeight - 5
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: "quickshell:unifiedBar"
-            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings || window.panelState.calendar) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: window.panelState && (window.panelState.launcher || window.panelState.wallpaper || window.panelState.controlCenter || window.panelState.settings || window.panelState.calendar || window.panelState.phone) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             visible: true
 
             screen: modelData || Quickshell.screens[0]
@@ -437,6 +438,32 @@ Scope {
             }
             readonly property Item controlCenterPanel: controlCenterPanelLoader.item ? controlCenterPanelLoader.item.panel : null
 
+            // Phone (NectarLink) — left twin of the control center, same latch
+            Loader {
+                id: phonePanelLoader
+                anchors.fill: parent
+                z: 1
+                readonly property bool wanted: window.panelState ? window.panelState.phone : false
+                property bool keep: false
+                onWantedChanged: if (wanted) keep = true
+                Component.onCompleted: if (wanted) keep = true
+                active: keep
+                sourceComponent: Item {
+                    property alias panel: inner
+                    PhonePanel {
+                        id: inner
+                        panelState: window.panelState
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.topMargin: Settings.barHeight
+                        anchors.bottomMargin: Settings.screenBorderWidth
+                        anchors.leftMargin: Settings.screenBorderWidth
+                    }
+                }
+            }
+            readonly property Item phonePanel: phonePanelLoader.item ? phonePanelLoader.item.panel : null
+
             // Built on first open, then kept: most panels are never opened on the
             // second monitor, and each costs 6–17 MB there. The wrapper fills the
             // window so the panel's x/y stay window-relative (PocketFrame, masks).
@@ -500,6 +527,7 @@ Scope {
                 // Lazy panels: bind, they appear on first open
                 pocketFrame.wallpaperPanel = Qt.binding(() => window.wallpaperPanel);
                 pocketFrame.controlCenterPanel = Qt.binding(() => window.controlCenterPanel);
+                pocketFrame.phonePanel = Qt.binding(() => window.phonePanel);
                 pocketFrame.settingsPanel = Qt.binding(() => window.settingsPanel);
                 pocketFrame.calendarPanel = Qt.binding(() => window.calendarPanel);
             }
@@ -510,6 +538,9 @@ Scope {
                     fill: parent
                     topMargin: Settings.barHeight
                     leftMargin: Settings.screenBorderWidth
+                        + (window.panelState && window.panelState.phone && window.phonePanel
+                            ? window.phonePanel.width
+                            : 0)
                     rightMargin: Settings.screenBorderWidth
                         + (window.panelState && window.panelState.controlCenter
                             ? Settings.controlCenterWidth

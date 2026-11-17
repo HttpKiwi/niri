@@ -17,6 +17,7 @@ Item {
     property Item osdPanel: null
     property Item wallpaperPanel: null
     property Item controlCenterPanel: null
+    property Item phonePanel: null
     property Item settingsPanel: null
     property Item calendarPanel: null
     readonly property real blobMargin: 50
@@ -117,6 +118,22 @@ Item {
             stiffness: 200
             damping: 60
             visible: controlCenterPanel ? controlCenterPanel.pocketActive : false
+        }
+
+        // Phone — flush with the left frame (mirror of the control center)
+        BlobRect {
+            group: blobGroup
+            x: phonePanel ? phonePanel.visualX + blobMargin - Settings.screenBorderWidth : 0
+            y: phonePanel ? phonePanel.visualY + blobMargin : 0
+            width: phonePanel && phonePanel.pocketActive
+                ? phonePanel.visualW + Settings.screenBorderWidth
+                : 0
+            height: phonePanel && phonePanel.pocketActive ? phonePanel.visualH : 0
+            radius: Settings.screenCornerRadius
+            deformScale: phonePanel && phonePanel.pocketActive ? 0.00001 : 0
+            stiffness: 200
+            damping: 60
+            visible: phonePanel ? phonePanel.pocketActive : false
         }
 
         // Settings / calendar drop from the top: reach into the bar chrome so the SDF merges

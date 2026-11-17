@@ -16,8 +16,17 @@ QtObject {
     property bool controlCenter: false
     property bool settings: false
     property bool calendar: false
+    property bool phone: false
 
     signal flagsChanged()
+
+    onPhoneChanged: {
+        if (root.phone) {
+            root.settings = false;
+            root.calendar = false;
+        }
+        flagsChanged();
+    }
 
     onLauncherChanged: {
         if (root.launcher) {
@@ -53,6 +62,7 @@ QtObject {
             root.clipboard = false;
             root.controlCenter = false;
             root.calendar = false;
+            root.phone = false;
         }
         flagsChanged();
     }
@@ -64,6 +74,7 @@ QtObject {
             root.clipboard = false;
             root.controlCenter = false;
             root.settings = false;
+            root.phone = false;
         }
         flagsChanged();
     }

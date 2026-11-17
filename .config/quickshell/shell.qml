@@ -89,6 +89,16 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "phone"
+
+        function toggle() {
+            const state = PanelStates.forName(Niri.focused_output_name);
+            if (!state) return;
+            state.phone = !state.phone;
+        }
+    }
+
+    IpcHandler {
         target: "wallpaperSelector"
 
         function toggleSelector() {
@@ -200,6 +210,11 @@ ShellRoot {
 
     IpcHandler {
         target: "notifications"
+
+        // Notifications still held in memory (tracked, with their images)
+        function liveCount(): int {
+            return Object.keys(NotificationService.liveById).length;
+        }
 
         function dismissFocused() {
             NotificationKeyboard.dismissFocusedPopup()
