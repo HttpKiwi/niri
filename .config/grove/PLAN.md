@@ -31,7 +31,7 @@ v1 stays untouched in `~/Projects/niri/.config/quickshell` (stowed to `~/.config
 | Shelling out and polling | ~25 `Process` objects, 1 s pollers | Native services: Pipewire, Mpris, Notifications server, Niri event stream. `Process` only for one-shot tools (qalc, tesseract, zbarimg, grim/slurp) |
 | C++ blob plugin | Out-of-tree build, RPATH, Qt-version rebuilds | No plugins. Organic shapes from one `pebble.frag` ShaderEffect (SDF + grain) |
 | Wallpaper scaling | Qt ignores `sourceSize` with a clip rect; portrait walls had gaps | `sourceSize` + `PreserveAspectCrop`, never both clip and size. ffprobe decides still vs video |
-| Reload gotchas | qs watches inodes; `sed -i`/`git checkout` broke the watch | Dev runs with `qs -p ~/Projects/grove/shell.qml`; `bin/grove reload` forces a reload |
+| Reload gotchas | qs watches inodes; `sed -i`/`git checkout` broke the watch | Dev runs with `qs -p ~/.config/grove/shell.qml`; `bin/grove reload` forces a reload |
 | Memory creep | 343 MB heap / 84 threads before fixes; v1 fresh 375–470 MB RSS, 51 threads | Budget: **< 375 MB RSS (v1's best fresh), < 1 % idle CPU**, no growth over a day; checked every phase |
 
 Keep from v1 as-is: `mesa_glthread=false` in the spawn env; the recording pipeline
@@ -65,7 +65,7 @@ OSD, control center, calendar pocket, minimap, ring gauges, GIF search.
 
 Only one shell can own the notification server and the session lock, so they swap rather than run together.
 
-- `bin/grove on` — `qs kill` v1, start v2 with `qs -p ~/Projects/grove/shell.qml` (same env as niri's spawn line).
+- `bin/grove on` — `qs kill` v1, start v2 with `qs -p ~/.config/grove/shell.qml` (same env as niri's spawn line).
 - `bin/grove off` — kill v2, start v1 again.
 - niri needs `place-within-backdrop` for namespace `grove:backdrop` (in v1's `config.kdl`),
   or the wallpaper slides with workspaces and the overview has no backdrop.

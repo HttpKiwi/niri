@@ -9,7 +9,7 @@
 #   grove status    which shell runs, with RSS and threads
 set -euo pipefail
 
-V2="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/shell.qml"
+V2="$HOME/.config/grove/shell.qml"
 
 # Same environment niri's spawn line gives v1 (minus its plugin import path)
 ENV='export QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi; export mesa_glthread=false;'
