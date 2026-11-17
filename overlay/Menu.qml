@@ -122,13 +122,13 @@ Item {
             { key: "t:qrmake", title: "Clipboard as QR", sub: "Big enough for the phone camera", kind: "Tool", glyph: "qr_code_2", keys: "qr make clipboard", stay: true, act: () => Tools.qrFromClipboard() },
             { key: "t:color", title: "Pick a colour", sub: "Copies the hex value", kind: "Tool", glyph: "colorize", keys: "color colour picker hex", act: () => Tools.pickColor() },
             { key: "t:rec", title: Recorder.recording ? "Stop recording" : "Record the screen", sub: Recorder.recording ? Recorder.elapsedText : "Super+Shift+R · on the Intel iGPU", kind: "Tool", glyph: Recorder.recording ? "stop_circle" : "screen_record", keys: "record video capture", act: () => Recorder.toggle(Niri.focusedOutput) },
-            { key: "t:mode", title: Wallpaper.mode === "dark" ? "Switch to light mode" : "Switch to dark mode", sub: "Other apps follow, through matugen", kind: "Tool", glyph: Wallpaper.mode === "dark" ? "light_mode" : "dark_mode", keys: "theme light dark mode appearance", act: () => Wallpaper.setMode(Wallpaper.mode === "dark" ? "light" : "dark") },
-            { key: "t:caf", title: Caffeine.enabled ? "Keep awake: turn off" : "Keep awake: turn on", sub: Caffeine.enabled ? "Never locking or sleeping" : "Stop the auto-lock and suspend", kind: "Tool", glyph: "coffee", keys: "caffeine awake idle inhibit sleep lock", act: () => Caffeine.toggle() },
-            { key: "t:eye", title: Store.prefs.eye ? "Eye comfort: turn off" : "Eye comfort: turn on", sub: "Warm screen colour (wlsunset)", kind: "Tool", glyph: "visibility", keys: "eye strain night light warm filter blue", act: () => Store.setPref("eye", !Store.prefs.eye) },
-            { key: "t:ph:day", title: "Wallpaper: day", sub: Ambience.forcedPhase === "day" ? "Chosen" : "Bright, pollen in the light", kind: "Tool", glyph: "wb_sunny", keys: "mood atmosphere time of day light", act: () => Ambience.setPhase("day") },
-            { key: "t:ph:golden", title: "Wallpaper: golden hour", sub: Ambience.forcedPhase === "golden" ? "Chosen" : "Warm, low sun", kind: "Tool", glyph: "wb_twilight", keys: "mood atmosphere time of day sunset", act: () => Ambience.setPhase("golden") },
-            { key: "t:ph:night", title: "Wallpaper: evening", sub: Ambience.forcedPhase === "night" ? "Chosen" : "Dark, fireflies out", kind: "Tool", glyph: "bedtime", keys: "mood atmosphere time of day night", act: () => Ambience.setPhase("night") },
-            { key: "t:ph:auto", title: "Wallpaper: follow the sun", sub: Ambience.forcedPhase === "" ? "On · now " + Ambience.phase : "Back to sunrise and sunset", kind: "Tool", glyph: "schedule", keys: "mood atmosphere time of day automatic", act: () => Ambience.setPhase("auto") },
+            { key: "t:mode", title: "Light mode", toggle: Wallpaper.mode === "light", sub: "Off is dark. Other apps follow, through matugen", kind: "Tool", glyph: Wallpaper.mode === "dark" ? "light_mode" : "dark_mode", keys: "theme light dark mode appearance", act: () => Wallpaper.setMode(Wallpaper.mode === "dark" ? "light" : "dark") },
+            { key: "t:caf", title: "Keep awake", toggle: Caffeine.enabled, sub: Caffeine.enabled ? "Never locking or sleeping" : "Stop the auto-lock and suspend", kind: "Tool", glyph: "coffee", keys: "caffeine awake idle inhibit sleep lock", act: () => Caffeine.toggle() },
+            { key: "t:eye", title: "Eye comfort", toggle: Store.prefs.eye === true, sub: "Warm screen colour (wlsunset)", kind: "Tool", glyph: "visibility", keys: "eye strain night light warm filter blue", act: () => Store.setPref("eye", !Store.prefs.eye) },
+            { key: "t:ph:day", title: "Wallpaper: day", toggle: Ambience.forcedPhase === "day", sub: "Bright, pollen in the light", kind: "Tool", glyph: "wb_sunny", keys: "mood atmosphere time of day light", act: () => Ambience.setPhase("day") },
+            { key: "t:ph:golden", title: "Wallpaper: golden hour", toggle: Ambience.forcedPhase === "golden", sub: "Warm, low sun", kind: "Tool", glyph: "wb_twilight", keys: "mood atmosphere time of day sunset", act: () => Ambience.setPhase("golden") },
+            { key: "t:ph:night", title: "Wallpaper: evening", toggle: Ambience.forcedPhase === "night", sub: "Dark, fireflies out", kind: "Tool", glyph: "bedtime", keys: "mood atmosphere time of day night", act: () => Ambience.setPhase("night") },
+            { key: "t:ph:auto", title: "Wallpaper: follow the sun", toggle: Ambience.forcedPhase === "", sub: Ambience.forcedPhase === "" ? "Now " + Ambience.phase : "Back to sunrise and sunset", kind: "Tool", glyph: "schedule", keys: "mood atmosphere time of day automatic", act: () => Ambience.setPhase("auto") },
             { key: "t:wall", title: "Wallpapers", sub: "Pick a background", kind: "Tool", glyph: "wallpaper", keys: "wallpaper background change", stay: true, act: () => Ui.open(Niri.focusedOutput, "wallpapers") },
             { key: "t:inbox", title: "Notifications", sub: "What you missed", kind: "Tool", glyph: "notifications", keys: "inbox notifications messages", stay: true, act: () => Ui.open(Niri.focusedOutput, "inbox") },
             { key: "t:recr", title: "Record a region", sub: "Drag to choose", kind: "Tool", glyph: "crop", keys: "record region video", act: () => Recorder.startRegion() }
@@ -394,6 +394,7 @@ Item {
                 required property var modelData
                 required property int index
                 readonly property bool isHeader: !!modelData.header
+                readonly property bool hasToggle: !isHeader && modelData.toggle !== undefined
                 readonly property bool on: !isHeader && index === root.sel
                 width: ListView.view.width
                 height: isHeader ? 26 : 46
@@ -439,7 +440,7 @@ Item {
                 Column {
                     visible: !row.isHeader
                     x: 50
-                    width: parent.width - x - kind.width - 22
+                    width: parent.width - x - kind.width - 22 - (row.hasToggle ? 60 : 0)
                     anchors.verticalCenter: parent.verticalCenter
                     Text {
                         width: parent.width
@@ -460,13 +461,32 @@ Item {
                         elide: Text.ElideRight
                     }
                 }
+                // an on/off switch for anything that holds a state
+                Rectangle {
+                    visible: row.hasToggle
+                    anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                    width: 46; height: 24; radius: 12
+                    readonly property bool on: row.hasToggle && !!row.modelData.toggle
+                    color: on ? Qt.rgba(Tune.sun.r, Tune.sun.g, Tune.sun.b, 0.9) : Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.14)
+                    border.width: 1
+                    border.color: on ? "transparent" : Qt.rgba(Tune.parch.r, Tune.parch.g, Tune.parch.b, 0.22)
+                    Behavior on color { ColorAnimation { duration: 180 } }
+                    Rectangle {
+                        width: 18; height: 18; radius: 9
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: parent.on ? parent.width - width - 3 : 3
+                        color: parent.on ? Tune.moss : Tune.parch
+                        opacity: parent.on ? 1 : 0.7
+                        Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                    }
+                }
                 Text {
                     id: kind
                     visible: !row.isHeader
                     anchors.right: parent.right
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    text: row.isHeader ? "" : (row.modelData.kind ?? "")
+                    text: row.isHeader || row.hasToggle ? "" : (row.modelData.kind ?? "")
                     font.family: Tune.uiFont
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
