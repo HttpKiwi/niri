@@ -1,0 +1,123 @@
+pragma Singleton
+
+import QtQuick
+import Quickshell
+
+/**
+ * Tune - every knob in the shell. No settings UI: edit this file.
+ */
+Singleton {
+    readonly property string home: Quickshell.env("HOME")
+
+    // Wallpaper: shared with v1 so both shells show the same one
+    readonly property string wallpapersDir: home + "/Pictures/Wallpapers"
+    readonly property string currentWallpaperFile: wallpapersDir + "/current_wallpaper.json"
+    // Other apps follow the wallpaper through v1's matugen cache script (also tints the pebble)
+    readonly property string matugenScript: home + "/.config/quickshell/scripts/matugen-cache.sh"
+    readonly property string matugenColors: home + "/.config/quickshell/common/Colors.json"
+    readonly property string fallbackWallpaper: wallpapersDir + "/wallhaven-exjy6w_1920x1080.png"
+
+    // Type (Fraunces / Nunito are the design faces; Noto until they're installed)
+    readonly property string displayFont: "Noto Serif"
+    readonly property string uiFont: "Noto Sans"
+    readonly property string iconFont: "Material Symbols Rounded"
+
+    // Palette (sampled from the forest mockup; matugen takes over later)
+    readonly property color sun: "#c9dc7c"      // lime of a sunlit clearing
+    readonly property color ember: "#f0c36a"    // fireflies, night accent
+    readonly property color parch: "#ece6d3"    // warm light text
+    readonly property color moss: "#1b2824"     // chrome surface
+
+    // Workspace lights (left edge)
+    readonly property int lightSize: 16         // idle workspace
+    readonly property int lightActive: 26       // where you are
+    readonly property int lightSpacing: 34
+    readonly property real lightDrift: 1.5        // px of float
+
+    // The left strip: reserved (windows never go under it) and the overlay's width at rest
+    readonly property int stripWidth: 30
+    // the gap niri leaves beside the strip counts as empty space too: centre things in strip + gap
+    readonly property int niriGap: 12
+    readonly property int stripSpan: stripWidth + niriGap
+
+    // Status lights above the seed: volume, headset battery, resources
+    readonly property int statusSize: 14
+    readonly property int statusSpacing: 22
+    readonly property int statusPoll: 4000      // ms, cpu/ram
+    readonly property int batteryPoll: 60000
+
+    // Island seed (bottom-left)
+    readonly property int seedSize: 24
+    readonly property int seedMargin: 8
+
+    // Island faces (grow right from the seed)
+    readonly property int pillHeight: 36
+    readonly property int islandMaxWidth: 460   // overlay widens to this while a face shows
+    readonly property int volumeHold: 1800      // ms
+    readonly property int messageHold: 4200
+    readonly property int urgentHold: 9000
+    readonly property int maxMotes: 5
+
+    // Menu (the island grown into a pebble)
+    readonly property int menuWidth: 640
+    readonly property int inboxWidth: 460
+    readonly property int inboxHeight: 580
+    readonly property int wallWidth: 760
+    readonly property int wallHeight: 330
+    readonly property int menuHeight: 480
+    readonly property int menuRows: 8
+    // The main search shows a few per category, not everything that matches
+    readonly property int limitAppsTools: 4
+    readonly property int limitWindows: 2
+    readonly property int limitPhone: 2
+    readonly property int limitInboxGroup: 3   // per app in the inbox, until you expand it
+    readonly property real scrimOpacity: 0.3
+
+    // Saved state and lists
+    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || home + "/.local/state") + "/grove/state.json"
+    readonly property int historyMax: 60
+    readonly property int clipMax: 60
+    readonly property string nectarlinkData: home + "/.local/share/Nectarlink"
+
+    // Recording: capture with wf-recorder, encode on the Intel iGPU, never the RX 580 (VCE hangs it)
+    readonly property string encodeDevice: "/dev/dri/by-path/pci-0000:00:02.0-render"
+    readonly property string recordingsDir: home + "/Videos/Recordings"
+    readonly property int recordFps: 60
+
+    // Vignette over the wallpaper (helps the lights and island stand out)
+    readonly property real vignette: 1.0
+    readonly property int vignetteLeftPx: 170
+
+    // Motion
+    readonly property int fadeSlow: 700
+    readonly property int settle: 650           // springy size/position changes
+    readonly property int gradeFade: 2500     // time-of-day transitions
+    readonly property int busyFps: 30         // while the island is out of its seed
+    readonly property int lifeFps: 8          // shafts, pollen, fireflies, rain
+    readonly property int gapFps: 5           // windows open: the backdrop only shows in the gaps
+    readonly property int nightFps: 24        // while fireflies are out (they read choppy at 8)
+
+    // Idle: lock after this many seconds, suspend this many seconds after locking
+    readonly property int idleLock: 300
+    readonly property int idleSleep: 600
+
+    // Eye comfort filter: wlsunset's warm temperature, kelvin (lower = warmer)
+    readonly property int eyeTemp: 4000
+
+    // Screen frame: rounded black corners
+    readonly property int frameRadius: 16
+
+    // Where the sun is (Bogotá; the system timezone is America/Bogota). Phases follow it.
+    readonly property real latitude: 4.71
+    readonly property real longitude: -74.07
+    readonly property real goldenBefore: 1.25  // hours of golden light before sunset
+    readonly property real nightAfter: 0.4     // night starts this long after sunset
+    readonly property real dayBefore: 0.1      // day starts this long before sunrise
+
+    // What each time of day looks like
+    readonly property var grades: ({
+        day:    { warm: "#ffaa46", warmAmt: 0.0,  cool: "#ffffff", coolAmt: 0.0,  shafts: 1.0,  pollen: 1.0, fireflies: 0.0, clockNight: 0.0 },
+        golden: { warm: "#ffa040", warmAmt: 0.55, cool: "#ffffff", coolAmt: 0.0,  shafts: 0.8,  pollen: 0.8, fireflies: 0.0, clockNight: 0.0 },
+        night:  { warm: "#ffaa46", warmAmt: 0.0,  cool: "#081028", coolAmt: 0.72, shafts: 0.12, pollen: 0.0, fireflies: 1.0, clockNight: 1.0 }
+    })
+}
